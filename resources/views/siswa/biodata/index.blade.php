@@ -45,10 +45,18 @@
                         <div><h2 class="font-bold text-slate-900">Alamat</h2><p class="text-sm text-slate-500">Alamat domisili saat ini.</p></div>
                     </div>
                     <div class="grid gap-4 md:grid-cols-2">
-                        <x-form.input name="province" label="Provinsi" :value="old('province', $profile?->province)" />
-                        <x-form.input name="city" label="Kota / Kabupaten" :value="old('city', $profile?->city)" />
-                        <x-form.input name="district" label="Kecamatan" :value="old('district', $profile?->district)" />
-                        <x-form.input name="village" label="Kelurahan / Desa" :value="old('village', $profile?->village)" />
+                        <x-form.select name="province" label="Provinsi" class="select2" data-region-select="province" :data-initial="old('province', $profile?->province)" data-placeholder="Pilih provinsi">
+                            <option value="">Memuat provinsi...</option>
+                        </x-form.select>
+                        <x-form.select name="city" label="Kota / Kabupaten" class="select2" data-region-select="city" :data-initial="old('city', $profile?->city)" data-placeholder="Pilih kabupaten/kota" disabled>
+                            <option value="">Pilih kabupaten/kota</option>
+                        </x-form.select>
+                        <x-form.select name="district" label="Kecamatan" class="select2" data-region-select="district" :data-initial="old('district', $profile?->district)" data-placeholder="Pilih kecamatan" disabled>
+                            <option value="">Pilih kecamatan</option>
+                        </x-form.select>
+                        <x-form.select name="village" label="Kelurahan / Desa" class="select2" data-region-select="village" :data-initial="old('village', $profile?->village)" data-placeholder="Pilih kelurahan/desa" disabled>
+                            <option value="">Pilih kelurahan/desa</option>
+                        </x-form.select>
                         <x-form.input name="postal_code" label="Kode Pos" :value="old('postal_code', $profile?->postal_code)" />
                         <x-form.textarea name="address" label="Alamat Lengkap" class="md:col-span-2" :value="old('address', $profile?->address)" />
                     </div>
@@ -67,7 +75,12 @@
                             @if ($type !== 'guardian')
                                 <x-form.input name="{{ $type }}[occupation]" label="Pekerjaan" :value="old($type.'.occupation', $parent?->occupation)" />
                                 <x-form.input name="{{ $type }}[education]" label="Pendidikan Terakhir" :value="old($type.'.education', $parent?->education)" />
-                                <x-form.input name="{{ $type }}[income_range]" label="Rentang Penghasilan" :value="old($type.'.income_range', $parent?->income_range)" />
+                                <x-form.select name="{{ $type }}[income_range]" label="Rentang Penghasilan">
+                                    <option value="">Pilih rentang penghasilan</option>
+                                    @foreach (['< Rp1 juta', 'Rp1 juta - Rp3 juta', 'Rp3 juta - Rp5 juta', 'Rp5 juta - Rp10 juta', '> Rp10 juta', 'Tidak berpenghasilan'] as $incomeRange)
+                                        <option value="{{ $incomeRange }}" @selected(old($type.'.income_range', $parent?->income_range) === $incomeRange)>{{ $incomeRange }}</option>
+                                    @endforeach
+                                </x-form.select>
                             @else
                                 <x-form.input name="{{ $type }}[relation]" label="Hubungan dengan Siswa" :value="old($type.'.relation', $parent?->relation)" />
                             @endif

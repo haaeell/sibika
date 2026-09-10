@@ -41,6 +41,119 @@ window.initSelect2 = function (scope = document) {
     });
 };
 
+window.initRegionSelects = function (scope = document) {
+    const province = $(scope).find('[data-region-select="province"]')[0];
+    const city = $(scope).find('[data-region-select="city"]')[0];
+    const district = $(scope).find('[data-region-select="district"]')[0];
+    const village = $(scope).find('[data-region-select="village"]')[0];
+
+    if (!province || !city || !district || !village) {
+        return;
+    }
+
+    const endpoints = {
+        province: '/regions/provinces',
+        city: (code) => `/regions/regencies/${code}`,
+        district: (code) => `/regions/districts/${code}`,
+        village: (code) => `/regions/villages/${code}`,
+    };
+
+    const setLoading = function (select, loading) {
+        $(select).prop('disabled', loading).trigger('change.select2');
+    };
+
+    const reset = function (select, placeholder) {
+        $(select).empty().append(new Option(placeholder, '')).val('').prop('disabled', true).trigger('change');
+    };
+
+    const selectedCode = function (select) {
+        return $(select).find('option:selected').data('region-code') || '';
+    };
+
+    const loadOptions = async function (select, url, placeholder, initialName = '', triggerChange = true) {
+        setLoading(select, true);
+        $(select).empty().append(new Option('Memuat...', ''));
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Wilayah gagal dimuat');
+
+            const payload = await response.json();
+            const items = payload.data || [];
+            $(select).empty().append(new Option(placeholder, ''));
+            items.forEach((item) => {
+                const option = new Option(item.name, item.name);
+                option.dataset.regionCode = item.code;
+                $(select).append(option);
+            });
+            setLoading(select, false);
+
+            const selected = items.find((item) => item.name === initialName);
+            if (selected) {
+                $(select).val(selected.name);
+
+                if (triggerChange) {
+                    $(select).trigger('change');
+                } else {
+                    $(select).trigger('change.select2');
+                }
+            }
+
+            return selected?.code || '';
+        } catch (error) {
+            $(select).empty().append(new Option('Gagal memuat data wilayah', '')).val('').prop('disabled', true).trigger('change');
+            return '';
+        }
+    };
+
+    reset(city, 'Pilih kabupaten/kota');
+    reset(district, 'Pilih kecamatan');
+    reset(village, 'Pilih kelurahan/desa');
+
+    $(province).on('change', async function () {
+        reset(district, 'Pilih kecamatan');
+        reset(village, 'Pilih kelurahan/desa');
+
+        if (selectedCode(this)) {
+            await loadOptions(city, endpoints.city(selectedCode(this)), 'Pilih kabupaten/kota');
+        } else {
+            reset(city, 'Pilih kabupaten/kota');
+        }
+    });
+
+    $(city).on('change', async function () {
+        reset(village, 'Pilih kelurahan/desa');
+
+        if (selectedCode(this)) {
+            await loadOptions(district, endpoints.district(selectedCode(this)), 'Pilih kecamatan');
+        } else {
+            reset(district, 'Pilih kecamatan');
+        }
+    });
+
+    $(district).on('change', function () {
+        reset(village, 'Pilih kelurahan/desa');
+
+        if (selectedCode(this)) {
+            loadOptions(village, endpoints.village(selectedCode(this)), 'Pilih kelurahan/desa');
+        }
+    });
+
+    const initialProvince = province.dataset.initial || '';
+    const initialCity = city.dataset.initial || '';
+    const initialDistrict = district.dataset.initial || '';
+    const initialVillage = village.dataset.initial || '';
+
+    loadOptions(province, endpoints.province, 'Pilih provinsi', initialProvince, false).then(async (provinceCode) => {
+        if (!provinceCode) return;
+        const cityCode = await loadOptions(city, endpoints.city(provinceCode), 'Pilih kabupaten/kota', initialCity, false);
+        if (!cityCode) return;
+        const districtCode = await loadOptions(district, endpoints.district(cityCode), 'Pilih kecamatan', initialDistrict, false);
+        if (!districtCode) return;
+        await loadOptions(village, endpoints.village(districtCode), 'Pilih kelurahan/desa', initialVillage, false);
+    });
+};
+
 window.initDataTable = function (selector, options = {}) {
     return $(selector).DataTable({
         processing: true,
@@ -142,6 +255,7 @@ window.setButtonLoading = function (button, loading, text = 'Memproses...') {
 
 $(function () {
     initSelect2();
+    initRegionSelects();
 
     $('.datepicker').each(function () {
         flatpickr(this, {

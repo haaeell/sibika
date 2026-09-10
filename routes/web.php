@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,6 +14,7 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::get('/regions/{resource}/{code?}', RegionController::class)->middleware('auth')->name('regions.index');
 Route::view('/dashboard', 'pages.dashboard')->middleware('auth')->name('dashboard');
 
 require __DIR__.'/admin.php';
