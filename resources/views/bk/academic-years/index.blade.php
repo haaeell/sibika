@@ -68,20 +68,6 @@
                 window.$('[data-table-filter]').on('change', function () {
                     window.$('#academic-year-table').DataTable().ajax.reload();
                 });
-
-                window.$(document).on('submit', '.js-delete-form', function (event) {
-                    event.preventDefault();
-
-                    window.confirmAction({
-                        title: 'Hapus tahun ajaran?',
-                        text: 'Data yang dihapus tidak bisa dikembalikan.',
-                        confirmText: 'Ya, hapus',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.submit();
-                        }
-                    });
-                });
             });
         </script>
     @endpush

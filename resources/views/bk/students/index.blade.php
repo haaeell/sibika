@@ -78,14 +78,6 @@
                 window.$('[data-table-filter]').on('change', function () {
                     window.$('#student-table').DataTable().ajax.reload();
                 });
-
-                window.$(document).on('submit', '.js-delete-form', function (event) {
-                    event.preventDefault();
-                    const form = this;
-                    window.confirmAction({ title: 'Hapus siswa?', text: 'Data yang dihapus tidak bisa dikembalikan.', confirmText: 'Ya, hapus' }).then((result) => {
-                        if (result.isConfirmed) form.submit();
-                    });
-                });
             });
         </script>
     @endpush

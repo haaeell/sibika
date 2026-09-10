@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\StudentBiodataController;
 use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\StudentScoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('siswa')
@@ -16,4 +17,7 @@ Route::prefix('siswa')
         Route::post('/biodata/documents', [StudentBiodataController::class, 'uploadDocument'])->name('biodata.documents.store');
         Route::get('/biodata/documents/{document}/download', [StudentBiodataController::class, 'downloadDocument'])->name('biodata.documents.download');
         Route::delete('/biodata/documents/{document}', [StudentBiodataController::class, 'destroyDocument'])->name('biodata.documents.destroy');
+        Route::get('/nilai', [StudentScoreController::class, 'index'])->name('scores.index');
+        Route::post('/nilai/save', [StudentScoreController::class, 'save'])->name('scores.save');
+        Route::post('/nilai/submit', [StudentScoreController::class, 'submit'])->name('scores.submit');
     });

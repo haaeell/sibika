@@ -33,7 +33,7 @@
             'label' => 'Akademik',
             'items' => [
                 ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
-                ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Setting Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('bk.score-subject-settings.index'), 'active' => request()->routeIs('bk.score-subject-settings.*')],
                 ['label' => 'TKA', 'icon' => 'fa-solid fa-book-open', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
@@ -94,7 +94,7 @@
             [
                 'label' => 'Akademik',
                 'items' => [
-                    ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                    ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('siswa.scores.index'), 'active' => request()->routeIs('siswa.scores.*')],
                 ],
             ],
         ];

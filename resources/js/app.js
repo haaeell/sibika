@@ -326,6 +326,22 @@ $(function () {
         $menu.toggleClass('hidden', isExpanded);
     });
 
+    $(document).on('submit', '.js-delete-form', function (event) {
+        event.preventDefault();
+
+        const form = this;
+
+        confirmAction({
+            title: form.dataset.confirmTitle || 'Hapus data?',
+            text: form.dataset.confirmText || 'Data yang dihapus tidak bisa dikembalikan.',
+            confirmText: form.dataset.confirmButton || 'Ya, hapus',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
     $(document).on('click', function (event) {
         if (!$(event.target).closest('.js-academic-year-toggle, [data-academic-year-menu]').length) {
             $('[data-academic-year-menu]').addClass('hidden');

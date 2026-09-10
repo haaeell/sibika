@@ -5,6 +5,7 @@ use App\Http\Controllers\CohortController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\SchoolClassController;
+use App\Http\Controllers\ScoreSubjectSettingController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentBiodataAdminController;
 use App\Http\Controllers\SubjectController;
@@ -39,4 +40,6 @@ Route::prefix('bk')
         Route::resource('majors', MajorController::class)->except('show');
         Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
         Route::resource('subjects', SubjectController::class)->except('show');
+        Route::get('score-subject-settings/data', [ScoreSubjectSettingController::class, 'data'])->name('score-subject-settings.data');
+        Route::resource('score-subject-settings', ScoreSubjectSettingController::class)->except('show');
     });

@@ -36,7 +36,6 @@
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, { data: 'code', name: 'code' }, { data: 'name', name: 'name' }, { data: 'category', name: 'category' }, { data: 'teachers', name: 'teachers' }, { data: 'is_active', name: 'is_active' }, { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
                 ], order: [[2, 'asc']] });
                 window.$('[data-table-filter]').on('change', function () { window.$('#subject-table').DataTable().ajax.reload(); });
-                window.$(document).on('submit', '.js-delete-form', function (event) { event.preventDefault(); const form = this; window.confirmAction({ title: 'Hapus mata pelajaran?', text: 'Mapel yang masih diampu guru tidak dapat dihapus.', confirmText: 'Ya, hapus' }).then((result) => { if (result.isConfirmed) form.submit(); }); });
             });
         </script>
     @endpush

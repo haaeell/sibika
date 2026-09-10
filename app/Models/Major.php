@@ -21,4 +21,6 @@ class Major extends Model
     {
         return $this->hasMany(SchoolClass::class);
     }
+
+    public function scoreSettings(): HasMany { return $this->hasMany(ScoreSubjectSetting::class); }
 }

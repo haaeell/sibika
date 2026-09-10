@@ -8,8 +8,8 @@
             <option value="{{ $value }}" @selected(old('grade_level', $schoolClass->grade_level) === $value)>{{ $label }}</option>
         @endforeach
     </x-form.select>
-    <x-form.select name="major_id" label="Jurusan" icon="fa-solid fa-book-open">
-        <option value="">Pilih jurusan</option>
+    <x-form.select name="major_id" label="Jurusan" icon="fa-solid fa-book-open" help="Kosongkan untuk kelas X. Wajib untuk kelas XI dan XII.">
+        <option value="">Tanpa jurusan</option>
         @foreach ($majors as $major)
             <option value="{{ $major->id }}" @selected((string) old('major_id', $schoolClass->major_id) === (string) $major->id)>{{ $major->name }} ({{ $major->code }})</option>
         @endforeach

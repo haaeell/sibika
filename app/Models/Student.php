@@ -43,4 +43,9 @@ class Student extends Model
     {
         return $this->hasMany(StudentDocument::class);
     }
+
+    public function scores(): HasMany
+    {
+        return $this->hasMany(StudentScore::class);
+    }
 }

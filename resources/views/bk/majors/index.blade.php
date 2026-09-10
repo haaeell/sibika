@@ -30,7 +30,6 @@
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, { data: 'code', name: 'code' }, { data: 'name', name: 'name' }, { data: 'classes', name: 'classes' }, { data: 'is_active', name: 'is_active' }, { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
                 ], order: [[2, 'asc']] });
                 window.$('[data-table-filter]').on('change', function () { window.$('#major-table').DataTable().ajax.reload(); });
-                window.$(document).on('submit', '.js-delete-form', function (event) { event.preventDefault(); const form = this; window.confirmAction({ title: 'Hapus jurusan?', text: 'Jurusan yang masih dipakai kelas tidak dapat dihapus.', confirmText: 'Ya, hapus' }).then((result) => { if (result.isConfirmed) form.submit(); }); });
             });
         </script>
     @endpush
