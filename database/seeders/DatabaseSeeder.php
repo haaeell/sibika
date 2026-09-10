@@ -18,6 +18,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             SuperAdminSeeder::class,
+            AcademicYearSeeder::class,
+            MajorSeeder::class,
+            SubjectSeeder::class,
+            CohortSeeder::class,
+            TeacherSeeder::class,
+            SchoolClassSeeder::class,
+            StudentSeeder::class,
         ]);
 
         // User::factory(10)->create();
