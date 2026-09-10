@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\CohortController;
+use App\Http\Controllers\MajorController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,4 +24,8 @@ Route::prefix('bk')
         Route::resource('teachers', TeacherController::class)->except('show');
         Route::get('students/data', [StudentController::class, 'data'])->name('students.data');
         Route::resource('students', StudentController::class)->except('show');
+        Route::get('majors/data', [MajorController::class, 'data'])->name('majors.data');
+        Route::resource('majors', MajorController::class)->except('show');
+        Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
+        Route::resource('subjects', SubjectController::class)->except('show');
     });

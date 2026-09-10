@@ -16,7 +16,8 @@ class StoreTeacherRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:teachers,email'],
             'phone' => ['nullable', 'string', 'max:30'],
             'status' => ['required', 'in:active,inactive'],
-            'subjects' => ['nullable', 'string', 'max:255'],
+            'subject_ids' => ['nullable', 'array'],
+            'subject_ids.*' => ['integer', 'exists:subjects,id'],
         ];
     }
 

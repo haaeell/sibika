@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
 use App\Models\Teacher;
+use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -19,10 +20,11 @@ class TeacherController extends Controller
 
     public function data(): JsonResponse
     {
-        return DataTables::eloquent(Teacher::query()->withCount('homeroomClasses')->latest())
+        return DataTables::eloquent(Teacher::query()->with('subjects')->withCount('homeroomClasses')->latest())
             ->addIndexColumn()
             ->editColumn('status', fn (Teacher $teacher) => $this->statusBadge($teacher->status))
             ->addColumn('classes', fn (Teacher $teacher) => $teacher->homeroom_classes_count)
+            ->addColumn('subjects_list', fn (Teacher $teacher) => $teacher->subjects->pluck('name')->join(', ') ?: '-')
             ->addColumn('action', fn (Teacher $teacher) => view('bk.teachers._actions', compact('teacher'))->render())
             ->rawColumns(['status', 'action'])
             ->toJson();
@@ -30,24 +32,38 @@ class TeacherController extends Controller
 
     public function create(): View
     {
-        return view('bk.teachers.create', ['teacher' => new Teacher()]);
+        return view('bk.teachers.create', [
+            'teacher' => new Teacher(),
+            'subjects' => Subject::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
     public function store(StoreTeacherRequest $request): RedirectResponse
     {
-        Teacher::create($request->validated());
+        $data = $request->validated();
+        $subjectIds = $data['subject_ids'] ?? [];
+        unset($data['subject_ids']);
+        $teacher = Teacher::create($data);
+        $teacher->subjects()->sync($subjectIds);
 
         return redirect()->route('bk.teachers.index')->with('success', 'Guru berhasil ditambahkan.');
     }
 
     public function edit(Teacher $teacher): View
     {
-        return view('bk.teachers.edit', compact('teacher'));
+        return view('bk.teachers.edit', [
+            'teacher' => $teacher->load('subjects'),
+            'subjects' => Subject::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
     public function update(UpdateTeacherRequest $request, Teacher $teacher): RedirectResponse
     {
-        $teacher->update($request->validated());
+        $data = $request->validated();
+        $subjectIds = $data['subject_ids'] ?? [];
+        unset($data['subject_ids']);
+        $teacher->update($data);
+        $teacher->subjects()->sync($subjectIds);
 
         return redirect()->route('bk.teachers.index')->with('success', 'Guru berhasil diperbarui.');
     }

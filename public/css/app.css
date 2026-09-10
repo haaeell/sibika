@@ -801,8 +801,14 @@
   .min-w-\[680px\] {
     min-width: 680px;
   }
+  .min-w-\[700px\] {
+    min-width: 700px;
+  }
   .min-w-\[760px\] {
     min-width: 760px;
+  }
+  .min-w-\[850px\] {
+    min-width: 850px;
   }
   .min-w-\[900px\] {
     min-width: 900px;

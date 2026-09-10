@@ -14,7 +14,7 @@ class StoreSchoolClassRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:50', Rule::unique('classes', 'name')->where(fn ($query) => $query->where('academic_year_id', $this->academic_year_id))],
             'grade_level' => ['required', 'in:X,XI,XII'],
-            'major' => ['required', 'string', 'max:50'],
+            'major_id' => ['required', 'exists:majors,id'],
             'academic_year_id' => ['required', 'exists:academic_years,id'],
             'homeroom_teacher_id' => ['nullable', 'exists:teachers,id'],
         ];
@@ -26,7 +26,8 @@ class StoreSchoolClassRequest extends FormRequest
             'name.required' => 'Nama kelas wajib diisi.',
             'name.unique' => 'Nama kelas sudah digunakan pada tahun ajaran ini.',
             'grade_level.required' => 'Tingkat kelas wajib dipilih.',
-            'major.required' => 'Jurusan wajib diisi.',
+            'major_id.required' => 'Jurusan wajib dipilih.',
+            'major_id.exists' => 'Jurusan tidak valid.',
             'academic_year_id.required' => 'Tahun ajaran wajib dipilih.',
             'academic_year_id.exists' => 'Tahun ajaran tidak valid.',
             'homeroom_teacher_id.exists' => 'Guru wali kelas tidak valid.',

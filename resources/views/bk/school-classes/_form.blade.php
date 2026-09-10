@@ -8,7 +8,12 @@
             <option value="{{ $value }}" @selected(old('grade_level', $schoolClass->grade_level) === $value)>{{ $label }}</option>
         @endforeach
     </x-form.select>
-    <x-form.input name="major" label="Jurusan" icon="fa-solid fa-book-open" placeholder="Contoh: IPA" :value="old('major', $schoolClass->major)" />
+    <x-form.select name="major_id" label="Jurusan" icon="fa-solid fa-book-open">
+        <option value="">Pilih jurusan</option>
+        @foreach ($majors as $major)
+            <option value="{{ $major->id }}" @selected((string) old('major_id', $schoolClass->major_id) === (string) $major->id)>{{ $major->name }} ({{ $major->code }})</option>
+        @endforeach
+    </x-form.select>
     <x-form.select name="academic_year_id" label="Tahun Ajaran" icon="fa-solid fa-calendar-days">
         <option value="">Pilih tahun ajaran</option>
         @foreach ($academicYears as $academicYear)

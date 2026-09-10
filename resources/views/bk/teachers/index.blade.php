@@ -35,7 +35,7 @@
                         { data: 'code', name: 'code' },
                         { data: 'name', name: 'name' },
                         { data: 'email', name: 'email', render: (data, type, row) => `${data}<br><span class="text-xs text-slate-400">${row.phone || '-'}</span>` },
-                        { data: 'subjects', name: 'subjects', defaultContent: '-' },
+                        { data: 'subjects_list', name: 'subjects.name', defaultContent: '-' },
                         { data: 'status', name: 'status' },
                         { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
                     ],

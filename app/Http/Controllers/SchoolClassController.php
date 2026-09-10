@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSchoolClassRequest;
 use App\Http\Requests\UpdateSchoolClassRequest;
 use App\Models\AcademicYear;
+use App\Models\Major;
 use App\Models\SchoolClass;
 use App\Models\Teacher;
 use Illuminate\Http\JsonResponse;
@@ -21,9 +22,10 @@ class SchoolClassController extends Controller
 
     public function data(): JsonResponse
     {
-        return DataTables::eloquent(SchoolClass::query()->with(['academicYear', 'homeroomTeacher'])->latest())
+        return DataTables::eloquent(SchoolClass::query()->with(['academicYear', 'major', 'homeroomTeacher'])->latest())
             ->addIndexColumn()
             ->addColumn('academic_year', fn (SchoolClass $schoolClass) => $schoolClass->academicYear?->name ?? '-')
+            ->addColumn('major_name', fn (SchoolClass $schoolClass) => $schoolClass->major?->name ?? '-')
             ->addColumn('homeroom_teacher', fn (SchoolClass $schoolClass) => $schoolClass->homeroomTeacher?->name ?? '-')
             ->addColumn('action', fn (SchoolClass $schoolClass) => view('bk.school-classes._actions', compact('schoolClass'))->render())
             ->rawColumns(['action'])
@@ -35,6 +37,7 @@ class SchoolClassController extends Controller
         return view('bk.school-classes.create', [
             'schoolClass' => new SchoolClass(),
             'academicYears' => AcademicYear::orderByDesc('is_active')->orderByDesc('start_year')->get(),
+            'majors' => Major::where('is_active', true)->orderBy('name')->get(),
             'teachers' => Teacher::where('status', 'active')->orderBy('name')->get(),
         ]);
     }
@@ -51,6 +54,7 @@ class SchoolClassController extends Controller
         return view('bk.school-classes.edit', [
             'schoolClass' => $schoolClass,
             'academicYears' => AcademicYear::orderByDesc('is_active')->orderByDesc('start_year')->get(),
+            'majors' => Major::where('is_active', true)->orderBy('name')->get(),
             'teachers' => Teacher::where('status', 'active')->orderBy('name')->get(),
         ]);
     }

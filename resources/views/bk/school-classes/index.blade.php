@@ -34,7 +34,7 @@
                         { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                         { data: 'name', name: 'name' },
                         { data: 'grade_level', name: 'grade_level' },
-                        { data: 'major', name: 'major' },
+                        { data: 'major_name', name: 'major.name' },
                         { data: 'academic_year', name: 'academicYear.name' },
                         { data: 'homeroom_teacher', name: 'homeroomTeacher.name' },
                         { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
