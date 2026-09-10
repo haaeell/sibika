@@ -17,8 +17,9 @@ class MajorController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $activeValues = array_filter((array) $request->input('is_active', []), fn ($value) => $value !== '');
         return DataTables::eloquent(Major::query()
-            ->when($request->has('is_active') && $request->is_active !== '', fn ($query) => $query->where('is_active', $request->boolean('is_active')))
+            ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
             ->withCount('classes')
             ->latest())
             ->addIndexColumn()

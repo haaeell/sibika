@@ -23,9 +23,11 @@ class TeacherController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $statuses = array_filter((array) $request->input('status', []));
+        $subjectIds = array_filter((array) $request->input('subject_id', []));
         return DataTables::eloquent(Teacher::query()
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
-            ->when($request->filled('subject_id'), fn ($query) => $query->whereHas('subjects', fn ($subjectQuery) => $subjectQuery->whereKey($request->integer('subject_id'))))
+            ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
+            ->when($subjectIds, fn ($query) => $query->whereHas('subjects', fn ($subjectQuery) => $subjectQuery->whereIn('subjects.id', array_map('intval', $subjectIds))))
             ->with('subjects')
             ->withCount('homeroomClasses')
             ->latest())

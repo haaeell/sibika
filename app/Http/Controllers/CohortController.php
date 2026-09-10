@@ -20,8 +20,9 @@ class CohortController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $statuses = array_filter((array) $request->input('status', []));
         return DataTables::eloquent(Cohort::query()
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
             ->latest())
             ->addIndexColumn()
             ->editColumn('status', fn (Cohort $cohort) => $this->statusBadge($cohort->status))

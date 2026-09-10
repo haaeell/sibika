@@ -17,9 +17,11 @@ class SubjectController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $categories = array_filter((array) $request->input('category', []));
+        $activeValues = array_filter((array) $request->input('is_active', []), fn ($value) => $value !== '');
         return DataTables::eloquent(Subject::query()
-            ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
-            ->when($request->has('is_active') && $request->is_active !== '', fn ($query) => $query->where('is_active', $request->boolean('is_active')))
+            ->when($categories, fn ($query) => $query->whereIn('category', $categories))
+            ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
             ->withCount('teachers')
             ->latest())
             ->addIndexColumn()

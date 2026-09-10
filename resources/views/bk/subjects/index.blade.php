@@ -6,13 +6,13 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="subject-category-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="subject-category-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua kategori">
                     <option value="">Semua kategori</option>
                     <option value="general">Umum</option>
                     <option value="tka_mandatory">TKA Wajib</option>
                     <option value="tka_optional">TKA Pilihan</option>
                 </select>
-                <select id="subject-status-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="subject-status-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua status">
                     <option value="">Semua status</option>
                     <option value="1">Aktif</option>
                     <option value="0">Nonaktif</option>

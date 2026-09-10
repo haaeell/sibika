@@ -25,10 +25,13 @@ class StudentController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $statuses = array_filter((array) $request->input('status', []));
+        $classIds = array_filter((array) $request->input('class_id', []));
+        $cohortIds = array_filter((array) $request->input('cohort_id', []));
         return DataTables::eloquent(Student::query()
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
-            ->when($request->filled('class_id'), fn ($query) => $query->where('class_id', $request->integer('class_id')))
-            ->when($request->filled('cohort_id'), fn ($query) => $query->where('cohort_id', $request->integer('cohort_id')))
+            ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
+            ->when($classIds, fn ($query) => $query->whereIn('class_id', array_map('intval', $classIds)))
+            ->when($cohortIds, fn ($query) => $query->whereIn('cohort_id', array_map('intval', $cohortIds)))
             ->with(['schoolClass', 'cohort'])
             ->latest())
             ->addIndexColumn()

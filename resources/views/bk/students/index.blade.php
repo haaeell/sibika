@@ -9,19 +9,19 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="student-class-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="student-class-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua kelas">
                     <option value="">Semua kelas</option>
                     @foreach ($schoolClasses as $schoolClass)
                         <option value="{{ $schoolClass->id }}">{{ $schoolClass->name }} - {{ $schoolClass->academicYear?->name }}</option>
                     @endforeach
                 </select>
-                <select id="student-cohort-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="student-cohort-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua angkatan">
                     <option value="">Semua angkatan</option>
                     @foreach ($cohorts as $cohort)
                         <option value="{{ $cohort->id }}">{{ $cohort->name }}</option>
                     @endforeach
                 </select>
-                <select id="student-status-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="student-status-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua status">
                     <option value="">Semua status</option>
                     <option value="active">Aktif</option>
                     <option value="graduated">Lulus</option>

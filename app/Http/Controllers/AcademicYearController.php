@@ -20,9 +20,11 @@ class AcademicYearController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $semesters = array_filter((array) $request->input('semester', []));
+        $activeValues = array_filter((array) $request->input('is_active', []), fn ($value) => $value !== '');
         $query = AcademicYear::query()
-            ->when($request->filled('semester'), fn ($query) => $query->where('semester', $request->string('semester')))
-            ->when($request->has('is_active') && $request->is_active !== '', fn ($query) => $query->where('is_active', (bool) $request->boolean('is_active')))
+            ->when($semesters, fn ($query) => $query->whereIn('semester', $semesters))
+            ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
             ->latest('is_active')
             ->latest();
 

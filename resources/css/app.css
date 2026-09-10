@@ -318,3 +318,70 @@ table.dataTable tbody tr:hover > * {
     background: rgb(239 246 255 / 0.55) !important;
     box-shadow: none !important;
 }
+
+.table-filter-select + .select2-container {
+    width: 14rem !important;
+}
+
+.table-filter-select + .select2-container .select2-selection--multiple {
+    min-height: 2.5rem !important;
+    border: 1px solid rgb(226 232 240) !important;
+    border-radius: 0.75rem !important;
+    background: rgb(248 250 252) !important;
+    padding: 0.25rem 0.5rem !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.table-filter-select + .select2-container.select2-container--focus .select2-selection--multiple,
+.table-filter-select + .select2-container.select2-container--open .select2-selection--multiple {
+    border-color: rgb(29 78 216) !important;
+    background: white !important;
+    box-shadow: 0 0 0 4px rgb(29 78 216 / 0.10) !important;
+}
+
+.table-filter-select + .select2-container .select2-selection__rendered {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0 !important;
+}
+
+.table-filter-select + .select2-container .select2-selection__choice {
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0.5rem !important;
+    background: rgb(219 234 254) !important;
+    color: rgb(30 64 175) !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem !important;
+}
+
+.table-filter-select + .select2-container .select2-selection__choice__remove {
+    margin-right: 0.25rem !important;
+    color: rgb(30 64 175) !important;
+    font-weight: 800;
+}
+
+.table-filter-select + .select2-container .select2-search--inline .select2-search__field {
+    min-height: 1.75rem;
+    margin-top: 0.125rem;
+    color: rgb(15 23 42);
+    font-size: 0.875rem;
+}
+
+.table-filter-select + .select2-container .select2-search--inline .select2-search__field::placeholder {
+    color: rgb(100 116 139);
+    font-weight: 600;
+}
+
+.table-filter-select + .select2-container .select2-selection__clear {
+    margin-right: 0.25rem;
+    color: rgb(100 116 139);
+}
+
+@media (max-width: 640px) {
+    .table-filter-select + .select2-container {
+        width: min(100%, 18rem) !important;
+    }
+}

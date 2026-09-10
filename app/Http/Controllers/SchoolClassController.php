@@ -26,10 +26,13 @@ class SchoolClassController extends Controller
 
     public function data(Request $request): JsonResponse
     {
+        $academicYearIds = array_filter((array) $request->input('academic_year_id', []));
+        $majorIds = array_filter((array) $request->input('major_id', []));
+        $gradeLevels = array_filter((array) $request->input('grade_level', []));
         return DataTables::eloquent(SchoolClass::query()
-            ->when($request->filled('academic_year_id'), fn ($query) => $query->where('academic_year_id', $request->integer('academic_year_id')))
-            ->when($request->filled('major_id'), fn ($query) => $query->where('major_id', $request->integer('major_id')))
-            ->when($request->filled('grade_level'), fn ($query) => $query->where('grade_level', $request->string('grade_level')))
+            ->when($academicYearIds, fn ($query) => $query->whereIn('academic_year_id', array_map('intval', $academicYearIds)))
+            ->when($majorIds, fn ($query) => $query->whereIn('major_id', array_map('intval', $majorIds)))
+            ->when($gradeLevels, fn ($query) => $query->whereIn('grade_level', $gradeLevels))
             ->with(['academicYear', 'major', 'homeroomTeacher'])
             ->latest())
             ->addIndexColumn()

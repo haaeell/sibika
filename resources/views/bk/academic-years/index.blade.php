@@ -12,12 +12,12 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="academic-year-semester-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="academic-year-semester-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua semester">
                     <option value="">Semua semester</option>
                     <option value="ganjil">Ganjil</option>
                     <option value="genap">Genap</option>
                 </select>
-                <select id="academic-year-status-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="academic-year-status-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua status">
                     <option value="">Semua status</option>
                     <option value="1">Aktif</option>
                     <option value="0">Nonaktif</option>

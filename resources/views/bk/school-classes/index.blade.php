@@ -9,19 +9,19 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="school-class-year-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="school-class-year-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua tahun ajaran">
                     <option value="">Semua tahun ajaran</option>
                     @foreach ($academicYears as $academicYear)
                         <option value="{{ $academicYear->id }}">{{ $academicYear->name }}</option>
                     @endforeach
                 </select>
-                <select id="school-class-major-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="school-class-major-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua jurusan">
                     <option value="">Semua jurusan</option>
                     @foreach ($majors as $major)
                         <option value="{{ $major->id }}">{{ $major->name }}</option>
                     @endforeach
                 </select>
-                <select id="school-class-grade-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="school-class-grade-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua tingkat">
                     <option value="">Semua tingkat</option>
                     <option value="X">X</option>
                     <option value="XI">XI</option>

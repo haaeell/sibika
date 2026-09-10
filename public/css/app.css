@@ -587,9 +587,6 @@
   .-mt-\[4\.9rem\] {
     margin-top: calc(4.9rem * -1);
   }
-  .mt-0 {
-    margin-top: 0px;
-  }
   .mt-0\.5 {
     margin-top: calc(var(--spacing) * 0.5);
   }
@@ -723,9 +720,6 @@
   .h-3\.5 {
     height: calc(var(--spacing) * 3.5);
   }
-  .h-10 {
-    height: calc(var(--spacing) * 10);
-  }
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
@@ -822,14 +816,8 @@
   .flex-1 {
     flex: 1;
   }
-  .flex-shrink {
-    flex-shrink: 1;
-  }
   .shrink-0 {
     flex-shrink: 0;
-  }
-  .flex-grow {
-    flex-grow: 1;
   }
   .border-collapse {
     border-collapse: collapse;
@@ -846,9 +834,6 @@
   }
   .cursor-not-allowed {
     cursor: not-allowed;
-  }
-  .resize {
-    resize: both;
   }
   .scrollbar-thin {
     scrollbar-width: thin;
@@ -1046,9 +1031,6 @@
   .bg-blue-900 {
     background-color: var(--color-blue-900);
   }
-  .bg-blue-950 {
-    background-color: var(--color-blue-950);
-  }
   .bg-blue-950\/40 {
     background-color: color-mix(in srgb, oklch(28.2% 0.091 267.935) 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1102,10 +1084,6 @@
     --tw-gradient-position: to top in oklab;
     background-image: linear-gradient(var(--tw-gradient-stops));
   }
-  .from-blue-950 {
-    --tw-gradient-from: var(--color-blue-950);
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
   .from-blue-950\/70 {
     --tw-gradient-from: color-mix(in srgb, oklch(28.2% 0.091 267.935) 70%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1119,11 +1097,6 @@
       --tw-gradient-from: color-mix(in oklab, var(--color-blue-950) 80%, transparent);
     }
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-  .via-blue-950 {
-    --tw-gradient-via: var(--color-blue-950);
-    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
-    --tw-gradient-stops: var(--tw-gradient-via-stops);
   }
   .via-blue-950\/45 {
     --tw-gradient-via: color-mix(in srgb, oklch(28.2% 0.091 267.935) 45%, transparent);
@@ -1182,9 +1155,6 @@
   .px-10 {
     padding-inline: calc(var(--spacing) * 10);
   }
-  .py-0 {
-    padding-block: 0px;
-  }
   .py-0\.5 {
     padding-block: calc(var(--spacing) * 0.5);
   }
@@ -1217,9 +1187,6 @@
   }
   .py-12 {
     padding-block: calc(var(--spacing) * 12);
-  }
-  .pr-3 {
-    padding-right: calc(var(--spacing) * 3);
   }
   .pr-3\.5 {
     padding-right: calc(var(--spacing) * 3.5);
@@ -1456,10 +1423,6 @@
     --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .outline {
-    outline-style: var(--tw-outline-style);
-    outline-width: 1px;
-  }
   .drop-shadow-xl {
     --tw-drop-shadow-size: drop-shadow(0 9px 7px var(--tw-drop-shadow-color, rgb(0 0 0 / 0.1)));
     --tw-drop-shadow: drop-shadow(var(--drop-shadow-xl));
@@ -1629,9 +1592,6 @@
   }
   .focus\:ring-slate-300:focus {
     --tw-ring-color: var(--color-slate-300);
-  }
-  .focus\:ring-slate-400:focus {
-    --tw-ring-color: var(--color-slate-400);
   }
   .focus\:ring-offset-2:focus {
     --tw-ring-offset-width: 2px;
@@ -14559,6 +14519,62 @@ table.dataTable tbody tr:hover > * {
   background: rgb(239 246 255 / 0.55) !important;
   box-shadow: none !important;
 }
+.table-filter-select + .select2-container {
+  width: 14rem !important;
+}
+.table-filter-select + .select2-container .select2-selection--multiple {
+  min-height: 2.5rem !important;
+  border: 1px solid rgb(226 232 240) !important;
+  border-radius: 0.75rem !important;
+  background: rgb(248 250 252) !important;
+  padding: 0.25rem 0.5rem !important;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+.table-filter-select + .select2-container.select2-container--focus .select2-selection--multiple, .table-filter-select + .select2-container.select2-container--open .select2-selection--multiple {
+  border-color: rgb(29 78 216) !important;
+  background: white !important;
+  box-shadow: 0 0 0 4px rgb(29 78 216 / 0.10) !important;
+}
+.table-filter-select + .select2-container .select2-selection__rendered {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0 !important;
+}
+.table-filter-select + .select2-container .select2-selection__choice {
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0.5rem !important;
+  background: rgb(219 234 254) !important;
+  color: rgb(30 64 175) !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem !important;
+}
+.table-filter-select + .select2-container .select2-selection__choice__remove {
+  margin-right: 0.25rem !important;
+  color: rgb(30 64 175) !important;
+  font-weight: 800;
+}
+.table-filter-select + .select2-container .select2-search--inline .select2-search__field {
+  min-height: 1.75rem;
+  margin-top: 0.125rem;
+  color: rgb(15 23 42);
+  font-size: 0.875rem;
+}
+.table-filter-select + .select2-container .select2-search--inline .select2-search__field::placeholder {
+  color: rgb(100 116 139);
+  font-weight: 600;
+}
+.table-filter-select + .select2-container .select2-selection__clear {
+  margin-right: 0.25rem;
+  color: rgb(100 116 139);
+}
+@media (max-width: 640px) {
+  .table-filter-select + .select2-container {
+    width: min(100%, 18rem) !important;
+  }
+}
 @property --tw-translate-x {
   syntax: "*";
   inherits: false;
@@ -14733,11 +14749,6 @@ table.dataTable tbody tr:hover > * {
   inherits: false;
   initial-value: 0 0 #0000;
 }
-@property --tw-outline-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
 @property --tw-blur {
   syntax: "*";
   inherits: false;
@@ -14877,7 +14888,6 @@ table.dataTable tbody tr:hover > * {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
-      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;

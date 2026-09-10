@@ -2,13 +2,20 @@ import './bootstrap';
 import $ from 'jquery';
 import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
-import 'select2';
+import select2 from 'select2';
 import Swal from 'sweetalert2';
 import flatpickr from 'flatpickr';
 import Chart from 'chart.js/auto';
 import NProgress from 'nprogress';
 
 window.$ = window.jQuery = $;
+if (typeof $.isArray !== 'function') {
+    $.isArray = Array.isArray;
+}
+if (typeof $.trim !== 'function') {
+    $.trim = (value) => value == null ? '' : String(value).trim();
+}
+select2(window, $);
 window.Swal = Swal;
 window.flatpickr = flatpickr;
 window.Chart = Chart;

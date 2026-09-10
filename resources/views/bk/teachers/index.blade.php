@@ -9,13 +9,13 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="teacher-subject-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="teacher-subject-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua mata pelajaran">
                     <option value="">Semua mata pelajaran</option>
                     @foreach ($subjects as $subject)
                         <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                     @endforeach
                 </select>
-                <select id="teacher-status-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                <select id="teacher-status-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua status">
                     <option value="">Semua status</option>
                     <option value="active">Aktif</option>
                     <option value="inactive">Nonaktif</option>
