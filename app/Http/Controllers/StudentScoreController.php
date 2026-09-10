@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveStudentScoresRequest;
-use App\Http\Requests\SubmitStudentScoresRequest;
 use App\Models\Student;
 use App\Services\StudentScoreService;
 use Illuminate\Http\RedirectResponse;
@@ -36,15 +35,7 @@ class StudentScoreController extends Controller
         $student = $this->studentFor($request);
         $this->scoreService->saveDraft($student, $request->integer('semester'), $request->input('scores', []));
 
-        return redirect()->route('siswa.scores.index', ['semester' => $request->integer('semester')])->with('success', 'Nilai berhasil disimpan sebagai draft.');
-    }
-
-    public function submit(SubmitStudentScoresRequest $request): RedirectResponse
-    {
-        $student = $this->studentFor($request);
-        $this->scoreService->submit($student, $request->integer('semester'));
-
-        return redirect()->route('siswa.scores.index', ['semester' => $request->integer('semester')])->with('success', 'Nilai berhasil diajukan untuk verifikasi.');
+        return redirect()->route('siswa.scores.index', ['semester' => $request->integer('semester')])->with('success', 'Nilai berhasil disimpan.');
     }
 
     private function studentFor(Request $request): Student

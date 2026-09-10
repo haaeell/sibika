@@ -7,17 +7,17 @@ if (! function_exists('status_badge')) {
     function status_badge(string $status): array
     {
         return match ($status) {
-            'verified', 'active', 'graduated' => [
+            'active', 'graduated' => [
                 'label' => 'Terverifikasi',
                 'class' => 'bg-emerald-50 text-emerald-700',
                 'variant' => 'success',
             ],
-            'submitted', 'pending' => [
+            'pending' => [
                 'label' => 'Menunggu',
                 'class' => 'bg-amber-50 text-amber-700',
                 'variant' => 'warning',
             ],
-            'rejected', 'inactive' => [
+            'inactive' => [
                 'label' => 'Ditolak',
                 'class' => 'bg-rose-50 text-rose-700',
                 'variant' => 'danger',

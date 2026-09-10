@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RejectStudentSemesterScoreRequest;
-use App\Http\Requests\VerifyStudentSemesterScoreRequest;
 use App\Models\AcademicYear;
 use App\Models\Major;
 use App\Models\SchoolClass;
@@ -11,7 +9,6 @@ use App\Models\Student;
 use App\Models\StudentScore;
 use App\Services\StudentScoreService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
@@ -76,38 +73,6 @@ class StudentScoreAdminController extends Controller
         ]);
     }
 
-    public function verify(Student $student, int $semester, VerifyStudentSemesterScoreRequest $request): RedirectResponse
-    {
-        $updated = $student->scores()->where('semester_number', $semester)->where('status', 'submitted')->update([
-            'status' => 'verified',
-            'verified_by' => $request->user()->id,
-            'verified_at' => now(),
-            'verification_note' => $request->input('note'),
-        ]);
-
-        if ($updated === 0) {
-            return back()->with('error', 'Tidak ada nilai yang menunggu verifikasi.');
-        }
-
-        return back()->with('success', 'Nilai semester '.$semester.' berhasil diverifikasi.');
-    }
-
-    public function reject(Student $student, int $semester, RejectStudentSemesterScoreRequest $request): RedirectResponse
-    {
-        $updated = $student->scores()->where('semester_number', $semester)->where('status', 'submitted')->update([
-            'status' => 'rejected',
-            'verified_by' => $request->user()->id,
-            'verified_at' => now(),
-            'verification_note' => $request->input('note'),
-        ]);
-
-        if ($updated === 0) {
-            return back()->with('error', 'Tidak ada nilai yang menunggu verifikasi.');
-        }
-
-        return back()->with('success', 'Nilai semester '.$semester.' berhasil ditolak.');
-    }
-
     private function semesterCard(Student $student, int $semester): string
     {
         $scores = $student->scores->where('semester_number', $semester);
@@ -116,7 +81,7 @@ class StudentScoreAdminController extends Controller
         $total = $averageSubjectIds->count();
         $filled = $averageScores->filter(fn (StudentScore $score) => filled($score->score))->count();
         $average = $averageScores->filter(fn (StudentScore $score) => filled($score->score))->avg('score');
-        [$label, $class] = $this->semesterStatus($scores, $total, $filled);
+        [$label, $class] = $this->semesterStatus($total, $filled);
 
         return '<div class="min-w-32 rounded-2xl bg-slate-50 px-3 py-2">'
             .'<div class="text-sm font-extrabold text-slate-900">'.($average ? number_format((float) $average, 2) : '-').'</div>'
@@ -134,21 +99,15 @@ class StudentScoreAdminController extends Controller
             .'</div>';
     }
 
-    private function semesterStatus($scores, int $total, int $filled): array
+    private function semesterStatus(int $total, int $filled): array
     {
         if ($filled === 0) {
             return ['Belum Diisi', 'bg-slate-100 text-slate-600'];
         }
-        if ($scores->contains('status', 'rejected')) {
-            return ['Ditolak', 'bg-rose-50 text-rose-700'];
-        }
-        if ($scores->contains('status', 'submitted')) {
-            return ['Diajukan', 'bg-amber-50 text-amber-700'];
-        }
-        if ($total > 0 && $filled >= $total && $scores->every(fn (StudentScore $score) => $score->status === 'verified')) {
-            return ['Terverifikasi', 'bg-emerald-50 text-emerald-700'];
+        if ($total > 0 && $filled >= $total) {
+            return ['Lengkap', 'bg-emerald-50 text-emerald-700'];
         }
 
-        return ['Draft', 'bg-blue-50 text-blue-700'];
+        return ['Sebagian', 'bg-blue-50 text-blue-700'];
     }
 }

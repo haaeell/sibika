@@ -5,7 +5,7 @@
         <x-card>
             <p class="text-sm font-bold text-slate-500">Rata-rata Keseluruhan</p>
             <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ is_null($summary['average']) ? '-' : number_format($summary['average'], 2) }}</p>
-            <p class="mt-1 text-xs font-semibold text-slate-400">Nilai verified, mapel dihitung</p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">Nilai tersimpan, mapel dihitung</p>
         </x-card>
         <x-card>
             <p class="text-sm font-bold text-slate-500">Ranking Kelas</p>
@@ -33,7 +33,6 @@
         @php
             $settings = $data['settings'];
             $scores = $data['scores'];
-            $readonly = $scores->contains(fn ($score) => in_array($score->status, ['submitted', 'verified'], true));
             $needsMajor = $semester >= 3 && ! $student->schoolClass?->major_id;
         @endphp
 
@@ -47,31 +46,21 @@
                 </x-card>
             @endif
 
-            <x-card title="Semester {{ $semester }}" description="Simpan sebagai draft dulu, lalu ajukan ketika semua mapel wajib sudah lengkap.">
+            <x-card title="Semester {{ $semester }}" description="Isi nilai lalu simpan. Nilai tersimpan langsung masuk rekap rata-rata.">
                 @if ($settings->isEmpty())
                     <x-empty-state icon="fa-solid fa-chart-line" title="Setting nilai belum tersedia" description="Hubungi BK untuk mengatur mapel semester ini." />
                 @else
-                    @if ($scores->first()?->status)
-                        <div class="mb-4 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600">Status: {{ str($scores->first()->status)->headline() }}</div>
-                    @endif
-
                     <form action="{{ route('siswa.scores.save') }}" method="POST" class="space-y-4">
                         @csrf
                         <input type="hidden" name="semester" value="{{ $semester }}">
                         <div class="grid gap-4 md:grid-cols-2">
                             @foreach ($settings as $setting)
                                 @php $score = $scores->get($setting->subject_id); @endphp
-                                <x-form.input name="scores[{{ $setting->subject_id }}]" label="{{ $setting->subject->name }}{{ $setting->is_required ? ' *' : '' }}" icon="fa-solid fa-chart-simple" type="number" min="0" max="100" step="0.01" placeholder="0 - 100" :value="old('scores.'.$setting->subject_id, $score?->score)" :disabled="$readonly" />
+                                <x-form.input name="scores[{{ $setting->subject_id }}]" label="{{ $setting->subject->name }}{{ $setting->is_required ? ' *' : '' }}" icon="fa-solid fa-chart-simple" type="number" min="0" max="100" step="0.01" placeholder="0 - 100" :value="old('scores.'.$setting->subject_id, $score?->score)" />
                             @endforeach
                         </div>
                         <x-form.error name="scores" />
-                        <x-button type="submit" :disabled="$readonly"><i class="fa-solid fa-save"></i> Simpan Draft</x-button>
-                    </form>
-
-                    <form action="{{ route('siswa.scores.submit') }}" method="POST" class="mt-3">
-                        @csrf
-                        <input type="hidden" name="semester" value="{{ $semester }}">
-                        <x-button type="submit" variant="secondary" :disabled="$readonly"><i class="fa-solid fa-paper-plane"></i> Ajukan Verifikasi</x-button>
+                        <x-button type="submit"><i class="fa-solid fa-save"></i> Simpan Nilai</x-button>
                     </form>
                 @endif
             </x-card>
