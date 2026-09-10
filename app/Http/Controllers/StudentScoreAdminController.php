@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RejectStudentSemesterScoreRequest;
+use App\Http\Requests\VerifyStudentSemesterScoreRequest;
 use App\Models\AcademicYear;
 use App\Models\Major;
 use App\Models\SchoolClass;
@@ -9,6 +11,7 @@ use App\Models\Student;
 use App\Models\StudentScore;
 use App\Services\StudentScoreService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
@@ -69,6 +72,38 @@ class StudentScoreAdminController extends Controller
                 ],
             ]),
         ]);
+    }
+
+    public function verify(Student $student, int $semester, VerifyStudentSemesterScoreRequest $request): RedirectResponse
+    {
+        $updated = $student->scores()->where('semester_number', $semester)->where('status', 'submitted')->update([
+            'status' => 'verified',
+            'verified_by' => $request->user()->id,
+            'verified_at' => now(),
+            'verification_note' => $request->input('note'),
+        ]);
+
+        if ($updated === 0) {
+            return back()->with('error', 'Tidak ada nilai yang menunggu verifikasi.');
+        }
+
+        return back()->with('success', 'Nilai semester '.$semester.' berhasil diverifikasi.');
+    }
+
+    public function reject(Student $student, int $semester, RejectStudentSemesterScoreRequest $request): RedirectResponse
+    {
+        $updated = $student->scores()->where('semester_number', $semester)->where('status', 'submitted')->update([
+            'status' => 'rejected',
+            'verified_by' => $request->user()->id,
+            'verified_at' => now(),
+            'verification_note' => $request->input('note'),
+        ]);
+
+        if ($updated === 0) {
+            return back()->with('error', 'Tidak ada nilai yang menunggu verifikasi.');
+        }
+
+        return back()->with('success', 'Nilai semester '.$semester.' berhasil ditolak.');
     }
 
     private function semesterCard(Student $student, int $semester): string

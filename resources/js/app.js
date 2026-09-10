@@ -342,6 +342,23 @@ $(function () {
         });
     });
 
+    $(document).on('submit', '.js-confirm-form', function (event) {
+        event.preventDefault();
+
+        const form = this;
+
+        confirmAction({
+            title: form.dataset.confirmTitle || 'Proses data?',
+            text: form.dataset.confirmText || 'Pastikan data sudah benar.',
+            confirmText: form.dataset.confirmButton || 'Ya, lanjutkan',
+            icon: form.dataset.confirmIcon || 'warning',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
     $(document).on('click', function (event) {
         if (!$(event.target).closest('.js-academic-year-toggle, [data-academic-year-menu]').length) {
             $('[data-academic-year-menu]').addClass('hidden');

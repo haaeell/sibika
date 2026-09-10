@@ -19,11 +19,15 @@ class StudentScoreController extends Controller
     public function index(Request $request): View
     {
         $student = $this->studentFor($request)->load('schoolClass.major');
-        $semester = max(1, min(5, (int) $request->integer('semester', 1)));
-        $settings = $this->scoreService->subjectsFor($student, $semester);
-        $scores = $this->scoreService->scoresFor($student, $semester);
+        $activeSemester = max(1, min(5, (int) $request->integer('semester', 1)));
+        $semesters = collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
+            $semester => [
+                'settings' => $this->scoreService->subjectsFor($student, $semester),
+                'scores' => $this->scoreService->scoresFor($student, $semester),
+            ],
+        ]);
 
-        return view('siswa.scores.index', compact('student', 'semester', 'settings', 'scores'));
+        return view('siswa.scores.index', compact('student', 'activeSemester', 'semesters'));
     }
 
     public function save(SaveStudentScoresRequest $request): RedirectResponse
