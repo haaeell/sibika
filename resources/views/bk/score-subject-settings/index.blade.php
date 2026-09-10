@@ -1,74 +1,80 @@
 @component('layouts.app', ['title' => 'Setting Nilai'])
-    <x-page-header title="Setting Nilai" description="Atur mapel umum dan mapel jurusan per semester."><x-slot:actions><x-button :href="route('bk.score-subject-settings.create')"><i class="fa-solid fa-plus"></i> Tambah Setting</x-button></x-slot:actions></x-page-header>
+    <x-page-header title="Setting Nilai" description="Atur mapel umum dan mapel jurusan per semester." />
 
-    <x-card>
-        <div class="mb-4 grid gap-3 rounded-2xl bg-slate-50 p-4 lg:grid-cols-4">
-            <x-form.select name="semester_filter" label="Semester" icon="fa-solid fa-layer-group" id="score-semester-filter" class="select2" multiple data-table-filter data-placeholder="Semua semester">
-                @for ($semester = 1; $semester <= 5; $semester++)
-                    <option value="{{ $semester }}">Semester {{ $semester }}</option>
-                @endfor
-            </x-form.select>
-            <x-form.select name="scope_filter" label="Tipe Mapel" icon="fa-solid fa-tags" id="score-scope-filter" class="select2" multiple data-table-filter data-placeholder="Semua tipe">
-                <option value="general">Umum</option>
-                <option value="major">Jurusan</option>
-            </x-form.select>
-            <x-form.select name="major_filter" label="Jurusan" icon="fa-solid fa-code-branch" id="score-major-filter" class="select2" multiple data-table-filter data-placeholder="Semua jurusan">
-                @foreach ($majors as $major)
-                    <option value="{{ $major->id }}">{{ $major->name }}</option>
-                @endforeach
-            </x-form.select>
-            <x-form.select name="status_filter" label="Status" icon="fa-solid fa-toggle-on" id="score-status-filter" class="select2" multiple data-table-filter data-placeholder="Semua status">
-                <option value="1">Aktif</option>
-                <option value="0">Nonaktif</option>
-            </x-form.select>
-        </div>
+    <div class="grid gap-5 xl:grid-cols-2">
+        @for ($semester = 1; $semester <= 5; $semester++)
+            @php
+                $settings = $settingsBySemester->get($semester, collect());
+                $groups = $settings->groupBy(fn ($setting) => $setting->major?->name ?? 'Umum');
+            @endphp
 
-        <div class="overflow-x-auto">
-            <table id="score-setting-table" class="w-full min-w-[900px] text-left text-sm">
-                <thead class="border-b border-slate-200 text-xs uppercase text-slate-500">
-                    <tr>
-                        <th>No</th>
-                        <th>Semester</th>
-                        <th>Mata Pelajaran</th>
-                        <th>Tipe/Jurusan</th>
-                        <th>Wajib</th>
-                        <th>Status</th>
-                        <th class="text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </x-card>
+            <x-card class="p-0">
+                <div class="flex items-start justify-between gap-4 p-5">
+                    <button type="button" class="js-score-semester-toggle flex min-w-0 flex-1 items-center gap-3 text-left" aria-expanded="false" aria-controls="score-semester-{{ $semester }}">
+                        <span class="flex size-12 items-center justify-center rounded-2xl bg-blue-900 text-lg font-extrabold text-white">{{ $semester }}</span>
+                        <span>
+                            <span class="block text-lg font-extrabold text-slate-900">Semester {{ $semester }}</span>
+                            <span class="block text-sm font-semibold text-slate-500">{{ $semester <= 2 ? 'Kelas X tanpa jurusan' : 'Umum + mapel jurusan' }}</span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down ml-auto text-sm text-slate-400 transition" data-score-semester-chevron></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <span class="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-600 sm:inline-flex">{{ $settings->count() }} mapel</span>
+                        <a href="{{ route('bk.score-subject-settings.create', ['semester' => $semester]) }}" class="inline-flex size-10 items-center justify-center rounded-xl bg-blue-900 text-white transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 has-tooltip" data-tooltip="Tambah" aria-label="Tambah setting semester {{ $semester }}">
+                            <i class="fa-solid fa-plus"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="score-semester-{{ $semester }}" class="hidden border-t border-slate-100 p-5 pt-0" data-score-semester-panel>
+                    @if ($settings->isEmpty())
+                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+                            <p class="text-sm font-bold text-slate-500">Belum ada setting.</p>
+                            <a href="{{ route('bk.score-subject-settings.create', ['semester' => $semester]) }}" class="mt-3 inline-flex text-sm font-bold text-blue-900 hover:text-blue-700">Tambah mapel semester ini</a>
+                        </div>
+                    @else
+                        <div class="space-y-4 pt-5">
+                            @foreach ($groups as $group => $items)
+                                <div>
+                                    <div class="mb-2 flex items-center justify-between gap-2">
+                                        <span class="inline-flex rounded-full {{ $group === 'Umum' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }} px-2.5 py-1 text-xs font-extrabold">{{ $group }}</span>
+                                        <span class="text-xs font-bold text-slate-400">{{ $items->count() }} mapel</span>
+                                    </div>
+                                    <div class="space-y-2">
+                                        @foreach ($items->sortBy(fn ($setting) => $setting->subject?->name) as $setting)
+                                            <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 transition hover:border-blue-100 hover:bg-blue-50/40">
+                                                <div class="min-w-0">
+                                                    <p class="truncate text-sm font-extrabold text-slate-900">{{ $setting->subject?->name ?? '-' }}</p>
+                                                    <p class="mt-0.5 text-xs font-semibold text-slate-400">{{ $setting->subject?->code ?? '-' }}</p>
+                                                </div>
+                                                <div class="flex shrink-0 items-center gap-2">
+                                                    <span class="hidden rounded-full px-2.5 py-1 text-xs font-bold sm:inline-flex {{ $setting->is_required ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">{{ $setting->is_required ? 'Wajib' : 'Pilihan' }}</span>
+                                                    <span class="hidden rounded-full px-2.5 py-1 text-xs font-bold sm:inline-flex {{ $setting->is_active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600' }}">{{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                                                    @include('bk.score-subject-settings._actions', ['setting' => $setting])
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </x-card>
+        @endfor
+    </div>
 
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                window.initDataTable('#score-setting-table', {
-                    serverSide: true,
-                    ajax: {
-                        url: @json(route('bk.score-subject-settings.data')),
-                        data: function (params) {
-                            params.semester_number = window.$('#score-semester-filter').val();
-                            params.scope = window.$('#score-scope-filter').val();
-                            params.major_id = window.$('#score-major-filter').val();
-                            params.is_active = window.$('#score-status-filter').val();
-                        },
-                    },
-                    columns: [
-                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                        { data: 'semester_badge', name: 'semester_number' },
-                        { data: 'subject_name', name: 'subject.name' },
-                        { data: 'major_name', name: 'major.name' },
-                        { data: 'is_required', name: 'is_required' },
-                        { data: 'is_active', name: 'is_active' },
-                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
-                    ],
-                    order: [[1, 'asc']],
-                });
+                window.$('.js-score-semester-toggle').on('click', function () {
+                    const button = window.$(this);
+                    const panel = window.$('#' + button.attr('aria-controls'));
+                    const isOpen = button.attr('aria-expanded') === 'true';
 
-                window.$('[data-table-filter]').on('change', function () {
-                    window.$('#score-setting-table').DataTable().ajax.reload();
+                    button.attr('aria-expanded', String(!isOpen));
+                    panel.toggleClass('hidden', isOpen);
+                    button.find('[data-score-semester-chevron]').toggleClass('rotate-180', !isOpen);
                 });
             });
         </script>

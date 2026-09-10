@@ -7,59 +7,31 @@ use App\Http\Requests\UpdateScoreSubjectSettingRequest;
 use App\Models\Major;
 use App\Models\ScoreSubjectSetting;
 use App\Models\Subject;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-use Yajra\DataTables\Facades\DataTables;
 
 class ScoreSubjectSettingController extends Controller
 {
     public function index(): View
     {
         return view('bk.score-subject-settings.index', [
-            'majors' => Major::where('is_active', true)->orderBy('name')->get(),
+            'settingsBySemester' => ScoreSubjectSetting::with(['subject', 'major'])
+                ->orderBy('semester_number')
+                ->orderBy('major_id')
+                ->get()
+                ->groupBy('semester_number'),
         ]);
     }
 
-    public function data(Request $request): JsonResponse
+    public function create(Request $request): View
     {
-        $semesters = array_filter((array) $request->input('semester_number', []));
-        $majorIds = array_filter((array) $request->input('major_id', []), fn ($value) => $value !== '');
-        $scopes = array_filter((array) $request->input('scope', []));
-        $activeValues = array_filter((array) $request->input('is_active', []), fn ($value) => $value !== '');
-
-        return DataTables::eloquent(ScoreSubjectSetting::query()
-            ->with(['subject', 'major'])
-            ->when($semesters, fn ($query) => $query->whereIn('semester_number', array_map('intval', $semesters)))
-            ->when($majorIds, fn ($query) => $query->whereIn('major_id', array_map('intval', $majorIds)))
-            ->when($scopes, function ($query) use ($scopes) {
-                if (in_array('general', $scopes, true) && ! in_array('major', $scopes, true)) {
-                    $query->whereNull('major_id');
-                }
-                if (in_array('major', $scopes, true) && ! in_array('general', $scopes, true)) {
-                    $query->whereNotNull('major_id');
-                }
-            })
-            ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
-            ->orderBy('semester_number')
-            ->orderBy('major_id')
-            ->latest())
-            ->addIndexColumn()
-            ->addColumn('semester_badge', fn (ScoreSubjectSetting $setting) => '<span class="inline-flex size-9 items-center justify-center rounded-xl bg-blue-50 text-sm font-extrabold text-blue-900">'.$setting->semester_number.'</span>')
-            ->addColumn('subject_name', fn (ScoreSubjectSetting $setting) => '<div class="font-bold text-slate-900">'.e($setting->subject?->name).'</div><div class="text-xs font-semibold text-slate-400">'.e($setting->subject?->code).'</div>')
-            ->addColumn('major_name', fn (ScoreSubjectSetting $setting) => $setting->major ? '<span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">'.e($setting->major->name).'</span>' : '<span class="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700">Umum</span>')
-            ->editColumn('is_required', fn (ScoreSubjectSetting $setting) => $this->badge($setting->is_required, 'Wajib', 'Pilihan'))
-            ->editColumn('is_active', fn (ScoreSubjectSetting $setting) => $this->badge($setting->is_active, 'Aktif', 'Nonaktif'))
-            ->addColumn('action', fn (ScoreSubjectSetting $setting) => view('bk.score-subject-settings._actions', compact('setting'))->render())
-            ->rawColumns(['semester_badge', 'subject_name', 'major_name', 'is_required', 'is_active', 'action'])
-            ->toJson();
-    }
-
-    public function create(): View
-    {
-        return view('bk.score-subject-settings.create', $this->formData(new ScoreSubjectSetting(['is_required' => true, 'is_active' => true])));
+        return view('bk.score-subject-settings.create', $this->formData(new ScoreSubjectSetting([
+            'semester_number' => $request->integer('semester') ?: null,
+            'is_required' => true,
+            'is_active' => true,
+        ])));
     }
 
     public function store(StoreScoreSubjectSettingRequest $request): RedirectResponse
@@ -115,8 +87,4 @@ class ScoreSubjectSettingController extends Controller
         return $data;
     }
 
-    private function badge(bool $active, string $yes, string $no): string
-    {
-        return '<span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold '.($active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600').'">'.($active ? $yes : $no).'</span>';
-    }
 }

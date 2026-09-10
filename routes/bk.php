@@ -40,6 +40,5 @@ Route::prefix('bk')
         Route::resource('majors', MajorController::class)->except('show');
         Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
         Route::resource('subjects', SubjectController::class)->except('show');
-        Route::get('score-subject-settings/data', [ScoreSubjectSettingController::class, 'data'])->name('score-subject-settings.data');
         Route::resource('score-subject-settings', ScoreSubjectSettingController::class)->except('show');
     });
