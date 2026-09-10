@@ -1,14 +1,14 @@
 @component('layouts.app', ['title' => 'Setting Nilai'])
     <x-page-header title="Setting Nilai" description="Atur mapel umum dan mapel jurusan per semester." />
 
-    <div class="grid gap-5 xl:grid-cols-2">
+    <div class="grid items-start gap-5 xl:grid-cols-2">
         @for ($semester = 1; $semester <= 5; $semester++)
             @php
                 $settings = $settingsBySemester->get($semester, collect());
                 $groups = $settings->groupBy(fn ($setting) => $setting->major?->name ?? 'Umum');
             @endphp
 
-            <x-card class="p-0">
+            <x-card class="self-start p-0">
                 <div class="flex items-start justify-between gap-4 p-5">
                     <button type="button" class="js-score-semester-toggle flex min-w-0 flex-1 items-center gap-3 text-left" aria-expanded="false" aria-controls="score-semester-{{ $semester }}">
                         <span class="flex size-12 items-center justify-center rounded-2xl bg-blue-900 text-lg font-extrabold text-white">{{ $semester }}</span>
@@ -34,8 +34,19 @@
                         </div>
                     @else
                         <div class="space-y-4 pt-5">
+                            @if ($semester >= 3 && $groups->count() > 1)
+                                <div class="flex flex-wrap gap-2" data-score-tabs>
+                                    @foreach ($groups as $group => $items)
+                                        <button type="button" class="js-score-tab rounded-xl px-3 py-2 text-sm font-extrabold transition {{ $loop->first ? 'bg-blue-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900' }}" data-score-tab-target="score-tab-{{ $semester }}-{{ $loop->index }}">
+                                            {{ $group }}
+                                            <span class="ml-1 text-xs opacity-75">{{ $items->count() }}</span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+
                             @foreach ($groups as $group => $items)
-                                <div>
+                                <div id="score-tab-{{ $semester }}-{{ $loop->index }}" class="{{ $semester >= 3 && $groups->count() > 1 && ! $loop->first ? 'hidden' : '' }}" data-score-tab-panel>
                                     <div class="mb-2 flex items-center justify-between gap-2">
                                         <span class="inline-flex rounded-full {{ $group === 'Umum' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }} px-2.5 py-1 text-xs font-extrabold">{{ $group }}</span>
                                         <span class="text-xs font-bold text-slate-400">{{ $items->count() }} mapel</span>
@@ -75,6 +86,22 @@
                     button.attr('aria-expanded', String(!isOpen));
                     panel.toggleClass('hidden', isOpen);
                     button.find('[data-score-semester-chevron]').toggleClass('rotate-180', !isOpen);
+                });
+
+                window.$(document).on('click', '.js-score-tab', function () {
+                    const button = window.$(this);
+                    const card = button.closest('[data-score-semester-panel]');
+                    const target = button.data('score-tab-target');
+
+                    card.find('.js-score-tab')
+                        .removeClass('bg-blue-900 text-white')
+                        .addClass('bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900');
+                    button
+                        .removeClass('bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900')
+                        .addClass('bg-blue-900 text-white');
+
+                    card.find('[data-score-tab-panel]').addClass('hidden');
+                    card.find('#' + target).removeClass('hidden');
                 });
             });
         </script>
