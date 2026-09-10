@@ -15,7 +15,14 @@ class UpdateAcademicYearRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:50', Rule::unique('academic_years', 'name')->ignore($this->academic_year)],
+            'name' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('academic_years', 'name')
+                    ->where(fn ($query) => $query->where('semester', $this->semester))
+                    ->ignore($this->academic_year),
+            ],
             'start_year' => ['required', 'integer', 'min:2000', 'max:2100'],
             'end_year' => ['required', 'integer', 'gte:start_year', 'max:2101'],
             'semester' => ['required', 'in:ganjil,genap'],
