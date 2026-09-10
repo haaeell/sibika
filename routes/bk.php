@@ -17,7 +17,7 @@ Route::prefix('bk')
     ->group(function (): void {
         Route::view('/dashboard', 'bk.dashboard')->name('dashboard');
         Route::get('{resource}/export/{format}', [ExportController::class, 'download'])
-            ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'school-classes', 'teachers', 'students'])
+            ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'school-classes', 'teachers', 'students', 'biodata'])
             ->whereIn('format', ['xlsx', 'pdf'])
             ->name('exports.download');
         Route::get('academic-years/data', [AcademicYearController::class, 'data'])->name('academic-years.data');

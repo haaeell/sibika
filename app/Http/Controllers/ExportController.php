@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Services\StudentProgressService;
 use Illuminate\Http\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Excel;
@@ -18,6 +19,10 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportController extends Controller
 {
+    public function __construct(private readonly StudentProgressService $progressService)
+    {
+    }
+
     public function download(string $resource, string $format): Response|BinaryFileResponse
     {
         abort_unless(in_array($format, ['xlsx', 'pdf'], true), 404);
@@ -109,6 +114,7 @@ class ExportController extends Controller
                     $this->statusLabel($item->status),
                 ]),
             ],
+            'biodata' => $this->biodataData(),
             default => abort(404),
         };
     }
@@ -142,6 +148,75 @@ class ExportController extends Controller
             'school-classes' => 'Kelas',
             'teachers' => 'Guru',
             'students' => 'Siswa',
+            'biodata' => 'Biodata Siswa',
         ][$resource] ?? 'Data';
+    }
+
+    private function biodataData(): array
+    {
+        $headings = [
+            'NIS', 'NISN', 'Nama Lengkap', 'Nama Panggilan', 'Status', 'Email Akun', 'Kelas', 'Angkatan',
+            'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Nomor HP', 'Email Biodata',
+            'Provinsi', 'Kota / Kabupaten', 'Kecamatan', 'Kelurahan / Desa', 'Kode Pos', 'Alamat Lengkap',
+            'Asal Sekolah', 'Alamat Asal Sekolah', 'Tahun Lulus', 'Catatan Akademik',
+            'Nama Ayah', 'HP Ayah', 'Pekerjaan Ayah', 'Pendidikan Ayah', 'Penghasilan Ayah',
+            'Nama Ibu', 'HP Ibu', 'Pekerjaan Ibu', 'Pendidikan Ibu', 'Penghasilan Ibu',
+            'Nama Wali', 'HP Wali', 'Hubungan Wali', 'Progress Biodata', 'Dokumen',
+        ];
+
+        $rows = Student::query()
+            ->with(['schoolClass', 'cohort', 'user', 'profile', 'parents', 'documents'])
+            ->orderBy('name')
+            ->get()
+            ->map(function (Student $student): array {
+                $profile = $student->profile;
+                $parents = $student->parents->keyBy('parent_type');
+                $father = $parents->get('father');
+                $mother = $parents->get('mother');
+                $guardian = $parents->get('guardian');
+
+                return [
+                    $student->nis,
+                    $student->nisn ?? '-',
+                    $student->name,
+                    $profile?->nickname ?? '-',
+                    $this->statusLabel($student->status),
+                    $student->user?->email ?? '-',
+                    $student->schoolClass?->name ?? '-',
+                    $student->cohort?->name ?? '-',
+                    ['male' => 'Laki-laki', 'female' => 'Perempuan'][$profile?->gender] ?? '-',
+                    $profile?->birth_place ?? '-',
+                    $profile?->birth_date?->format('Y-m-d') ?? '-',
+                    $profile?->phone ?? '-',
+                    $profile?->email ?? '-',
+                    $profile?->province ?? '-',
+                    $profile?->city ?? '-',
+                    $profile?->district ?? '-',
+                    $profile?->village ?? '-',
+                    $profile?->postal_code ?? '-',
+                    $profile?->address ?? '-',
+                    $profile?->previous_school ?? '-',
+                    $profile?->previous_school_address ?? '-',
+                    $profile?->graduation_year ?? '-',
+                    $profile?->academic_notes ?? '-',
+                    $father?->name ?? '-',
+                    $father?->phone ?? '-',
+                    $father?->occupation ?? '-',
+                    $father?->education ?? '-',
+                    $father?->income_range ?? '-',
+                    $mother?->name ?? '-',
+                    $mother?->phone ?? '-',
+                    $mother?->occupation ?? '-',
+                    $mother?->education ?? '-',
+                    $mother?->income_range ?? '-',
+                    $guardian?->name ?? '-',
+                    $guardian?->phone ?? '-',
+                    $guardian?->relation ?? '-',
+                    $this->progressService->calculate($student)['percentage'].'%',
+                    $student->documents->pluck('original_name')->join(', ') ?: '-',
+                ];
+            });
+
+        return [$headings, $rows];
     }
 }

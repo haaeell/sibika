@@ -16,7 +16,7 @@
                     @endforeach
                 </select>
             </div>
-            <x-export-buttons resource="students" />
+            <x-export-buttons resource="biodata" />
         </div>
         <div class="overflow-x-auto">
             <table id="biodata-table" class="w-full min-w-[900px] text-left text-sm">
