@@ -49,13 +49,14 @@ class StudentScoreAdminController extends Controller
             ->addColumn('student', fn (Student $student) => '<div class="font-bold text-slate-900">'.e($student->name).'</div><div class="text-xs font-semibold text-slate-400">'.e($student->nis).'</div>')
             ->addColumn('class_name', fn (Student $student) => $student->schoolClass?->name ?? '-')
             ->addColumn('major_name', fn (Student $student) => $student->schoolClass?->major?->name ?? '-')
+            ->addColumn('overall_average', fn (Student $student) => $this->summaryCard($this->scoreService->overallSummary($student)))
             ->addColumn('semester_1', fn (Student $student) => $this->semesterCard($student, 1))
             ->addColumn('semester_2', fn (Student $student) => $this->semesterCard($student, 2))
             ->addColumn('semester_3', fn (Student $student) => $this->semesterCard($student, 3))
             ->addColumn('semester_4', fn (Student $student) => $this->semesterCard($student, 4))
             ->addColumn('semester_5', fn (Student $student) => $this->semesterCard($student, 5))
             ->addColumn('action', fn (Student $student) => '<a href="'.route('bk.student-scores.show', $student).'" class="btn-icon has-tooltip" data-tooltip="Detail" aria-label="Detail"><i class="fa-solid fa-eye"></i></a>')
-            ->rawColumns(['student', 'semester_1', 'semester_2', 'semester_3', 'semester_4', 'semester_5', 'action'])
+            ->rawColumns(['student', 'overall_average', 'semester_1', 'semester_2', 'semester_3', 'semester_4', 'semester_5', 'action'])
             ->toJson();
     }
 
@@ -65,6 +66,7 @@ class StudentScoreAdminController extends Controller
 
         return view('bk.student-scores.show', [
             'student' => $student,
+            'summary' => $this->scoreService->overallSummary($student),
             'semesters' => collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
                 $semester => [
                     'settings' => $this->scoreService->subjectsFor($student, $semester),
@@ -120,6 +122,15 @@ class StudentScoreAdminController extends Controller
             .'<div class="text-sm font-extrabold text-slate-900">'.($average ? number_format((float) $average, 2) : '-').'</div>'
             .'<div class="mt-0.5 text-xs font-semibold text-slate-500">'.$filled.'/'.$total.' mapel</div>'
             .'<span class="mt-2 inline-flex rounded-full px-2 py-0.5 text-[11px] font-extrabold '.$class.'">'.$label.'</span>'
+            .'</div>';
+    }
+
+    private function summaryCard(array $summary): string
+    {
+        return '<div class="min-w-36 rounded-2xl bg-blue-50 px-3 py-2">'
+            .'<div class="text-sm font-extrabold text-blue-950">'.(is_null($summary['average']) ? '-' : number_format((float) $summary['average'], 2)).'</div>'
+            .'<div class="mt-0.5 text-xs font-semibold text-blue-700">Kelas: '.($summary['class_rank'] ?? '-').'/'.$summary['class_total'].'</div>'
+            .'<div class="mt-0.5 text-xs font-semibold text-blue-700">Jurusan: '.($summary['major_rank'] ?? '-').'/'.$summary['major_total'].'</div>'
             .'</div>';
     }
 

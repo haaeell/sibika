@@ -38,6 +38,7 @@
                         <th>Siswa</th>
                         <th>Kelas</th>
                         <th>Jurusan</th>
+                        <th>Rata-rata & Ranking</th>
                         <th>Semester 1</th>
                         <th>Semester 2</th>
                         <th>Semester 3</th>
@@ -70,6 +71,7 @@
                         { data: 'student', name: 'name' },
                         { data: 'class_name', name: 'schoolClass.name', orderable: false, searchable: false },
                         { data: 'major_name', name: 'schoolClass.major.name', orderable: false, searchable: false },
+                        { data: 'overall_average', name: 'overall_average', orderable: false, searchable: false },
                         { data: 'semester_1', name: 'semester_1', orderable: false, searchable: false },
                         { data: 'semester_2', name: 'semester_2', orderable: false, searchable: false },
                         { data: 'semester_3', name: 'semester_3', orderable: false, searchable: false },

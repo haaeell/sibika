@@ -11,6 +11,24 @@
         </div>
     </x-card>
 
+    <div class="grid gap-4 md:grid-cols-3">
+        <x-card>
+            <p class="text-sm font-bold text-slate-500">Rata-rata Keseluruhan</p>
+            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ is_null($summary['average']) ? '-' : number_format($summary['average'], 2) }}</p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">Nilai verified, mapel dihitung</p>
+        </x-card>
+        <x-card>
+            <p class="text-sm font-bold text-slate-500">Ranking Kelas</p>
+            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['class_rank'] ?? '-' }}</p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['class_total'] }} siswa</p>
+        </x-card>
+        <x-card>
+            <p class="text-sm font-bold text-slate-500">Ranking Jurusan</p>
+            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['major_rank'] ?? '-' }}</p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['major_total'] }} siswa</p>
+        </x-card>
+    </div>
+
     <x-card>
         <div class="flex flex-wrap gap-2" data-semester-tabs>
             @foreach ($semesters as $semester => $data)
@@ -60,7 +78,7 @@
                                 @foreach ($data['settings'] as $setting)
                                     @php
                                         $score = $data['scores']->get($setting->subject_id);
-                                        $included = app(\App\Services\StudentScoreService::class)->isIncludedInAverage($setting);
+                                        $included = app(\App\Services\StudentScoreService::class)->isIncludedInAverageForStudent($student, $setting);
                                     @endphp
                                     <tr>
                                         <td class="px-4 py-3 font-bold text-slate-900">{{ $setting->subject?->name }}</td>

@@ -36,8 +36,6 @@ class ScoreSubjectSettingController extends Controller
         $majorIds = Major::where('is_active', true)->pluck('id');
 
         DB::transaction(function () use ($subjects, $majorIds, $selected): void {
-            $this->syncAverageSubjects(null, $subjects, $selected['general'] ?? []);
-
             foreach ($majorIds as $majorId) {
                 $this->syncAverageSubjects($majorId, $subjects, $selected[$majorId] ?? []);
             }

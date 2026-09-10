@@ -822,6 +822,9 @@
   .min-w-32 {
     min-width: calc(var(--spacing) * 32);
   }
+  .min-w-36 {
+    min-width: calc(var(--spacing) * 36);
+  }
   .min-w-\[680px\] {
     min-width: 680px;
   }
@@ -1456,6 +1459,9 @@
   }
   .text-blue-900 {
     color: var(--color-blue-900);
+  }
+  .text-blue-950 {
+    color: var(--color-blue-950);
   }
   .text-emerald-500 {
     color: var(--color-emerald-500);

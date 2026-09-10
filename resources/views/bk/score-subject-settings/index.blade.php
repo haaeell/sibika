@@ -9,31 +9,18 @@
                 <span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-900"><i class="fa-solid fa-calculator"></i></span>
                 <div>
                     <h2 class="font-extrabold text-slate-900">Perhitungan Rata-rata</h2>
-                    <p class="mt-1 text-sm font-semibold text-slate-500">Centang mapel sekali saja. Jika Bahasa Indonesia dihitung, semua semester yang punya mapel itu ikut dihitung.</p>
+                    <p class="mt-1 text-sm font-semibold text-slate-500">Centang mapel per jurusan. Rata-rata siswa dihitung berdasarkan jurusan siswa.</p>
                 </div>
             </div>
 
             <div class="mb-4 flex flex-wrap gap-2" data-average-tabs>
-                <button type="button" class="js-average-tab rounded-xl bg-blue-900 px-3 py-2 text-sm font-extrabold text-white" data-average-target="average-general">Umum</button>
                 @foreach ($majors as $major)
-                    <button type="button" class="js-average-tab rounded-xl bg-slate-100 px-3 py-2 text-sm font-extrabold text-slate-600 transition hover:bg-blue-50 hover:text-blue-900" data-average-target="average-major-{{ $major->id }}">{{ $major->name }}</button>
+                    <button type="button" class="js-average-tab rounded-xl px-3 py-2 text-sm font-extrabold transition {{ $loop->first ? 'bg-blue-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900' }}" data-average-target="average-major-{{ $major->id }}">{{ $major->name }}</button>
                 @endforeach
             </div>
 
-            <div id="average-general" data-average-panel>
-                <div class="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-                    @foreach ($subjects as $subject)
-                        @php $setting = $averageSettings->get('general-'.$subject->id); @endphp
-                        <label class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-700">
-                            <input type="checkbox" name="average_subjects[general][]" value="{{ $subject->id }}" class="size-4 rounded border-slate-300 text-blue-800 focus:ring-blue-700" @checked($setting?->include_in_average ?? true)>
-                            <span>{{ $subject->name }} <span class="text-xs text-slate-400">({{ $subject->code }})</span></span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
-
             @foreach ($majors as $major)
-                <div id="average-major-{{ $major->id }}" class="hidden" data-average-panel>
+                <div id="average-major-{{ $major->id }}" class="{{ $loop->first ? '' : 'hidden' }}" data-average-panel>
                     <div class="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
                         @foreach ($subjects as $subject)
                             @php $setting = $averageSettings->get($major->id.'-'.$subject->id); @endphp
@@ -109,8 +96,8 @@
                                                 </div>
                                                 <div class="flex shrink-0 items-center gap-2">
                                                     <span class="hidden rounded-full px-2.5 py-1 text-xs font-bold sm:inline-flex {{ $setting->is_required ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">{{ $setting->is_required ? 'Wajib' : 'Pilihan' }}</span>
-                                                    @php $avg = $averageSettings->get(($setting->major_id ?? 'general').'-'.$setting->subject_id)?->include_in_average ?? true; @endphp
-                                                    <span class="hidden rounded-full px-2.5 py-1 text-xs font-bold lg:inline-flex {{ $avg ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700' }}">{{ $avg ? 'Dihitung' : 'Tidak dihitung' }}</span>
+                                                    @php $avg = $setting->major_id ? ($averageSettings->get($setting->major_id.'-'.$setting->subject_id)?->include_in_average ?? true) : null; @endphp
+                                                    <span class="hidden rounded-full px-2.5 py-1 text-xs font-bold lg:inline-flex {{ is_null($avg) ? 'bg-slate-100 text-slate-600' : ($avg ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700') }}">{{ is_null($avg) ? 'Per jurusan' : ($avg ? 'Dihitung' : 'Tidak dihitung') }}</span>
                                                     <span class="hidden rounded-full px-2.5 py-1 text-xs font-bold sm:inline-flex {{ $setting->is_active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600' }}">{{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                                                     @include('bk.score-subject-settings._actions', ['setting' => $setting])
                                                 </div>
