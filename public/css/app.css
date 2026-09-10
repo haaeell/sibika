@@ -819,6 +819,9 @@
   .min-w-0 {
     min-width: 0px;
   }
+  .min-w-32 {
+    min-width: calc(var(--spacing) * 32);
+  }
   .min-w-\[680px\] {
     min-width: 680px;
   }
@@ -836,6 +839,9 @@
   }
   .min-w-\[980px\] {
     min-width: 980px;
+  }
+  .min-w-\[1320px\] {
+    min-width: 1320px;
   }
   .flex-1 {
     flex: 1;
@@ -1366,6 +1372,9 @@
   }
   .text-\[10px\] {
     font-size: 10px;
+  }
+  .text-\[11px\] {
+    font-size: 11px;
   }
   .text-\[13px\] {
     font-size: 13px;
