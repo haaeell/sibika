@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 50);
             $table->enum('grade_level', ['X', 'XI', 'XII']);
-            $table->string('major', 50);
+            $table->foreignId('major_id')->constrained('majors')->restrictOnDelete();
             $table->foreignId('academic_year_id')->constrained()->restrictOnDelete();
             $table->foreignId('homeroom_teacher_id')->nullable()->constrained('teachers')->nullOnDelete();
             $table->timestamps();

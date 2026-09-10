@@ -10,12 +10,13 @@ return new class extends Migration
     {
         Schema::create('academic_years', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 50)->unique();
+            $table->string('name', 50);
             $table->unsignedSmallInteger('start_year');
             $table->unsignedSmallInteger('end_year');
             $table->enum('semester', ['ganjil', 'genap']);
             $table->boolean('is_active')->default(false)->index();
             $table->timestamps();
+            $table->unique(['name', 'semester']);
         });
     }
 

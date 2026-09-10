@@ -30,42 +30,42 @@
         [
             'label' => 'Akademik',
             'items' => [
-                ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => '#', 'active' => false],
-                ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => '#', 'active' => false],
-                ['label' => 'TKA', 'icon' => 'fa-solid fa-book-open', 'url' => '#', 'active' => false],
+                ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'TKA', 'icon' => 'fa-solid fa-book-open', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
         [
             'label' => 'BK & Karir',
             'items' => [
-                ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => '#', 'active' => false],
-                ['label' => 'Karir Siswa', 'icon' => 'fa-solid fa-compass', 'url' => '#', 'active' => false],
-                ['label' => 'Kampus', 'icon' => 'fa-solid fa-building-columns', 'url' => '#', 'active' => false],
-                ['label' => 'Prestasi', 'icon' => 'fa-solid fa-trophy', 'url' => '#', 'active' => false],
-                ['label' => 'Alumni', 'icon' => 'fa-solid fa-user-graduate', 'url' => '#', 'active' => false],
+                ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Karir Siswa', 'icon' => 'fa-solid fa-compass', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Kampus', 'icon' => 'fa-solid fa-building-columns', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Prestasi', 'icon' => 'fa-solid fa-trophy', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Alumni', 'icon' => 'fa-solid fa-user-graduate', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
         [
             'label' => 'Pembelajaran',
             'items' => [
-                ['label' => 'Tugas', 'icon' => 'fa-solid fa-file-pen', 'url' => '#', 'active' => false],
-                ['label' => 'CBT', 'icon' => 'fa-solid fa-laptop-file', 'url' => '#', 'active' => false],
+                ['label' => 'Tugas', 'icon' => 'fa-solid fa-file-pen', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'CBT', 'icon' => 'fa-solid fa-laptop-file', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
         [
             'label' => 'Kelulusan',
             'items' => [
-                ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => '#', 'active' => false],
-                ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => '#', 'active' => false],
-                ['label' => 'Pengumuman', 'icon' => 'fa-solid fa-bullhorn', 'url' => '#', 'active' => false],
+                ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Pengumuman', 'icon' => 'fa-solid fa-bullhorn', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
         [
             'label' => 'Sistem',
             'items' => [
-                ['label' => 'Monitoring', 'icon' => 'fa-solid fa-chart-pie', 'url' => '#', 'active' => false],
-                ['label' => 'Laporan', 'icon' => 'fa-solid fa-file-export', 'url' => '#', 'active' => false],
-                ['label' => 'Pengaturan', 'icon' => 'fa-solid fa-gear', 'url' => '#', 'active' => false],
+                ['label' => 'Monitoring', 'icon' => 'fa-solid fa-chart-pie', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Laporan', 'icon' => 'fa-solid fa-file-export', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Pengaturan', 'icon' => 'fa-solid fa-gear', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
     ];
