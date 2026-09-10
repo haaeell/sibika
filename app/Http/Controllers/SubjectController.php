@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateSubjectRequest;
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -14,9 +15,13 @@ class SubjectController extends Controller
 {
     public function index(): View { return view('bk.subjects.index'); }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(Subject::query()->withCount('teachers')->latest())
+        return DataTables::eloquent(Subject::query()
+            ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
+            ->when($request->has('is_active') && $request->is_active !== '', fn ($query) => $query->where('is_active', $request->boolean('is_active')))
+            ->withCount('teachers')
+            ->latest())
             ->addIndexColumn()
             ->editColumn('category', fn (Subject $subject) => $this->categoryLabel($subject->category))
             ->editColumn('is_active', fn (Subject $subject) => $this->statusBadge($subject->is_active))

@@ -9,6 +9,7 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -16,12 +17,20 @@ class StudentController extends Controller
 {
     public function index(): View
     {
-        return view('bk.students.index');
+        return view('bk.students.index', [
+            'schoolClasses' => SchoolClass::with('academicYear')->orderBy('name')->get(),
+            'cohorts' => Cohort::orderByDesc('entry_year')->get(),
+        ]);
     }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(Student::query()->with(['schoolClass', 'cohort'])->latest())
+        return DataTables::eloquent(Student::query()
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($request->filled('class_id'), fn ($query) => $query->where('class_id', $request->integer('class_id')))
+            ->when($request->filled('cohort_id'), fn ($query) => $query->where('cohort_id', $request->integer('cohort_id')))
+            ->with(['schoolClass', 'cohort'])
+            ->latest())
             ->addIndexColumn()
             ->addColumn('class_name', fn (Student $student) => $student->schoolClass?->name ?? '-')
             ->addColumn('cohort_name', fn (Student $student) => $student->cohort?->name ?? '-')

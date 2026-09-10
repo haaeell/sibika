@@ -6,7 +6,21 @@
     </x-page-header>
 
     <x-card>
-        <div class="mb-4 flex justify-end">
+        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-bold text-slate-500">Filter:</span>
+                <select id="teacher-subject-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua mata pelajaran</option>
+                    @foreach ($subjects as $subject)
+                        <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                    @endforeach
+                </select>
+                <select id="teacher-status-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua status</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Nonaktif</option>
+                </select>
+            </div>
             <x-export-buttons resource="teachers" />
         </div>
         <div class="overflow-x-auto">
@@ -32,7 +46,13 @@
             document.addEventListener('DOMContentLoaded', function () {
                 window.initDataTable('#teacher-table', {
                     serverSide: true,
-                    ajax: @json(route('bk.teachers.data')),
+                    ajax: {
+                        url: @json(route('bk.teachers.data')),
+                        data: function (params) {
+                            params.subject_id = window.$('#teacher-subject-filter').val();
+                            params.status = window.$('#teacher-status-filter').val();
+                        },
+                    },
                     columns: [
                         { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                         { data: 'code', name: 'code' },
@@ -43,6 +63,10 @@
                         { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
                     ],
                     order: [[2, 'asc']],
+                });
+
+                window.$('[data-table-filter]').on('change', function () {
+                    window.$('#teacher-table').DataTable().ajax.reload();
                 });
 
                 window.$(document).on('submit', '.js-delete-form', function (event) {

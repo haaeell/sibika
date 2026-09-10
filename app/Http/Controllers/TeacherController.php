@@ -8,6 +8,7 @@ use App\Models\Teacher;
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -15,12 +16,19 @@ class TeacherController extends Controller
 {
     public function index(): View
     {
-        return view('bk.teachers.index');
+        return view('bk.teachers.index', [
+            'subjects' => Subject::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(Teacher::query()->with('subjects')->withCount('homeroomClasses')->latest())
+        return DataTables::eloquent(Teacher::query()
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($request->filled('subject_id'), fn ($query) => $query->whereHas('subjects', fn ($subjectQuery) => $subjectQuery->whereKey($request->integer('subject_id'))))
+            ->with('subjects')
+            ->withCount('homeroomClasses')
+            ->latest())
             ->addIndexColumn()
             ->editColumn('status', fn (Teacher $teacher) => $this->statusBadge($teacher->status))
             ->addColumn('classes', fn (Teacher $teacher) => $teacher->homeroom_classes_count)

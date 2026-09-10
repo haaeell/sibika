@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateAcademicYearRequest;
 use App\Models\AcademicYear;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -17,9 +18,15 @@ class AcademicYearController extends Controller
         return view('bk.academic-years.index');
     }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(AcademicYear::query()->latest('is_active')->latest())
+        $query = AcademicYear::query()
+            ->when($request->filled('semester'), fn ($query) => $query->where('semester', $request->string('semester')))
+            ->when($request->has('is_active') && $request->is_active !== '', fn ($query) => $query->where('is_active', (bool) $request->boolean('is_active')))
+            ->latest('is_active')
+            ->latest();
+
+        return DataTables::eloquent($query)
             ->addIndexColumn()
             ->addColumn('period', fn (AcademicYear $academicYear) => $academicYear->start_year.' - '.$academicYear->end_year)
             ->editColumn('semester', fn (AcademicYear $academicYear) => str($academicYear->semester)->headline()->toString())

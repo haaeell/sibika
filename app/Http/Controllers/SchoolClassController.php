@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\Teacher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -17,12 +18,20 @@ class SchoolClassController extends Controller
 {
     public function index(): View
     {
-        return view('bk.school-classes.index');
+        return view('bk.school-classes.index', [
+            'academicYears' => AcademicYear::orderByDesc('is_active')->orderByDesc('start_year')->get(),
+            'majors' => Major::where('is_active', true)->orderBy('name')->get(),
+        ]);
     }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(SchoolClass::query()->with(['academicYear', 'major', 'homeroomTeacher'])->latest())
+        return DataTables::eloquent(SchoolClass::query()
+            ->when($request->filled('academic_year_id'), fn ($query) => $query->where('academic_year_id', $request->integer('academic_year_id')))
+            ->when($request->filled('major_id'), fn ($query) => $query->where('major_id', $request->integer('major_id')))
+            ->when($request->filled('grade_level'), fn ($query) => $query->where('grade_level', $request->string('grade_level')))
+            ->with(['academicYear', 'major', 'homeroomTeacher'])
+            ->latest())
             ->addIndexColumn()
             ->addColumn('academic_year', fn (SchoolClass $schoolClass) => $schoolClass->academicYear?->name ?? '-')
             ->addColumn('major_name', fn (SchoolClass $schoolClass) => $schoolClass->major?->name ?? '-')

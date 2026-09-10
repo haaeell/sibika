@@ -6,7 +6,28 @@
     </x-page-header>
 
     <x-card>
-        <div class="mb-4 flex justify-end">
+        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-bold text-slate-500">Filter:</span>
+                <select id="school-class-year-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua tahun ajaran</option>
+                    @foreach ($academicYears as $academicYear)
+                        <option value="{{ $academicYear->id }}">{{ $academicYear->name }}</option>
+                    @endforeach
+                </select>
+                <select id="school-class-major-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua jurusan</option>
+                    @foreach ($majors as $major)
+                        <option value="{{ $major->id }}">{{ $major->name }}</option>
+                    @endforeach
+                </select>
+                <select id="school-class-grade-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua tingkat</option>
+                    <option value="X">X</option>
+                    <option value="XI">XI</option>
+                    <option value="XII">XII</option>
+                </select>
+            </div>
             <x-export-buttons resource="school-classes" />
         </div>
         <div class="overflow-x-auto">
@@ -32,7 +53,14 @@
             document.addEventListener('DOMContentLoaded', function () {
                 window.initDataTable('#school-class-table', {
                     serverSide: true,
-                    ajax: @json(route('bk.school-classes.data')),
+                    ajax: {
+                        url: @json(route('bk.school-classes.data')),
+                        data: function (params) {
+                            params.academic_year_id = window.$('#school-class-year-filter').val();
+                            params.major_id = window.$('#school-class-major-filter').val();
+                            params.grade_level = window.$('#school-class-grade-filter').val();
+                        },
+                    },
                     columns: [
                         { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                         { data: 'name', name: 'name' },
@@ -43,6 +71,10 @@
                         { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
                     ],
                     order: [[1, 'asc']],
+                });
+
+                window.$('[data-table-filter]').on('change', function () {
+                    window.$('#school-class-table').DataTable().ajax.reload();
                 });
 
                 window.$(document).on('submit', '.js-delete-form', function (event) {

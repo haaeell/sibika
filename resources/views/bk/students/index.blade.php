@@ -6,7 +6,28 @@
     </x-page-header>
 
     <x-card>
-        <div class="mb-4 flex justify-end">
+        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-bold text-slate-500">Filter:</span>
+                <select id="student-class-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua kelas</option>
+                    @foreach ($schoolClasses as $schoolClass)
+                        <option value="{{ $schoolClass->id }}">{{ $schoolClass->name }} - {{ $schoolClass->academicYear?->name }}</option>
+                    @endforeach
+                </select>
+                <select id="student-cohort-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua angkatan</option>
+                    @foreach ($cohorts as $cohort)
+                        <option value="{{ $cohort->id }}">{{ $cohort->name }}</option>
+                    @endforeach
+                </select>
+                <select id="student-status-filter" data-table-filter class="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 outline-none focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10">
+                    <option value="">Semua status</option>
+                    <option value="active">Aktif</option>
+                    <option value="graduated">Lulus</option>
+                    <option value="inactive">Nonaktif</option>
+                </select>
+            </div>
             <x-export-buttons resource="students" />
         </div>
         <div class="overflow-x-auto">
@@ -33,7 +54,14 @@
             document.addEventListener('DOMContentLoaded', function () {
                 window.initDataTable('#student-table', {
                     serverSide: true,
-                    ajax: @json(route('bk.students.data')),
+                    ajax: {
+                        url: @json(route('bk.students.data')),
+                        data: function (params) {
+                            params.class_id = window.$('#student-class-filter').val();
+                            params.cohort_id = window.$('#student-cohort-filter').val();
+                            params.status = window.$('#student-status-filter').val();
+                        },
+                    },
                     columns: [
                         { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                         { data: 'nis', name: 'nis' },
@@ -45,6 +73,10 @@
                         { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
                     ],
                     order: [[3, 'asc']],
+                });
+
+                window.$('[data-table-filter]').on('change', function () {
+                    window.$('#student-table').DataTable().ajax.reload();
                 });
 
                 window.$(document).on('submit', '.js-delete-form', function (event) {

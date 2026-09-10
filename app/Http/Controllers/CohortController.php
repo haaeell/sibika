@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateCohortRequest;
 use App\Models\Cohort;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -17,9 +18,11 @@ class CohortController extends Controller
         return view('bk.cohorts.index');
     }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(Cohort::query()->latest())
+        return DataTables::eloquent(Cohort::query()
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->latest())
             ->addIndexColumn()
             ->editColumn('status', fn (Cohort $cohort) => $this->statusBadge($cohort->status))
             ->addColumn('period', fn (Cohort $cohort) => $cohort->entry_year.' - '.$cohort->graduation_year)

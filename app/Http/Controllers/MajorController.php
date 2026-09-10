@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateMajorRequest;
 use App\Models\Major;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -14,9 +15,12 @@ class MajorController extends Controller
 {
     public function index(): View { return view('bk.majors.index'); }
 
-    public function data(): JsonResponse
+    public function data(Request $request): JsonResponse
     {
-        return DataTables::eloquent(Major::query()->withCount('classes')->latest())
+        return DataTables::eloquent(Major::query()
+            ->when($request->has('is_active') && $request->is_active !== '', fn ($query) => $query->where('is_active', $request->boolean('is_active')))
+            ->withCount('classes')
+            ->latest())
             ->addIndexColumn()
             ->editColumn('is_active', fn (Major $major) => $this->statusBadge($major->is_active))
             ->addColumn('classes', fn (Major $major) => $major->classes_count)
