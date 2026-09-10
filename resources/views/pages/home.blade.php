@@ -18,7 +18,7 @@
                     <p class="text-sm font-medium text-slate-500">Stack</p>
                     <p class="mt-2 text-2xl font-bold text-slate-900">Laravel + Blade</p>
                 </div>
-                <div class="flex size-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <div class="flex size-11 items-center justify-center rounded-xl bg-blue-50 text-blue-900">
                     <i class="fa-brands fa-laravel"></i>
                 </div>
             </div>

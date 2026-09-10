@@ -3,7 +3,7 @@
 <aside {{ $attributes->merge(['class' => 'flex h-full w-64 flex-col border-r border-slate-200 bg-white']) }}>
     <div class="flex h-16 items-center border-b border-slate-200 px-5">
         <a href="{{ route('home') }}" class="flex items-center gap-3">
-            <span class="flex size-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white">SB</span>
+            <span class="flex size-10 items-center justify-center rounded-xl bg-blue-900 text-sm font-bold text-white">SB</span>
             <span>
                 <span class="block text-sm font-bold text-slate-900">SIBIKA</span>
                 <span class="block text-xs text-slate-500">SMA Plus Astha Hannas</span>
@@ -38,7 +38,7 @@
                         @php
                             $isActive = $item['active'] ?? false;
                             $itemClass = $isActive
-                                ? 'bg-indigo-50 text-indigo-700'
+                                ? 'bg-blue-50 text-blue-900'
                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900';
                         @endphp
 
@@ -56,7 +56,7 @@
         <div class="relative">
             <button
                 type="button"
-                class="js-academic-year-toggle flex w-full items-center gap-3 rounded-2xl bg-slate-50 px-3 py-3 text-left transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                class="js-academic-year-toggle flex w-full items-center gap-3 rounded-2xl bg-slate-50 px-3 py-3 text-left transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
                 aria-expanded="false"
                 aria-controls="academic-year-menu"
             >
@@ -81,11 +81,11 @@
                 @foreach (['2026 / 2027', '2025 / 2026', '2024 / 2025'] as $academicYear)
                     <button
                         type="button"
-                        class="js-academic-year-option flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-semibold text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700"
+                        class="js-academic-year-option flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-semibold text-slate-600 transition hover:bg-blue-50 hover:text-blue-900"
                         data-academic-year="{{ $academicYear }}"
                     >
                         <span>{{ $academicYear }}</span>
-                        <i class="fa-solid fa-check hidden text-xs text-indigo-600" data-academic-year-check></i>
+                        <i class="fa-solid fa-check hidden text-xs text-yellow-500" data-academic-year-check></i>
                     </button>
                 @endforeach
             </div>

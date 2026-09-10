@@ -20,7 +20,7 @@
         </button>
 
         <div class="hidden items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 sm:flex">
-            <div class="flex size-8 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-700">
+            <div class="flex size-8 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-900">
                 {{ strtoupper(substr(auth()->user()->name ?? 'Guest', 0, 1)) }}
             </div>
             <div>

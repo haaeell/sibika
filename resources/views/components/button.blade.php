@@ -9,7 +9,7 @@
     $variantClass = match ($variant) {
         'secondary' => 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-300',
         'danger' => 'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500',
-        default => 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
+        default => 'bg-blue-900 text-white hover:bg-blue-800 focus:ring-blue-700',
     };
 @endphp
 

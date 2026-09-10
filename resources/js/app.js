@@ -150,7 +150,7 @@ $(function () {
         $('.js-academic-year-option').each(function () {
             const isSelected = $(this).data('academic-year') === year;
 
-            $(this).toggleClass('bg-indigo-50 text-indigo-700', isSelected);
+            $(this).toggleClass('bg-blue-50 text-blue-900', isSelected);
             $(this).find('[data-academic-year-check]').toggleClass('hidden', !isSelected);
         });
     };
@@ -182,6 +182,16 @@ $(function () {
             $('[data-academic-year-menu]').addClass('hidden');
             $('.js-academic-year-toggle').attr('aria-expanded', 'false');
         }
+    });
+
+    $('.js-toggle-password').on('click', function () {
+        const $button = $(this);
+        const $input = $button.siblings('input');
+        const isPassword = $input.attr('type') === 'password';
+
+        $input.attr('type', isPassword ? 'text' : 'password');
+        $button.attr('aria-label', isPassword ? 'Sembunyikan password' : 'Tampilkan password');
+        $button.find('i').toggleClass('fa-eye fa-eye-slash');
     });
 
     $('.js-sidebar-toggle').on('click', function () {

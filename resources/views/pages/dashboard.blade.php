@@ -6,7 +6,7 @@
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         @foreach ([
-            ['label' => 'Siswa', 'value' => '0', 'icon' => 'fa-solid fa-users', 'class' => 'bg-indigo-50 text-indigo-600'],
+            ['label' => 'Siswa', 'value' => '0', 'icon' => 'fa-solid fa-users', 'class' => 'bg-blue-50 text-blue-900'],
             ['label' => 'Kelas', 'value' => '0', 'icon' => 'fa-solid fa-school', 'class' => 'bg-sky-50 text-sky-600'],
             ['label' => 'Tugas Aktif', 'value' => '0', 'icon' => 'fa-solid fa-file-pen', 'class' => 'bg-amber-50 text-amber-600'],
             ['label' => 'Alumni', 'value' => '0', 'icon' => 'fa-solid fa-user-graduate', 'class' => 'bg-emerald-50 text-emerald-600'],

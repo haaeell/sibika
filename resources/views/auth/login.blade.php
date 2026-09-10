@@ -9,45 +9,136 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
-    <main class="flex min-h-screen items-center justify-center p-4">
-        <section class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="mb-6">
-                <div class="mb-4 flex size-12 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white">
-                    SB
+<body class="bg-white text-slate-800 antialiased">
+    <main class="min-h-screen lg:grid lg:h-screen lg:grid-cols-[1.15fr_0.85fr] lg:overflow-hidden">
+        <section class="relative hidden min-h-screen overflow-hidden bg-slate-900 lg:block lg:min-h-0">
+            <img
+                src="{{ asset('images/login-school-hero.png') }}"
+                alt="Gedung sekolah modern"
+                class="absolute inset-0 h-full w-full object-cover"
+            >
+            <div class="absolute inset-0 bg-blue-950/40"></div>
+            <div class="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-blue-950/80 via-blue-950/45 to-transparent"></div>
+            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-blue-950/70 to-transparent"></div>
+
+            <div class="relative flex h-full min-h-screen flex-col justify-between px-10 py-8 xl:px-14">
+                <div class="flex items-center gap-4 text-white">
+                    <img
+                        src="{{ asset('images/logo.webp') }}"
+                        alt="Logo SMA Plus Astha Hannas"
+                        class="size-14 object-contain drop-shadow-xl"
+                    >
+                    <div>
+                        <p class="text-xl font-bold tracking-tight">E-Learning BK</p>
+                        <p class="mt-1 text-base font-medium text-white/85">SMA Plus Astha Hannas</p>
+                    </div>
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Masuk ke SIBIKA</h1>
-                <p class="mt-1 text-sm text-slate-500">Template login awal untuk E-Learning BK.</p>
+
+                <div class="max-w-xl">
+                    <div class="mb-8 h-1 w-12 rounded-full bg-yellow-400"></div>
+                    <h1 class="text-4xl font-bold leading-tight tracking-tight text-white xl:text-5xl">
+                        Portal BK dan Karir Siswa
+                    </h1>
+                    <p class="mt-5 text-lg leading-8 text-white/85">
+                        Satu akses untuk pendampingan akademik, pengembangan diri, dan rencana masa depan.
+                    </p>
+                </div>
+
+                <div class="text-white">
+                    <div class="mb-5 h-1 w-12 rounded-full bg-yellow-400"></div>
+                    <p class="text-sm font-bold">SMA Plus Astha Hannas</p>
+                    <p class="mt-1 text-sm font-semibold text-white/80">Berilmu &bull; Berakhlak &bull; Berprestasi</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex min-h-screen flex-col bg-slate-50 px-5 py-5 sm:px-8 lg:min-h-0 lg:overflow-y-auto lg:px-10 xl:px-16">
+            <div class="flex justify-end">
+                <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-800">
+                    <i class="fa-regular fa-circle-question"></i>
+                    Butuh bantuan?
+                </a>
             </div>
 
-            <form action="#" method="POST" class="space-y-4">
-                @csrf
+            <div class="flex flex-1 items-center justify-center py-5">
+                <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm sm:px-8 lg:px-10">
+                    <div class="text-center">
+                        <img
+                            src="{{ asset('images/logo.webp') }}"
+                            alt="Logo SMA Plus Astha Hannas"
+                            class="mx-auto size-16 object-contain"
+                        >
+                        <h1 class="mt-5 text-2xl font-bold tracking-tight text-slate-950">Selamat Datang</h1>
+                        <p class="mt-2 text-sm font-semibold text-slate-500">E-Learning BK SMA Plus Astha Hannas</p>
+                    </div>
 
-                <x-form.input
-                    name="login"
-                    label="Username / NIS / Email"
-                    autocomplete="username"
-                    placeholder="Masukkan akun"
-                />
+                    <form action="#" method="POST" class="mt-7 space-y-4">
+                        @csrf
 
-                <x-form.input
-                    name="password"
-                    label="Password"
-                    type="password"
-                    autocomplete="current-password"
-                    placeholder="Masukkan password"
-                />
+                        <div>
+                            <label for="login" class="mb-2 block text-sm font-bold text-slate-800">Email / Username</label>
+                            <div class="relative">
+                                <span class="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center text-slate-400">
+                                    <i class="fa-regular fa-user"></i>
+                                </span>
+                                <input
+                                    id="login"
+                                    name="login"
+                                    type="text"
+                                    autocomplete="username"
+                                    placeholder="Masukkan email atau username"
+                                    class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"
+                                >
+                            </div>
+                            <x-form.error name="login" />
+                        </div>
 
-                <label class="flex items-center gap-2 text-sm font-medium text-slate-600">
-                    <input type="checkbox" name="remember" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                    Ingat saya
-                </label>
+                        <div>
+                            <div class="mb-2 flex items-center justify-between gap-3">
+                                <label for="password" class="block text-sm font-bold text-slate-800">Password</label>
+                                <a href="#" class="text-sm font-bold text-blue-800 hover:text-blue-900">Lupa password?</a>
+                            </div>
+                            <div class="relative">
+                                <span class="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center text-slate-400">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autocomplete="current-password"
+                                    placeholder="Masukkan password"
+                                    class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"
+                                >
+                                <button type="button" class="js-toggle-password absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-600" aria-label="Tampilkan password">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <x-form.error name="password" />
+                        </div>
 
-                <x-button type="submit" class="w-full">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    Masuk
-                </x-button>
-            </form>
+                        <label class="flex items-center gap-3 text-sm font-semibold text-slate-600">
+                            <input type="checkbox" name="remember" class="size-5 rounded border-slate-300 text-blue-800 focus:ring-blue-700">
+                            Ingat saya
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-blue-900 px-4 text-base font-bold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
+                        >
+                            Masuk
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <div class="mt-6 flex items-center justify-center gap-3 rounded-2xl bg-blue-50 px-5 py-4 text-blue-900">
+                        <i class="fa-solid fa-shield-halved text-lg"></i>
+                        <p class="text-sm font-semibold">Khusus civitas akademik sekolah</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center text-sm font-semibold text-slate-400">&copy; 2026 SMA Plus Astha Hannas. All rights reserved.</p>
         </section>
     </main>
 </body>
