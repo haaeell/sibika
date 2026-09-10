@@ -19,10 +19,10 @@
             'label' => 'Master Data',
             'items' => [
                 ['label' => 'Tahun Ajaran', 'icon' => 'fa-solid fa-calendar-days', 'url' => route('bk.academic-years.index'), 'active' => request()->routeIs('bk.academic-years.*')],
-                ['label' => 'Angkatan', 'icon' => 'fa-solid fa-layer-group', 'url' => '#', 'active' => false],
-                ['label' => 'Kelas', 'icon' => 'fa-solid fa-school', 'url' => '#', 'active' => false],
-                ['label' => 'Guru', 'icon' => 'fa-solid fa-chalkboard-user', 'url' => '#', 'active' => false],
-                ['label' => 'Siswa', 'icon' => 'fa-solid fa-users', 'url' => '#', 'active' => false],
+                ['label' => 'Angkatan', 'icon' => 'fa-solid fa-layer-group', 'url' => route('bk.cohorts.index'), 'active' => request()->routeIs('bk.cohorts.*')],
+                ['label' => 'Kelas', 'icon' => 'fa-solid fa-school', 'url' => route('bk.school-classes.index'), 'active' => request()->routeIs('bk.school-classes.*')],
+                ['label' => 'Guru', 'icon' => 'fa-solid fa-chalkboard-user', 'url' => route('bk.teachers.index'), 'active' => request()->routeIs('bk.teachers.*')],
+                ['label' => 'Siswa', 'icon' => 'fa-solid fa-users', 'url' => route('bk.students.index'), 'active' => request()->routeIs('bk.students.*')],
             ],
         ],
         [
@@ -106,6 +106,14 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 window.showToast({ title: @json(session('success')) });
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                window.handleAjaxError({ responseJSON: { message: @json(session('error')) } });
             });
         </script>
     @endif

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AcademicYear extends Model
 {
@@ -19,5 +20,10 @@ class AcademicYear extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    public function classes(): HasMany
+    {
+        return $this->hasMany(SchoolClass::class);
     }
 }
