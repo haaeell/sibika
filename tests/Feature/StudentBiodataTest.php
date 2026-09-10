@@ -43,6 +43,8 @@ class StudentBiodataTest extends TestCase
                 'village' => 'Dago',
                 'postal_code' => '40135',
                 'address' => 'Jalan Test',
+                'previous_school' => 'SMP Test',
+                'graduation_year' => 2024,
                 'father' => ['name' => 'Ayah Test', 'phone' => '0811111111'],
                 'mother' => ['name' => 'Ibu Test', 'phone' => '0822222222'],
             ])
@@ -73,7 +75,24 @@ class StudentBiodataTest extends TestCase
             ->assertDontSee('Hapus Biodata');
 
         $this->actingAs($user)
-            ->put(route('bk.students.biodata.update', $student), ['nickname' => 'Diperbarui'])
+            ->put(route('bk.students.biodata.update', $student), [
+                'nickname' => 'Diperbarui',
+                'gender' => 'male',
+                'birth_place' => 'Bandung',
+                'birth_date' => '2008-01-01',
+                'phone' => '08123456789',
+                'email' => 'bk-student@example.test',
+                'province' => 'Jawa Barat',
+                'city' => 'Bandung',
+                'district' => 'Coblong',
+                'village' => 'Dago',
+                'postal_code' => '40135',
+                'address' => 'Jalan Test',
+                'previous_school' => 'SMP Test',
+                'graduation_year' => 2024,
+                'father' => ['name' => 'Ayah Test'],
+                'mother' => ['name' => 'Ibu Test'],
+            ])
             ->assertRedirect(route('bk.students.biodata.show', $student));
 
         $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'nickname' => 'Diperbarui']);

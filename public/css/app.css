@@ -1427,6 +1427,9 @@
   .text-indigo-700 {
     color: var(--color-indigo-700);
   }
+  .text-rose-500 {
+    color: var(--color-rose-500);
+  }
   .text-rose-600 {
     color: var(--color-rose-600);
   }

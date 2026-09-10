@@ -3,12 +3,13 @@
     'label' => null,
     'help' => null,
     'icon' => null,
+    'required' => false,
 ])
 
 <div>
     @if ($label)
         <label for="{{ $name }}" class="mb-1.5 block text-sm font-semibold text-slate-700">
-            {{ $label }}
+            {{ $label }}@if ($required) <span class="text-rose-500">*</span>@endif
         </label>
     @endif
 
@@ -22,6 +23,7 @@
         <select
             id="{{ $name }}"
             name="{{ $name }}"
+            @if ($required) required @endif
             {{ $attributes->merge(['class' => 'w-full rounded-xl border border-slate-300 bg-white '.($icon ? 'pl-12 pr-3.5' : 'px-3.5').' py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10']) }}
         >
             {{ $slot }}

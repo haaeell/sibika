@@ -27,15 +27,15 @@
                         <x-form.input name="nisn" label="NISN" icon="fa-solid fa-fingerprint" :value="$student->nisn" readonly class="bg-slate-50 text-slate-500" />
                         <x-form.input name="name" label="Nama Lengkap" icon="fa-solid fa-user-graduate" :value="$student->name" readonly class="bg-slate-50 text-slate-500" />
                         <x-form.input name="nickname" label="Nama Panggilan" icon="fa-solid fa-signature" :value="old('nickname', $profile?->nickname)" />
-                        <x-form.select name="gender" label="Jenis Kelamin" icon="fa-solid fa-venus-mars">
+                        <x-form.select name="gender" label="Jenis Kelamin" icon="fa-solid fa-venus-mars" required>
                             <option value="">Pilih jenis kelamin</option>
                             <option value="male" @selected(old('gender', $profile?->gender) === 'male')>Laki-laki</option>
                             <option value="female" @selected(old('gender', $profile?->gender) === 'female')>Perempuan</option>
                         </x-form.select>
-                        <x-form.input name="birth_place" label="Tempat Lahir" icon="fa-solid fa-location-dot" :value="old('birth_place', $profile?->birth_place)" />
-                        <x-form.input name="birth_date" label="Tanggal Lahir" icon="fa-solid fa-cake-candles" type="date" :value="old('birth_date', $profile?->birth_date?->format('Y-m-d'))" />
-                        <x-form.input name="phone" label="Nomor HP" icon="fa-solid fa-phone" :value="old('phone', $profile?->phone)" />
-                        <x-form.input name="email" label="Email" icon="fa-solid fa-envelope" type="email" :value="old('email', $profile?->email ?? $student->user?->email)" />
+                        <x-form.input name="birth_place" label="Tempat Lahir" icon="fa-solid fa-location-dot" :value="old('birth_place', $profile?->birth_place)" required />
+                        <x-form.input name="birth_date" label="Tanggal Lahir" icon="fa-solid fa-cake-candles" type="date" :value="old('birth_date', $profile?->birth_date?->format('Y-m-d'))" required />
+                        <x-form.input name="phone" label="Nomor HP" icon="fa-solid fa-phone" :value="old('phone', $profile?->phone)" required />
+                        <x-form.input name="email" label="Email" icon="fa-solid fa-envelope" type="email" :value="old('email', $profile?->email ?? $student->user?->email)" required />
                     </div>
                 </section>
 
@@ -45,20 +45,20 @@
                         <div><h2 class="font-bold text-slate-900">Alamat</h2><p class="text-sm text-slate-500">Alamat domisili saat ini.</p></div>
                     </div>
                     <div class="grid gap-4 md:grid-cols-2">
-                        <x-form.select name="province" label="Provinsi" class="select2" data-region-select="province" :data-initial="old('province', $profile?->province)" data-placeholder="Pilih provinsi">
+                        <x-form.select name="province" label="Provinsi" class="select2" data-region-select="province" :data-initial="old('province', $profile?->province)" data-placeholder="Pilih provinsi" required>
                             <option value="">Memuat provinsi...</option>
                         </x-form.select>
-                        <x-form.select name="city" label="Kota / Kabupaten" class="select2" data-region-select="city" :data-initial="old('city', $profile?->city)" data-placeholder="Pilih kabupaten/kota" disabled>
+                        <x-form.select name="city" label="Kota / Kabupaten" class="select2" data-region-select="city" :data-initial="old('city', $profile?->city)" data-placeholder="Pilih kabupaten/kota" disabled required>
                             <option value="">Pilih kabupaten/kota</option>
                         </x-form.select>
-                        <x-form.select name="district" label="Kecamatan" class="select2" data-region-select="district" :data-initial="old('district', $profile?->district)" data-placeholder="Pilih kecamatan" disabled>
+                        <x-form.select name="district" label="Kecamatan" class="select2" data-region-select="district" :data-initial="old('district', $profile?->district)" data-placeholder="Pilih kecamatan" disabled required>
                             <option value="">Pilih kecamatan</option>
                         </x-form.select>
-                        <x-form.select name="village" label="Kelurahan / Desa" class="select2" data-region-select="village" :data-initial="old('village', $profile?->village)" data-placeholder="Pilih kelurahan/desa" disabled>
+                        <x-form.select name="village" label="Kelurahan / Desa" class="select2" data-region-select="village" :data-initial="old('village', $profile?->village)" data-placeholder="Pilih kelurahan/desa" disabled required>
                             <option value="">Pilih kelurahan/desa</option>
                         </x-form.select>
-                        <x-form.input name="postal_code" label="Kode Pos" :value="old('postal_code', $profile?->postal_code)" />
-                        <x-form.textarea name="address" label="Alamat Lengkap" class="md:col-span-2" :value="old('address', $profile?->address)" />
+                        <x-form.input name="postal_code" label="Kode Pos" :value="old('postal_code', $profile?->postal_code)" required />
+                        <x-form.textarea name="address" label="Alamat Lengkap" class="md:col-span-2" :value="old('address', $profile?->address)" required />
                     </div>
                 </section>
 
@@ -70,7 +70,7 @@
                             <div><h2 class="font-bold text-slate-900">{{ $label }}</h2><p class="text-sm text-slate-500">Informasi kontak dan pekerjaan.</p></div>
                         </div>
                         <div class="grid gap-4 md:grid-cols-2">
-                            <x-form.input name="{{ $type }}[name]" label="Nama" icon="fa-solid fa-user" :value="old($type.'.name', $parent?->name)" />
+                            <x-form.input name="{{ $type }}[name]" label="Nama" icon="fa-solid fa-user" :value="old($type.'.name', $parent?->name)" :required="$type !== 'guardian'" />
                             <x-form.input name="{{ $type }}[phone]" label="Nomor HP" icon="fa-solid fa-phone" :value="old($type.'.phone', $parent?->phone)" />
                             @if ($type !== 'guardian')
                                 <x-form.input name="{{ $type }}[occupation]" label="Pekerjaan" :value="old($type.'.occupation', $parent?->occupation)" />
@@ -94,8 +94,8 @@
                         <div><h2 class="font-bold text-slate-900">Data Pendidikan</h2><p class="text-sm text-slate-500">Riwayat pendidikan sebelumnya.</p></div>
                     </div>
                     <div class="grid gap-4 md:grid-cols-2">
-                        <x-form.input name="previous_school" label="Asal Sekolah" :value="old('previous_school', $profile?->previous_school)" />
-                        <x-form.input name="graduation_year" label="Tahun Lulus" type="number" min="2000" max="2105" :value="old('graduation_year', $profile?->graduation_year)" />
+                        <x-form.input name="previous_school" label="Asal Sekolah" :value="old('previous_school', $profile?->previous_school)" required />
+                        <x-form.input name="graduation_year" label="Tahun Lulus" type="number" min="2000" max="2105" :value="old('graduation_year', $profile?->graduation_year)" required />
                         <x-form.textarea name="previous_school_address" label="Alamat Asal Sekolah" class="md:col-span-2" :value="old('previous_school_address', $profile?->previous_school_address)" />
                         <x-form.textarea name="academic_notes" label="Catatan Akademik" class="md:col-span-2" :value="old('academic_notes', $profile?->academic_notes)" />
                     </div>
