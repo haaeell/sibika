@@ -72,11 +72,11 @@
                         <p class="mt-2 text-sm font-semibold text-slate-500">E-Learning BK SMA Plus Astha Hannas</p>
                     </div>
 
-                    <form action="#" method="POST" class="mt-7 space-y-4">
+                    <form action="{{ route('login.store') }}" method="POST" class="mt-7 space-y-4">
                         @csrf
 
                         <div>
-                            <label for="login" class="mb-2 block text-sm font-bold text-slate-800">Email / Username</label>
+                            <label for="login" class="mb-2 block text-sm font-bold text-slate-800">Email</label>
                             <div class="relative">
                                 <span class="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center text-slate-400">
                                     <i class="fa-regular fa-user"></i>
@@ -84,9 +84,10 @@
                                 <input
                                     id="login"
                                     name="login"
-                                    type="text"
+                                    type="email"
                                     autocomplete="username"
-                                    placeholder="Masukkan email atau username"
+                                    placeholder="Masukkan email"
+                                    value="{{ old('login') }}"
                                     class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"
                                 >
                             </div>

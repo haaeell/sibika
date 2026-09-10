@@ -1,13 +1,19 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('pages.home');
 })->name('home');
 
-Route::view('/login', 'auth.login')->middleware('guest')->name('login');
-Route::view('/dashboard', 'pages.dashboard')->name('dashboard');
+Route::middleware('guest')->group(function (): void {
+    Route::view('/login', 'auth.login')->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::view('/dashboard', 'pages.dashboard')->middleware('auth')->name('dashboard');
 
 require __DIR__.'/admin.php';
 require __DIR__.'/bk.php';

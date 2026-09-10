@@ -28,5 +28,12 @@
                 <p class="text-xs text-slate-500">Template setup</p>
             </div>
         </div>
+
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900">
+                Keluar
+            </button>
+        </form>
     </div>
 </header>
