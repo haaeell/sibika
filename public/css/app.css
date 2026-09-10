@@ -587,6 +587,9 @@
   .-mt-\[4\.9rem\] {
     margin-top: calc(4.9rem * -1);
   }
+  .mt-0\.5 {
+    margin-top: calc(var(--spacing) * 0.5);
+  }
   .mt-1 {
     margin-top: var(--spacing);
   }
@@ -792,6 +795,9 @@
   .min-w-0 {
     min-width: 0px;
   }
+  .min-w-\[760px\] {
+    min-width: 760px;
+  }
   .flex-1 {
     flex: 1;
   }
@@ -875,6 +881,16 @@
     margin-inline-start: calc(var(--spacing) * var(--tw-space-x-reverse));
     margin-inline-end: calc(var(--spacing) * calc(1 - var(--tw-space-x-reverse)));
   }
+  :where(.divide-y > :not(:last-child)) {
+    --tw-divide-y-reverse: 0;
+    border-bottom-style: var(--tw-border-style);
+    border-top-style: var(--tw-border-style);
+    border-top-width: calc(1px * var(--tw-divide-y-reverse));
+    border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+  }
+  :where(.divide-slate-100 > :not(:last-child)) {
+    border-color: var(--color-slate-100);
+  }
   .truncate {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -882,6 +898,9 @@
   }
   .overflow-hidden {
     overflow: hidden;
+  }
+  .overflow-x-auto {
+    overflow-x: auto;
   }
   .overflow-y-auto {
     overflow-y: auto;
@@ -1124,6 +1143,9 @@
   .py-8 {
     padding-block: calc(var(--spacing) * 8);
   }
+  .py-10 {
+    padding-block: calc(var(--spacing) * 10);
+  }
   .py-12 {
     padding-block: calc(var(--spacing) * 12);
   }
@@ -1144,6 +1166,9 @@
   }
   .text-left {
     text-align: left;
+  }
+  .text-right {
+    text-align: right;
   }
   .font-sans {
     font-family: var(--font-sans);
@@ -1888,6 +1913,11 @@
   inherits: false;
   initial-value: 0;
 }
+@property --tw-divide-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -2113,6 +2143,7 @@
       --tw-skew-y: initial;
       --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
+      --tw-divide-y-reverse: 0;
       --tw-border-style: solid;
       --tw-gradient-position: initial;
       --tw-gradient-from: #0000;

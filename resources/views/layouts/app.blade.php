@@ -18,7 +18,7 @@
         [
             'label' => 'Master Data',
             'items' => [
-                ['label' => 'Tahun Ajaran', 'icon' => 'fa-solid fa-calendar-days', 'url' => '#', 'active' => false],
+                ['label' => 'Tahun Ajaran', 'icon' => 'fa-solid fa-calendar-days', 'url' => route('bk.academic-years.index'), 'active' => request()->routeIs('bk.academic-years.*')],
                 ['label' => 'Angkatan', 'icon' => 'fa-solid fa-layer-group', 'url' => '#', 'active' => false],
                 ['label' => 'Kelas', 'icon' => 'fa-solid fa-school', 'url' => '#', 'active' => false],
                 ['label' => 'Guru', 'icon' => 'fa-solid fa-chalkboard-user', 'url' => '#', 'active' => false],
