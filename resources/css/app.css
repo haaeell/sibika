@@ -2,3 +2,48 @@
 
 @source "../views/**/*.blade.php";
 @source "../js/**/*.js";
+
+@theme {
+    --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    body {
+        font-family: var(--font-sans);
+    }
+}
+
+@layer components {
+    .btn-icon {
+        @apply inline-flex size-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+    }
+
+    .select2-container .select2-selection--single {
+        @apply h-11 rounded-xl border-slate-300;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        @apply px-3.5 text-sm leading-[42px] text-slate-900;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        @apply h-10;
+    }
+
+    .select2-dropdown {
+        @apply overflow-hidden rounded-xl border-slate-200 shadow-xl;
+    }
+
+    .dataTable {
+        @apply text-sm;
+    }
+
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        @apply rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10;
+    }
+
+    #nprogress .bar {
+        @apply bg-indigo-600;
+    }
+}
