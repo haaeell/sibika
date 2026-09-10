@@ -36,31 +36,33 @@
 
     @push('scripts')
         <script>
-            initDataTable('#academic-year-table', {
-                serverSide: true,
-                ajax: @json(route('bk.academic-years.data')),
-                columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                    { data: 'name', name: 'name' },
-                    { data: 'period', name: 'start_year' },
-                    { data: 'semester', name: 'semester' },
-                    { data: 'is_active', name: 'is_active' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
-                ],
-                order: [[4, 'desc']],
-            });
+            document.addEventListener('DOMContentLoaded', function () {
+                window.initDataTable('#academic-year-table', {
+                    serverSide: true,
+                    ajax: @json(route('bk.academic-years.data')),
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'name', name: 'name' },
+                        { data: 'period', name: 'start_year' },
+                        { data: 'semester', name: 'semester' },
+                        { data: 'is_active', name: 'is_active' },
+                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' },
+                    ],
+                    order: [[4, 'desc']],
+                });
 
-            $(document).on('submit', '.js-delete-form', function (event) {
-                event.preventDefault();
+                window.$(document).on('submit', '.js-delete-form', function (event) {
+                    event.preventDefault();
 
-                confirmAction({
-                    title: 'Hapus tahun ajaran?',
-                    text: 'Data yang dihapus tidak bisa dikembalikan.',
-                    confirmText: 'Ya, hapus',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
+                    window.confirmAction({
+                        title: 'Hapus tahun ajaran?',
+                        text: 'Data yang dihapus tidak bisa dikembalikan.',
+                        confirmText: 'Ya, hapus',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
                 });
             });
         </script>

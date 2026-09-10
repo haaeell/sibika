@@ -1,6 +1,6 @@
 import './bootstrap';
 import $ from 'jquery';
-import 'datatables.net-dt';
+import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 import 'select2';
 import Swal from 'sweetalert2';
@@ -8,19 +8,13 @@ import flatpickr from 'flatpickr';
 import Chart from 'chart.js/auto';
 import NProgress from 'nprogress';
 
-import 'datatables.net-dt/css/dataTables.dataTables.css';
-import 'datatables.net-responsive-dt/css/responsive.dataTables.css';
-import 'select2/dist/css/select2.css';
-import 'sweetalert2/dist/sweetalert2.css';
-import '@fortawesome/fontawesome-free/css/all.css';
-import 'flatpickr/dist/flatpickr.css';
-import 'nprogress/nprogress.css';
-
 window.$ = window.jQuery = $;
 window.Swal = Swal;
 window.flatpickr = flatpickr;
 window.Chart = Chart;
 window.NProgress = NProgress;
+DataTable.use($);
+window.DataTable = DataTable;
 
 $.ajaxSetup({
     headers: {
