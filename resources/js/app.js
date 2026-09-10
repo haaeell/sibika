@@ -56,6 +56,32 @@ window.initDataTable = function (selector, options = {}) {
     });
 };
 
+const appSwalOptions = {
+    buttonsStyling: false,
+    customClass: {
+        popup: 'app-swal-popup',
+        icon: 'app-swal-icon',
+        title: 'app-swal-title',
+        htmlContainer: 'app-swal-text',
+        actions: 'app-swal-actions',
+        confirmButton: 'app-swal-confirm',
+        cancelButton: 'app-swal-cancel',
+    },
+    showClass: {
+        popup: 'app-swal-show',
+    },
+    hideClass: {
+        popup: 'app-swal-hide',
+    },
+};
+
+const showAppSwal = function (options = {}) {
+    return Swal.fire({
+        ...appSwalOptions,
+        ...options,
+    });
+};
+
 window.confirmAction = function ({
     title = 'Apakah Anda yakin?',
     text = 'Aksi ini akan memproses data.',
@@ -63,7 +89,7 @@ window.confirmAction = function ({
     cancelText = 'Batal',
     icon = 'warning',
 } = {}) {
-    return Swal.fire({
+    return showAppSwal({
         title,
         text,
         icon,
@@ -75,21 +101,18 @@ window.confirmAction = function ({
 };
 
 window.showToast = function ({ icon = 'success', title = 'Data berhasil disimpan' } = {}) {
-    return Swal.fire({
-        toast: true,
-        position: 'top-end',
+    return showAppSwal({
         icon,
         title,
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
+        showConfirmButton: true,
+        confirmButtonText: 'Mengerti',
     });
 };
 
 window.handleAjaxError = function (xhr) {
     const message = xhr.responseJSON?.message || 'Terjadi kesalahan. Silakan coba lagi.';
 
-    return Swal.fire({
+    return showAppSwal({
         icon: 'error',
         title: 'Gagal',
         text: message,

@@ -102,6 +102,14 @@
         </div>
     </div>
 
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                window.showToast({ title: @json(session('success')) });
+            });
+        </script>
+    @endif
+
     @stack('scripts')
 </body>
 </html>

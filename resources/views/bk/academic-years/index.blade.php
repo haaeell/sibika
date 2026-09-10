@@ -26,14 +26,6 @@
         </div>
     </x-card>
 
-    @if (session('success'))
-        @push('scripts')
-            <script>
-                showToast({ title: @json(session('success')) });
-            </script>
-        @endpush
-    @endif
-
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {

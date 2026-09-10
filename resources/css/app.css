@@ -21,6 +21,63 @@
 }
 
 @layer components {
+    .app-swal-popup {
+        @apply relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-0 shadow-2xl;
+        width: min(26rem, calc(100vw - 2rem));
+    }
+
+    .app-swal-popup::before {
+        content: '';
+        @apply block h-1.5 w-full bg-blue-800;
+    }
+
+    .app-swal-icon {
+        @apply mb-4 mt-7 size-16 border-0;
+        background: rgb(239 246 255);
+    }
+
+    .app-swal-icon.swal2-success {
+        color: rgb(29 78 216);
+    }
+
+    .app-swal-icon.swal2-error {
+        color: rgb(225 29 72);
+        background: rgb(255 241 242);
+    }
+
+    .app-swal-icon.swal2-warning {
+        color: rgb(180 83 9);
+        background: rgb(255 247 237);
+    }
+
+    .app-swal-title {
+        @apply mt-0 px-8 text-xl font-extrabold tracking-normal text-slate-900;
+    }
+
+    .app-swal-text {
+        @apply m-0 px-8 text-sm font-medium leading-6 text-slate-500;
+    }
+
+    .app-swal-actions {
+        @apply m-0 mt-7 w-full gap-2 border-t border-slate-100 bg-slate-50 px-6 py-4;
+    }
+
+    .app-swal-confirm {
+        @apply rounded-xl bg-blue-800 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-800/20 transition hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2;
+    }
+
+    .app-swal-cancel {
+        @apply rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2;
+    }
+
+    .app-swal-show {
+        animation: app-swal-show 220ms ease-out;
+    }
+
+    .app-swal-hide {
+        animation: app-swal-hide 160ms ease-in;
+    }
+
     .btn-icon {
         @apply inline-flex size-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2;
     }
@@ -175,6 +232,30 @@
 
     #nprogress .bar {
         @apply bg-blue-900;
+    }
+}
+
+@keyframes app-swal-show {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes app-swal-hide {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.96);
     }
 }
 
