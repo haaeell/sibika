@@ -3,8 +3,8 @@
 <aside {{ $attributes->merge(['class' => 'flex h-full w-64 flex-col border-r border-slate-200 bg-white']) }}>
     <div class="flex h-16 items-center border-b border-slate-200 px-5">
         <a href="{{ route('home') }}" class="flex items-center gap-3">
-            <span class="flex size-10 items-center justify-center rounded-xl bg-blue-900 text-sm font-bold text-white">SB</span>
-            <span>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="size-10 object-contain">
+             <span>
                 <span class="block text-sm font-bold text-slate-900">SIBIKA</span>
                 <span class="block text-xs text-slate-500">SMA Plus Astha Hannas</span>
             </span>

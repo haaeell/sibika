@@ -7,7 +7,7 @@
         @page { margin: 28px 24px; }
         body { color: #334155; font-family: DejaVu Sans, sans-serif; font-size: 9px; }
         .header { border-bottom: 3px solid #1e3a8a; margin-bottom: 18px; padding-bottom: 10px; }
-        .brand { color: #1e3a8a; font-size: 16px; font-weight: bold; margin: 0; }
+        .brand { height: 34px; margin: 0; }
         .title { color: #0f172a; font-size: 13px; font-weight: bold; margin: 5px 0 0; }
         .meta { color: #64748b; font-size: 8px; margin-top: 4px; }
         table { border-collapse: collapse; width: 100%; }
@@ -19,7 +19,7 @@
 </head>
 <body>
     <div class="header">
-        <p class="brand">SIBIKA</p>
+        <img class="brand" src="{{ public_path('images/logo.png') }}" alt="Logo">
         <p class="title">{{ $title }}</p>
         <p class="meta">Diekspor pada {{ $generatedAt }}</p>
     </div>

@@ -24,7 +24,7 @@
             <div class="relative flex h-full min-h-screen flex-col justify-between px-10 py-8 xl:px-14">
                 <div class="flex items-center gap-4 text-white">
                     <img
-                        src="{{ asset('images/logo.webp') }}"
+                        src="{{ asset('images/logo.png') }}"
                         alt="Logo SMA Plus Astha Hannas"
                         class="size-14 object-contain drop-shadow-xl"
                     >
@@ -64,7 +64,7 @@
                 <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm sm:px-8 lg:px-10">
                     <div class="text-center">
                         <img
-                            src="{{ asset('images/logo.webp') }}"
+                            src="{{ asset('images/logo.png') }}"
                             alt="Logo SMA Plus Astha Hannas"
                             class="mx-auto size-16 object-contain"
                         >
