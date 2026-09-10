@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Cohort;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class StudentSeeder extends Seeder
@@ -24,7 +25,14 @@ class StudentSeeder extends Seeder
         foreach ($students as $studentData) {
             $className = $studentData['class'];
             $cohortName = $studentData['cohort'];
+            $email = 'siswa.'.strtolower($studentData['nis']).'@asthahannas.sch.id';
             unset($studentData['class'], $studentData['cohort']);
+
+            $user = User::updateOrCreate(
+                ['email' => $email],
+                ['name' => $studentData['name'], 'password' => 'password']
+            );
+            $user->assignRole('siswa');
 
             Student::updateOrCreate(
                 ['nis' => $studentData['nis']],
@@ -33,6 +41,7 @@ class StudentSeeder extends Seeder
                     'class_id' => SchoolClass::where('name', $className)->value('id'),
                     'cohort_id' => Cohort::where('name', $cohortName)->value('id'),
                     'status' => 'active',
+                    'user_id' => $user->id,
                 ]
             );
         }

@@ -93,4 +93,5 @@ class StudentController extends Controller
 
         return '<span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold '.$classes[$status].'">'.$labels[$status].'</span>';
     }
+
 }

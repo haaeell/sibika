@@ -3,6 +3,8 @@
 ])
 
 @php
+    $isStudent = auth()->check() && auth()->user()->hasRole('siswa');
+    $canManageBiodata = auth()->check() && auth()->user()->hasAnyRole(['bk', 'super_admin']);
     $navigation = [
         [
             'label' => null,
@@ -38,7 +40,7 @@
         [
             'label' => 'BK & Karir',
             'items' => [
-                ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => $isStudent ? route('siswa.biodata.index') : ($canManageBiodata ? route('bk.biodata.index') : null), 'active' => ($isStudent && request()->routeIs('siswa.biodata.*')) || ($canManageBiodata && request()->routeIs('bk.biodata.*')), 'disabled' => ! $isStudent && ! $canManageBiodata, 'badge' => $isStudent || $canManageBiodata ? null : 'Soon'],
                 ['label' => 'Karir Siswa', 'icon' => 'fa-solid fa-compass', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Kampus', 'icon' => 'fa-solid fa-building-columns', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Prestasi', 'icon' => 'fa-solid fa-trophy', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],

@@ -1,4 +1,5 @@
 <div class="flex items-center justify-end gap-1">
+    <a href="{{ route('bk.students.biodata.show', $student) }}" class="btn-icon has-tooltip" data-tooltip="Biodata" aria-label="Lihat biodata"><i class="fa-solid fa-id-card"></i></a>
     <a href="{{ route('bk.students.edit', $student) }}" class="btn-icon has-tooltip" data-tooltip="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
     <form action="{{ route('bk.students.destroy', $student) }}" method="POST" class="js-delete-form inline-flex">
         @csrf
