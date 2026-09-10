@@ -18,6 +18,27 @@
         @apply inline-flex size-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2;
     }
 
+    .has-tooltip {
+        @apply relative;
+    }
+
+    .has-tooltip::after {
+        content: attr(data-tooltip);
+        @apply pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2 py-1 text-xs font-semibold text-white opacity-0 shadow-lg transition;
+    }
+
+    .has-tooltip::before {
+        content: '';
+        @apply pointer-events-none absolute bottom-full left-1/2 z-50 mb-1 -translate-x-1/2 border-4 border-transparent border-t-slate-900 opacity-0 transition;
+    }
+
+    .has-tooltip:hover::after,
+    .has-tooltip:hover::before,
+    .has-tooltip:focus-visible::after,
+    .has-tooltip:focus-visible::before {
+        @apply opacity-100;
+    }
+
     .select2-container .select2-selection--single {
         @apply h-11 rounded-xl border-slate-300;
     }

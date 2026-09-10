@@ -15,9 +15,8 @@
         @foreach ($navigation as $groupIndex => $group)
             @php
                 $hasLabel = ! empty($group['label']);
-                $hasActiveItem = collect($group['items'])->contains(fn ($item) => $item['active'] ?? false);
                 $panelId = 'sidebar-menu-'.$groupIndex;
-                $isOpen = ! $hasLabel || $hasActiveItem;
+                $isOpen = true;
             @endphp
 
             <div class="sidebar-group">

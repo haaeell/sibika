@@ -177,10 +177,26 @@ $(function () {
         $('.js-academic-year-toggle').attr('aria-expanded', 'false');
     });
 
+    $('.js-user-menu-toggle').on('click', function (event) {
+        event.stopPropagation();
+
+        const $button = $(this);
+        const $menu = $('#' + $button.attr('aria-controls'));
+        const isExpanded = $button.attr('aria-expanded') === 'true';
+
+        $button.attr('aria-expanded', String(!isExpanded));
+        $menu.toggleClass('hidden', isExpanded);
+    });
+
     $(document).on('click', function (event) {
         if (!$(event.target).closest('.js-academic-year-toggle, [data-academic-year-menu]').length) {
             $('[data-academic-year-menu]').addClass('hidden');
             $('.js-academic-year-toggle').attr('aria-expanded', 'false');
+        }
+
+        if (!$(event.target).closest('.js-user-menu-toggle, [data-user-menu]').length) {
+            $('[data-user-menu]').addClass('hidden');
+            $('.js-user-menu-toggle').attr('aria-expanded', 'false');
         }
     });
 

@@ -1,15 +1,15 @@
 @csrf
 
 <div class="grid gap-4 md:grid-cols-2">
-    <x-form.input name="name" label="Nama Tahun Ajaran" placeholder="Contoh: 2026 / 2027" :value="old('name', $academicYear->name)" />
-    <x-form.select name="semester" label="Semester">
+    <x-form.input name="name" label="Nama Tahun Ajaran" icon="fa-regular fa-calendar" placeholder="Contoh: 2026 / 2027" :value="old('name', $academicYear->name)" />
+    <x-form.select name="semester" label="Semester" icon="fa-solid fa-layer-group">
         <option value="">Pilih semester</option>
         @foreach (['ganjil' => 'Ganjil', 'genap' => 'Genap'] as $value => $label)
             <option value="{{ $value }}" @selected(old('semester', $academicYear->semester) === $value)>{{ $label }}</option>
         @endforeach
     </x-form.select>
-    <x-form.input name="start_year" label="Tahun Mulai" type="number" min="2000" max="2100" placeholder="2026" :value="old('start_year', $academicYear->start_year)" />
-    <x-form.input name="end_year" label="Tahun Selesai" type="number" min="2000" max="2101" placeholder="2027" :value="old('end_year', $academicYear->end_year)" />
+    <x-form.input name="start_year" label="Tahun Mulai" icon="fa-solid fa-play" type="number" min="2000" max="2100" placeholder="2026" :value="old('start_year', $academicYear->start_year)" />
+    <x-form.input name="end_year" label="Tahun Selesai" icon="fa-solid fa-flag-checkered" type="number" min="2000" max="2101" placeholder="2027" :value="old('end_year', $academicYear->end_year)" />
 </div>
 
 <label class="mt-4 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">

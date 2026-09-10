@@ -6,15 +6,29 @@ use App\Http\Requests\StoreAcademicYearRequest;
 use App\Http\Requests\UpdateAcademicYearRequest;
 use App\Models\AcademicYear;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class AcademicYearController extends Controller
 {
     public function index(): View
     {
-        return view('bk.academic-years.index', [
-            'academicYears' => AcademicYear::latest('is_active')->latest()->paginate(10),
-        ]);
+        return view('bk.academic-years.index');
+    }
+
+    public function data(): JsonResponse
+    {
+        return DataTables::eloquent(AcademicYear::query()->latest('is_active')->latest())
+            ->addIndexColumn()
+            ->addColumn('period', fn (AcademicYear $academicYear) => $academicYear->start_year.' - '.$academicYear->end_year)
+            ->editColumn('semester', fn (AcademicYear $academicYear) => str($academicYear->semester)->headline()->toString())
+            ->editColumn('is_active', fn (AcademicYear $academicYear) => $academicYear->is_active
+                ? '<span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Aktif</span>'
+                : '<span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">Nonaktif</span>')
+            ->addColumn('action', fn (AcademicYear $academicYear) => view('bk.academic-years._actions', compact('academicYear'))->render())
+            ->rawColumns(['is_active', 'action'])
+            ->toJson();
     }
 
     public function create(): View
