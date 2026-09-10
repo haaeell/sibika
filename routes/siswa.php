@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\StudentBiodataController;
+use App\Http\Controllers\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('siswa')
     ->name('siswa.')
     ->middleware(['auth', 'role:siswa'])
     ->group(function (): void {
-        Route::view('/dashboard', 'siswa.dashboard')->name('dashboard');
+        Route::get('/dashboard', StudentDashboardController::class)->name('dashboard');
         Route::get('/biodata', [StudentBiodataController::class, 'index'])->name('biodata.index');
         Route::put('/biodata', [StudentBiodataController::class, 'update'])->name('biodata.update');
         Route::post('/biodata/photo', [StudentBiodataController::class, 'uploadPhoto'])->name('biodata.photo.store');

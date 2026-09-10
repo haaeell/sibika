@@ -71,6 +71,34 @@
             ],
         ],
     ];
+
+    if ($isStudent) {
+        $navigation = [
+            [
+                'label' => null,
+                'items' => [
+                    [
+                        'label' => 'Dashboard',
+                        'icon' => 'fa-solid fa-house',
+                        'url' => route('siswa.dashboard'),
+                        'active' => request()->routeIs('siswa.dashboard'),
+                    ],
+                ],
+            ],
+            [
+                'label' => 'BK & Karir',
+                'items' => [
+                    ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => route('siswa.biodata.index'), 'active' => request()->routeIs('siswa.biodata.*')],
+                ],
+            ],
+            [
+                'label' => 'Akademik',
+                'items' => [
+                    ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ],
+            ],
+        ];
+    }
 @endphp
 
 <!DOCTYPE html>
