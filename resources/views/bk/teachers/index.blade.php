@@ -6,6 +6,9 @@
     </x-page-header>
 
     <x-card>
+        <div class="mb-4 flex justify-end">
+            <x-export-buttons resource="teachers" />
+        </div>
         <div class="overflow-x-auto">
             <table id="teacher-table" class="w-full min-w-[980px] text-left text-sm">
                 <thead class="border-b border-slate-200 text-xs uppercase text-slate-500">

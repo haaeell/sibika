@@ -9,6 +9,9 @@
     </x-page-header>
 
     <x-card>
+        <div class="mb-4 flex justify-end">
+            <x-export-buttons resource="cohorts" />
+        </div>
         <div class="overflow-x-auto">
             <table id="cohort-table" class="w-full min-w-[680px] text-left text-sm">
                 <thead class="border-b border-slate-200 text-xs uppercase text-slate-500">

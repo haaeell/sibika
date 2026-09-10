@@ -3,6 +3,9 @@
         <x-slot:actions><x-button :href="route('bk.majors.create')"><i class="fa-solid fa-plus"></i> Tambah Jurusan</x-button></x-slot:actions>
     </x-page-header>
     <x-card>
+        <div class="mb-4 flex justify-end">
+            <x-export-buttons resource="majors" />
+        </div>
         <div class="overflow-x-auto">
             <table id="major-table" class="w-full min-w-[700px] text-left text-sm">
                 <thead class="border-b border-slate-200 text-xs uppercase text-slate-500"><tr>

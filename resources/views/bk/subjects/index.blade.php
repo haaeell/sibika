@@ -3,6 +3,9 @@
         <x-slot:actions><x-button :href="route('bk.subjects.create')"><i class="fa-solid fa-plus"></i> Tambah Mata Pelajaran</x-button></x-slot:actions>
     </x-page-header>
     <x-card>
+        <div class="mb-4 flex justify-end">
+            <x-export-buttons resource="subjects" />
+        </div>
         <div class="overflow-x-auto">
             <table id="subject-table" class="w-full min-w-[850px] text-left text-sm">
                 <thead class="border-b border-slate-200 text-xs uppercase text-slate-500"><tr>

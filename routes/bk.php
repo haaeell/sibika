@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\CohortController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StudentController;
@@ -14,6 +15,10 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::view('/dashboard', 'bk.dashboard')->name('dashboard');
+        Route::get('{resource}/export/{format}', [ExportController::class, 'download'])
+            ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'school-classes', 'teachers', 'students'])
+            ->whereIn('format', ['xlsx', 'pdf'])
+            ->name('exports.download');
         Route::get('academic-years/data', [AcademicYearController::class, 'data'])->name('academic-years.data');
         Route::resource('academic-years', AcademicYearController::class)->except('show');
         Route::get('cohorts/data', [CohortController::class, 'data'])->name('cohorts.data');
