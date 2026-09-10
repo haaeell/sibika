@@ -46,5 +46,6 @@ Route::prefix('bk')
         Route::post('student-scores/{student}/semester/{semester}/reject', [StudentScoreAdminController::class, 'reject'])->whereNumber('semester')->name('student-scores.reject');
         Route::get('student-scores/{student}', [StudentScoreAdminController::class, 'show'])->name('student-scores.show');
         Route::get('student-scores', [StudentScoreAdminController::class, 'index'])->name('student-scores.index');
+        Route::put('score-subject-settings/average-subjects', [ScoreSubjectSettingController::class, 'updateAverageSubjects'])->name('score-subject-settings.average-subjects.update');
         Route::resource('score-subject-settings', ScoreSubjectSettingController::class)->except('show');
     });

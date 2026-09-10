@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ScoreAverageSubjectSetting;
 use App\Models\ScoreSubjectSetting;
 use App\Models\Student;
 use App\Models\StudentScore;
@@ -12,6 +13,26 @@ use Illuminate\Validation\ValidationException;
 class StudentScoreService
 {
     public function subjectsFor(Student $student, int $semester): Collection
+    {
+        return $this->settingsFor($student, $semester);
+    }
+
+    public function averageSubjectsFor(Student $student, int $semester): Collection
+    {
+        $settings = $this->settingsFor($student, $semester);
+
+        return $settings->filter(fn (ScoreSubjectSetting $setting) => $this->isIncludedInAverage($setting))->values();
+    }
+
+    public function isIncludedInAverage(ScoreSubjectSetting $setting): bool
+    {
+        return ScoreAverageSubjectSetting::query()
+            ->where('subject_id', $setting->subject_id)
+            ->where('major_id', $setting->major_id)
+            ->value('include_in_average') ?? true;
+    }
+
+    private function settingsFor(Student $student, int $semester): Collection
     {
         $majorId = $student->schoolClass?->major_id;
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreScoreSubjectSettingRequest;
 use App\Http\Requests\UpdateScoreSubjectSettingRequest;
 use App\Models\Major;
+use App\Models\ScoreAverageSubjectSetting;
 use App\Models\ScoreSubjectSetting;
 use App\Models\Subject;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +23,27 @@ class ScoreSubjectSettingController extends Controller
                 ->orderBy('major_id')
                 ->get()
                 ->groupBy('semester_number'),
+            'subjects' => Subject::where('is_active', true)->orderBy('name')->get(),
+            'majors' => Major::where('is_active', true)->orderBy('name')->get(),
+            'averageSettings' => ScoreAverageSubjectSetting::all()->keyBy(fn (ScoreAverageSubjectSetting $setting) => ($setting->major_id ?? 'general').'-'.$setting->subject_id),
         ]);
+    }
+
+    public function updateAverageSubjects(Request $request): RedirectResponse
+    {
+        $selected = $request->input('average_subjects', []);
+        $subjects = Subject::where('is_active', true)->pluck('id');
+        $majorIds = Major::where('is_active', true)->pluck('id');
+
+        DB::transaction(function () use ($subjects, $majorIds, $selected): void {
+            $this->syncAverageSubjects(null, $subjects, $selected['general'] ?? []);
+
+            foreach ($majorIds as $majorId) {
+                $this->syncAverageSubjects($majorId, $subjects, $selected[$majorId] ?? []);
+            }
+        });
+
+        return back()->with('success', 'Setting perhitungan rata-rata berhasil disimpan.');
     }
 
     public function create(Request $request): View
@@ -30,6 +51,7 @@ class ScoreSubjectSettingController extends Controller
         return view('bk.score-subject-settings.create', $this->formData(new ScoreSubjectSetting([
             'semester_number' => $request->integer('semester') ?: null,
             'is_required' => true,
+            'include_in_average' => true,
             'is_active' => true,
         ])));
     }
@@ -46,6 +68,7 @@ class ScoreSubjectSettingController extends Controller
                     'semester_number' => $data['semester_number'],
                 ], [
                     'is_required' => $data['is_required'],
+                    'include_in_average' => $data['include_in_average'],
                     'is_active' => $data['is_active'],
                 ]);
             }
@@ -83,8 +106,23 @@ class ScoreSubjectSettingController extends Controller
         $data = $request->validated();
         $data['major_id'] = (int) $data['semester_number'] <= 2 ? null : ($data['major_id'] ?? null);
         $data['is_required'] = $request->boolean('is_required');
+        $data['include_in_average'] = $request->boolean('include_in_average', true);
         $data['is_active'] = $request->boolean('is_active');
         return $data;
+    }
+
+    private function syncAverageSubjects(?int $majorId, $subjects, array $selected): void
+    {
+        $selected = array_map('intval', $selected);
+
+        foreach ($subjects as $subjectId) {
+            ScoreAverageSubjectSetting::updateOrCreate([
+                'subject_id' => $subjectId,
+                'major_id' => $majorId,
+            ], [
+                'include_in_average' => in_array((int) $subjectId, $selected, true),
+            ]);
+        }
     }
 
 }

@@ -109,9 +109,11 @@ class StudentScoreAdminController extends Controller
     private function semesterCard(Student $student, int $semester): string
     {
         $scores = $student->scores->where('semester_number', $semester);
-        $total = $this->scoreService->subjectsFor($student, $semester)->count();
-        $filled = $scores->filter(fn (StudentScore $score) => filled($score->score))->count();
-        $average = $scores->filter(fn (StudentScore $score) => filled($score->score))->avg('score');
+        $averageSubjectIds = $this->scoreService->averageSubjectsFor($student, $semester)->pluck('subject_id');
+        $averageScores = $scores->whereIn('subject_id', $averageSubjectIds);
+        $total = $averageSubjectIds->count();
+        $filled = $averageScores->filter(fn (StudentScore $score) => filled($score->score))->count();
+        $average = $averageScores->filter(fn (StudentScore $score) => filled($score->score))->avg('score');
         [$label, $class] = $this->semesterStatus($scores, $total, $filled);
 
         return '<div class="min-w-32 rounded-2xl bg-slate-50 px-3 py-2">'

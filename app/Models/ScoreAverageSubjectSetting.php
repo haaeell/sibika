@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ScoreSubjectSetting extends Model
+class ScoreAverageSubjectSetting extends Model
 {
-    use HasFactory;
-
-    protected $fillable = ['subject_id', 'major_id', 'semester_number', 'is_required', 'include_in_average', 'is_active'];
+    protected $fillable = ['subject_id', 'major_id', 'include_in_average'];
 
     protected function casts(): array
     {
-        return ['is_required' => 'boolean', 'include_in_average' => 'boolean', 'is_active' => 'boolean'];
+        return ['include_in_average' => 'boolean'];
     }
 
     public function subject(): BelongsTo { return $this->belongsTo(Subject::class); }

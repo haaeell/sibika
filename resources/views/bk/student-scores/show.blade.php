@@ -55,12 +55,16 @@
                     @endif
                     <div class="overflow-x-auto">
                         <table class="w-full min-w-[760px] text-left text-sm">
-                            <thead class="border-b border-slate-200 text-xs uppercase text-slate-500"><tr><th class="px-4 py-3 font-bold">Mapel</th><th class="px-4 py-3 font-bold">Nilai</th><th class="px-4 py-3 font-bold">Status</th><th class="px-4 py-3 font-bold">Catatan</th></tr></thead>
+                            <thead class="border-b border-slate-200 text-xs uppercase text-slate-500"><tr><th class="px-4 py-3 font-bold">Mapel</th><th class="px-4 py-3 font-bold">Rata-rata</th><th class="px-4 py-3 font-bold">Nilai</th><th class="px-4 py-3 font-bold">Status</th><th class="px-4 py-3 font-bold">Catatan</th></tr></thead>
                             <tbody class="divide-y divide-slate-100">
                                 @foreach ($data['settings'] as $setting)
-                                    @php $score = $data['scores']->get($setting->subject_id); @endphp
+                                    @php
+                                        $score = $data['scores']->get($setting->subject_id);
+                                        $included = app(\App\Services\StudentScoreService::class)->isIncludedInAverage($setting);
+                                    @endphp
                                     <tr>
                                         <td class="px-4 py-3 font-bold text-slate-900">{{ $setting->subject?->name }}</td>
+                                        <td class="px-4 py-3"><span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold {{ $included ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700' }}">{{ $included ? 'Dihitung' : 'Tidak dihitung' }}</span></td>
                                         <td class="px-4 py-3">{{ filled($score?->score) ? number_format((float) $score->score, 2) : '-' }}</td>
                                         <td class="px-4 py-3">{!! $statusBadge($score?->status) !!}</td>
                                         <td class="px-4 py-3 text-slate-500">{{ $score?->verification_note ?? '-' }}</td>

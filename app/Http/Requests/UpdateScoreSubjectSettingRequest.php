@@ -15,6 +15,7 @@ class UpdateScoreSubjectSettingRequest extends FormRequest
             'semester_number' => ['required', 'integer', 'between:1,5'],
             'major_id' => ['nullable', 'prohibited_if:semester_number,1', 'prohibited_if:semester_number,2', 'exists:majors,id'],
             'is_required' => ['nullable', 'boolean'],
+            'include_in_average' => ['nullable', 'boolean'],
             'is_active' => ['nullable', 'boolean'],
             'subject_id' => [
                 'required',
