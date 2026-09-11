@@ -60,7 +60,11 @@ class StudentBiodataController extends Controller
         $student = $this->studentFor($request)->load('profile');
         abort_unless($student->profile?->photo_path && Storage::disk('local')->exists($student->profile->photo_path), 404);
 
-        return response()->file(Storage::disk('local')->path($student->profile->photo_path));
+        $response = response()->file(Storage::disk('local')->path($student->profile->photo_path));
+        $response->headers->set('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+
+        return $response;
     }
 
     public function uploadDocument(Request $request): RedirectResponse

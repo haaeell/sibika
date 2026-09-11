@@ -148,6 +148,40 @@ class StudentBiodataTest extends TestCase
         ]);
     }
 
+    public function test_student_can_replace_profile_photo_and_see_the_latest_file(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-008', 'name' => 'Siswa Foto', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->post(route('siswa.biodata.photo.store'), [
+                'photo' => UploadedFile::fake()->image('foto-lama.jpg'),
+            ])
+            ->assertRedirect();
+
+        $oldPath = $student->fresh()->profile->photo_path;
+        Storage::disk('local')->assertExists($oldPath);
+
+        $this->actingAs($user)
+            ->post(route('siswa.biodata.photo.store'), [
+                'photo' => UploadedFile::fake()->image('foto-baru.png'),
+            ])
+            ->assertRedirect();
+
+        $newPath = $student->fresh()->profile->photo_path;
+
+        $this->assertNotSame($oldPath, $newPath);
+        Storage::disk('local')->assertMissing($oldPath);
+        Storage::disk('local')->assertExists($newPath);
+        $response = $this->actingAs($user)
+            ->get(route('siswa.biodata.photo.show'))
+            ->assertOk();
+
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
+        $this->assertStringContainsString('private', $response->headers->get('Cache-Control'));
+    }
+
     public function test_bk_can_edit_student_biodata_without_delete_action(): void
     {
         $user = User::factory()->create();

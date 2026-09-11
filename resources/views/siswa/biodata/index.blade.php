@@ -45,14 +45,10 @@
                 <p class="mt-1 text-sm text-slate-500">Kolom bertanda <span class="font-bold text-rose-500">*</span> wajib diisi. Pastikan data sudah benar sebelum menyimpan.</p>
             </div>
 
-            <form id="biodata-form" action="{{ $biodataUpdateRoute }}" method="POST" class="space-y-0" data-biodata-progress-form>
-                @csrf
-                @method('PUT')
-
-                <section class="border-b border-slate-100 bg-slate-50/60 px-5 py-6 sm:px-6">
+            <section class="border-b border-slate-100 bg-slate-50/60 px-5 py-6 sm:px-6">
                     <div class="mx-auto flex max-w-md flex-col items-center text-center">
                         @if (! $isAdmin && $profile?->photo_path)
-                            <img src="{{ route('siswa.biodata.photo.show') }}" alt="Foto profil {{ $student->name }}" class="size-20 rounded-2xl border-2 border-white object-cover shadow-sm sm:size-24">
+                            <img src="{{ route('siswa.biodata.photo.show', ['v' => md5($profile->photo_path)]) }}" alt="Foto profil {{ $student->name }}" class="size-20 rounded-2xl border-2 border-white object-cover shadow-sm sm:size-24">
                         @else
                             <div class="flex size-20 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 shadow-sm sm:size-24">
                                 <i class="fa-solid fa-user-graduate text-2xl"></i>
@@ -71,14 +67,19 @@
                         </div>
 
                         @if (! $isAdmin)
-                            <div class="mt-5 w-full rounded-xl border border-dashed border-slate-300 bg-white p-3 text-left">
+                            <form action="{{ route('siswa.biodata.photo.store') }}" method="POST" enctype="multipart/form-data" class="mt-5 w-full rounded-xl border border-dashed border-slate-300 bg-white p-3 text-left">
+                                @csrf
                                 <label for="profile-photo" class="mb-2 block text-sm font-semibold text-slate-700">Foto Profil <span class="font-normal text-slate-400">(maks. 2 MB)</span></label>
-                                <input id="profile-photo" type="file" name="photo" form="photo-upload-form" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800">
-                                <x-button type="submit" form="photo-upload-form" class="mt-3 h-10 w-full text-sm"><i class="fa-solid fa-upload"></i> Upload Foto</x-button>
-                            </div>
+                                <input id="profile-photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800" required>
+                                <x-button type="submit" class="mt-3 h-10 w-full text-sm"><i class="fa-solid fa-upload"></i> Upload Foto</x-button>
+                            </form>
                         @endif
                     </div>
-                </section>
+            </section>
+
+            <form id="biodata-form" action="{{ $biodataUpdateRoute }}" method="POST" class="space-y-0" data-biodata-progress-form>
+                @csrf
+                @method('PUT')
 
                 <section class="px-5 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -238,10 +239,6 @@
         </x-card>
 
         @if (! $isAdmin)
-            <form id="photo-upload-form" action="{{ route('siswa.biodata.photo.store') }}" method="POST" enctype="multipart/form-data" class="hidden">
-                @csrf
-            </form>
-
             <form id="certificate-upload-form" action="{{ route('siswa.biodata.documents.store') }}" method="POST" enctype="multipart/form-data" class="hidden">
                 @csrf
             </form>

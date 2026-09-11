@@ -111,8 +111,12 @@
         @apply px-3.5 text-sm leading-[42px] text-slate-900;
     }
 
-    [data-form-icon] ~ .select2-container .select2-selection--single .select2-selection__rendered {
-        padding-left: 3rem;
+    .form-select-with-icon > [data-form-icon] {
+        z-index: 2;
+    }
+
+    .form-select-with-icon .select2-container .select2-selection--single .select2-selection__rendered {
+        padding-left: 3rem !important;
     }
 
     .select2-container--default .select2-selection--single .select2-selection__arrow {
