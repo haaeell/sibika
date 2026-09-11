@@ -6,6 +6,8 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\StudentProgressService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -24,7 +26,7 @@ class StudentBiodataTest extends TestCase
             ->assertSee('Biodata Saya');
     }
 
-    public function test_student_can_update_biodata_and_parents(): void
+    public function test_student_can_update_biodata(): void
     {
         $user = $this->studentUser();
         $student = Student::create(['nis' => 'S-002', 'name' => 'Siswa Test', 'user_id' => $user->id]);
@@ -65,6 +67,59 @@ class StudentBiodataTest extends TestCase
         $student = Student::create(['nis' => 'S-003', 'name' => 'Siswa Test', 'user_id' => $user->id]);
 
         $this->assertSame(0, app(StudentProgressService::class)->calculate($student)['percentage']);
+    }
+
+    public function test_optional_fields_do_not_prevent_biodata_from_reaching_one_hundred_percent(): void
+    {
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-005', 'name' => 'Siswa Lengkap', 'user_id' => $user->id]);
+        $student->profile()->create([
+            'gender' => 'male',
+            'birth_place' => 'Bandung',
+            'birth_date' => '2008-01-01',
+            'phone' => '08123456789',
+            'province' => 'Jawa Barat',
+            'city' => 'Bandung',
+            'district' => 'Coblong',
+            'village' => 'Dago',
+            'postal_code' => '40135',
+            'address' => 'Jalan Test',
+        ]);
+
+        $progress = app(StudentProgressService::class)->calculate($student->fresh());
+
+        $this->assertSame(100, $progress['percentage']);
+        $this->assertSame(10, $progress['completed']);
+        $this->assertSame(10, $progress['total']);
+    }
+
+    public function test_student_can_upload_multiple_achievement_certificates(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-006', 'name' => 'Siswa Prestasi', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->post(route('siswa.biodata.documents.store'), [
+                'document_type' => 'Juara Olimpiade Matematika 2026',
+                'documents' => [
+                    UploadedFile::fake()->create('sertifikat-juara.pdf', 200, 'application/pdf'),
+                    UploadedFile::fake()->image('piagam-finalis.png'),
+                ],
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('student_documents', 2);
+        $this->assertDatabaseHas('student_documents', [
+            'student_id' => $student->id,
+            'document_type' => 'Juara Olimpiade Matematika 2026',
+            'original_name' => 'sertifikat-juara.pdf',
+        ]);
+        $this->assertDatabaseHas('student_documents', [
+            'student_id' => $student->id,
+            'document_type' => 'Juara Olimpiade Matematika 2026',
+            'original_name' => 'piagam-finalis.png',
+        ]);
     }
 
     public function test_bk_can_edit_student_biodata_without_delete_action(): void

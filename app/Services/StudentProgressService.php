@@ -8,14 +8,25 @@ class StudentProgressService
 {
     public function calculate(Student $student): array
     {
-        $student->loadMissing(['profile', 'parents', 'documents']);
+        $student->loadMissing(['profile', 'documents']);
         $profile = $student->profile;
-        $parents = $student->parents->keyBy('parent_type');
+
+        $requiredFields = [
+            $profile?->gender,
+            $profile?->birth_place,
+            $profile?->birth_date,
+            $profile?->phone,
+            $profile?->province,
+            $profile?->city,
+            $profile?->district,
+            $profile?->village,
+            $profile?->postal_code,
+            $profile?->address,
+        ];
 
         $sections = [
             'personal' => $this->filled([
-                $student->nis, $student->nisn, $student->name, $profile?->gender,
-                $profile?->birth_place, $profile?->birth_date, $profile?->phone,
+                $profile?->gender, $profile?->birth_place, $profile?->birth_date, $profile?->phone,
             ]),
             'address' => $this->filled([
                 $profile?->province, $profile?->city, $profile?->district,
@@ -33,13 +44,16 @@ class StudentProgressService
             'school_activity' => $this->filled([
                 $profile?->school_achievements, $profile?->organization_participation, $profile?->self_improvement_notes,
             ]),
-            'documents' => $student->documents->isNotEmpty(),
+            'documents' => $student->documents
+                ->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'dokumen_lainnya'], true))
+                ->isNotEmpty(),
         ];
 
-        $completed = collect($sections)->filter()->count();
-        $percentage = (int) round(($completed / count($sections)) * 100);
+        $completed = collect($requiredFields)->filter(fn ($value) => filled($value))->count();
+        $total = count($requiredFields);
+        $percentage = (int) round(($completed / $total) * 100);
 
-        return compact('sections', 'percentage');
+        return compact('sections', 'percentage', 'completed', 'total');
     }
 
     private function filled(array $values): bool

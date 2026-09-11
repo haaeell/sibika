@@ -68,20 +68,22 @@ class StudentBiodataController extends Controller
         $student = $this->studentFor($request);
         $validated = $request->validate([
             'document_type' => ['required', 'string', 'max:100'],
-            'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'documents' => ['required', 'array', 'min:1'],
+            'documents.*' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
-        $file = $validated['document'];
-        $student->documents()->create([
-            'document_type' => $validated['document_type'],
-            'file_path' => $file->store('student-documents/'.$student->id, 'local'),
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'file_size' => $file->getSize(),
-            'uploaded_by' => $request->user()->id,
-        ]);
+        foreach ($validated['documents'] as $file) {
+            $student->documents()->create([
+                'document_type' => $validated['document_type'],
+                'file_path' => $file->store('student-documents/'.$student->id, 'local'),
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'uploaded_by' => $request->user()->id,
+            ]);
+        }
 
-        return back()->with('success', 'Sertifikat prestasi berhasil diunggah.');
+        return back()->with('success', count($validated['documents']).' sertifikat prestasi berhasil diunggah.');
     }
 
     public function destroyDocument(Request $request, StudentDocument $document): RedirectResponse

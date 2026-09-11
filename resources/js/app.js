@@ -154,6 +154,67 @@ window.initRegionSelects = function (scope = document) {
     });
 };
 
+window.initBiodataProgress = function (scope = document) {
+    $(scope).find('[data-biodata-progress]').each(function () {
+        const $root = $(this);
+        const $form = $root.find('[data-biodata-progress-form]');
+        const $fields = $form.find('[data-progress-required]');
+
+        if (!$fields.length) {
+            return;
+        }
+
+        const fieldValue = function (field) {
+            const $field = $(field);
+            const value = $field.val();
+
+            if (String(value ?? '').trim() !== '') {
+                return value;
+            }
+
+            return $field.data('progressInitialActive') === false
+                ? ''
+                : ($field.attr('data-initial') || '');
+        };
+
+        const updateSection = function (section) {
+            const $sectionFields = $fields.filter(`[data-progress-section="${section}"]`);
+            const complete = $sectionFields.length > 0 && $sectionFields.toArray().every((field) => String(fieldValue(field)).trim() !== '');
+            const $indicator = $root.find(`[data-progress-section-indicator="${section}"]`);
+
+            $indicator.toggleClass('bg-emerald-50 text-emerald-700', complete);
+            $indicator.toggleClass('bg-slate-50 text-slate-400', !complete);
+            $indicator.find('i')
+                .toggleClass('fa-circle-check text-emerald-500', complete)
+                .toggleClass('fa-circle text-slate-300', !complete);
+        };
+
+        const update = function () {
+            const completed = $fields.toArray().filter((field) => String(fieldValue(field)).trim() !== '').length;
+            const total = $fields.length;
+            const percentage = Math.round((completed / total) * 100);
+
+            $root.find('[data-progress-percentage]').text(`${percentage}%`);
+            $root.find('[data-progress-bar]').css('width', `${percentage}%`);
+            $root.find('[data-progress-message]').text(
+                percentage === 100
+                    ? 'Semua data wajib sudah lengkap'
+                    : `${completed} dari ${total} data wajib terisi`,
+            );
+
+            updateSection('personal');
+            updateSection('address');
+        };
+
+        $fields.on('input change', function () {
+            $(this).data('progressInitialActive', false);
+            update();
+        });
+
+        update();
+    });
+};
+
 window.initDataTable = function (selector, options = {}) {
     return $(selector).DataTable({
         processing: true,
@@ -256,6 +317,7 @@ window.setButtonLoading = function (button, loading, text = 'Memproses...') {
 $(function () {
     initSelect2();
     initRegionSelects();
+    initBiodataProgress();
 
     $('.datepicker').each(function () {
         flatpickr(this, {
