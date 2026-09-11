@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\BiodataReportController;
 use App\Http\Controllers\CohortController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MajorController;
@@ -32,6 +33,7 @@ Route::prefix('bk')
         Route::resource('teachers', TeacherController::class)->except('show');
         Route::get('students/data', [StudentController::class, 'data'])->name('students.data');
         Route::get('biodata/data', [StudentBiodataAdminController::class, 'data'])->name('biodata.data');
+        Route::get('biodata/report', [BiodataReportController::class, 'index'])->name('biodata.report');
         Route::get('biodata', [StudentBiodataAdminController::class, 'index'])->name('biodata.index');
         Route::get('students/{student}/biodata', [StudentBiodataAdminController::class, 'show'])->name('students.biodata.show');
         Route::get('students/{student}/biodata/edit', [StudentBiodataAdminController::class, 'edit'])->name('students.biodata.edit');
