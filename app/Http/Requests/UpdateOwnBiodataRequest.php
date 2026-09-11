@@ -27,8 +27,8 @@ class UpdateOwnBiodataRequest extends FormRequest
             'height_cm' => ['required', 'integer', 'min:100', 'max:250'],
             'weight_kg' => ['required', 'integer', 'min:20', 'max:200'],
             'medical_history' => ['required', 'string', 'max:1000'],
-            'university_choice_1' => ['required', 'string', 'max:150'],
-            'university_choice_2' => ['required', 'string', 'max:150'],
+            'university_choice_1_id' => ['required', 'integer', 'exists:universities,id', 'different:university_choice_2_id'],
+            'university_choice_2_id' => ['required', 'integer', 'exists:universities,id', 'different:university_choice_1_id'],
             'grade_11_preparation' => ['required', 'string', 'max:2000'],
             'career_concern' => ['required', 'string', 'max:2000'],
             'school_achievements' => ['required', 'string', 'max:2000'],
@@ -45,6 +45,8 @@ class UpdateOwnBiodataRequest extends FormRequest
             'medical_history.required' => 'Riwayat kesehatan wajib diisi. Tuliskan (-) jika tidak ada.',
             'school_achievements.required' => 'Prestasi wajib diisi. Tuliskan (-) jika tidak ada.',
             'organization_participation.required' => 'Organisasi wajib diisi. Tuliskan (-) jika tidak ada.',
+            'university_choice_1_id.different' => 'Pilihan kampus pertama dan kedua harus berbeda.',
+            'university_choice_2_id.different' => 'Pilihan kampus pertama dan kedua harus berbeda.',
         ];
     }
 }

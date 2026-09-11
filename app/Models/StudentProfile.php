@@ -14,7 +14,7 @@ class StudentProfile extends Model
         'gender', 'birth_place', 'birth_date', 'phone', 'photo_path',
         'province', 'city', 'district', 'village', 'postal_code', 'address',
         'height_cm', 'weight_kg', 'medical_history',
-        'university_choice_1', 'university_choice_2',
+        'university_choice_1_id', 'university_choice_2_id',
         'grade_11_preparation', 'career_concern',
         'school_achievements', 'organization_participation',
         'self_improvement_notes', 'mcu_status',
@@ -28,5 +28,15 @@ class StudentProfile extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function universityChoice1(): BelongsTo
+    {
+        return $this->belongsTo(University::class, 'university_choice_1_id');
+    }
+
+    public function universityChoice2(): BelongsTo
+    {
+        return $this->belongsTo(University::class, 'university_choice_2_id');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateOwnBiodataRequest;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\University;
 use App\Services\StudentProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,13 +20,14 @@ class StudentBiodataController extends Controller
 
     public function index(Request $request): View
     {
-        $student = $this->studentFor($request)->load(['profile', 'parents', 'documents']);
+        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
             'profile' => $student->profile,
             'parents' => $student->parents->keyBy('parent_type'),
             'progress' => $this->progressService->calculate($student),
+            'universities' => University::where('is_active', true)->orderBy('type')->orderBy('name')->get()->groupBy('type'),
         ]);
     }
 

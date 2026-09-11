@@ -158,8 +158,21 @@
                         <div><h2 class="text-base font-bold text-slate-900">Pilihan Kampus</h2><p class="text-sm leading-5 text-slate-500">Rencana melanjutkan kuliah.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                        <x-form.input name="university_choice_1" label="Pilihan 1 (Kampus)" icon="fa-solid fa-building-columns" :value="old('university_choice_1', $profile?->university_choice_1)" placeholder="Contoh: UI - Kedokteran" data-progress-required data-progress-section="campus_choice" required />
-                        <x-form.input name="university_choice_2" label="Pilihan 2 (Kampus)" icon="fa-solid fa-building-columns" :value="old('university_choice_2', $profile?->university_choice_2)" placeholder="Contoh: ITB - Teknik" data-progress-required data-progress-section="campus_choice" required />
+                        @foreach ([1 => 'Pilihan 1 (Kampus)', 2 => 'Pilihan 2 (Kampus)'] as $choice => $label)
+                            @php($field = 'university_choice_'.$choice.'_id')
+                            <x-form.select :name="$field" :label="$label" icon="fa-solid fa-building-columns" class="select2" data-placeholder="Pilih kampus" data-progress-required data-progress-section="campus_choice" required>
+                                <option value="">Pilih kampus</option>
+                                @foreach (['negeri' => 'Perguruan Tinggi Negeri', 'swasta' => 'Perguruan Tinggi Swasta', 'kedinasan' => 'Perguruan Tinggi Kedinasan', 'lainnya' => 'Lainnya'] as $type => $typeLabel)
+                                    @if (($universities[$type] ?? collect())->isNotEmpty())
+                                        <optgroup label="{{ $typeLabel }}">
+                                            @foreach ($universities[$type] as $university)
+                                                <option value="{{ $university->id }}" @selected(old($field, $profile?->{$field}) == $university->id)>{{ $university->name }}{{ $university->short_name ? ' ('.$university->short_name.')' : '' }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @endforeach
+                            </x-form.select>
+                        @endforeach
                     </div>
                 </section>
 

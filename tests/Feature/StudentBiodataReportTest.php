@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Student;
+use App\Models\University;
 use App\Models\User;
 use App\Services\BiodataReportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -91,8 +92,14 @@ class StudentBiodataReportTest extends TestCase
             'height_cm' => 170,
             'weight_kg' => 60,
             'medical_history' => '-',
-            'university_choice_1' => 'Universitas Indonesia',
-            'university_choice_2' => 'Institut Teknologi Bandung',
+            'university_choice_1_id' => University::firstOrCreate(
+                ['name' => 'Universitas Indonesia'],
+                ['short_name' => 'UI', 'type' => 'negeri', 'is_active' => true]
+            )->id,
+            'university_choice_2_id' => University::firstOrCreate(
+                ['name' => 'Institut Teknologi Bandung'],
+                ['short_name' => 'ITB', 'type' => 'negeri', 'is_active' => true]
+            )->id,
             'grade_11_preparation' => 'Belajar rutin',
             'career_concern' => 'Persaingan masuk kampus',
             'school_achievements' => '-',

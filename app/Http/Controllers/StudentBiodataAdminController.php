@@ -7,6 +7,7 @@ use App\Models\Cohort;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\University;
 use App\Services\StudentProgressService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -50,7 +51,7 @@ class StudentBiodataAdminController extends Controller
 
     public function show(Student $student): View
     {
-        $student->load(['profile', 'parents', 'documents', 'schoolClass.academicYear', 'cohort']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents', 'schoolClass.academicYear', 'cohort']);
 
         return view('bk.students.biodata', [
             'student' => $student,
@@ -62,7 +63,7 @@ class StudentBiodataAdminController extends Controller
 
     public function edit(Student $student): View
     {
-        $student->load(['profile', 'parents', 'documents', 'schoolClass.academicYear', 'cohort', 'user']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents', 'schoolClass.academicYear', 'cohort', 'user']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
@@ -72,6 +73,7 @@ class StudentBiodataAdminController extends Controller
             'isAdmin' => true,
             'biodataUpdateRoute' => route('bk.students.biodata.update', $student),
             'biodataBackRoute' => route('bk.students.biodata.show', $student),
+            'universities' => University::where('is_active', true)->orderBy('type')->orderBy('name')->get()->groupBy('type'),
         ]);
     }
 

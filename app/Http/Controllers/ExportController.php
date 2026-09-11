@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Models\University;
 use App\Services\StudentProgressService;
 use Illuminate\Http\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -82,6 +83,15 @@ class ExportController extends Controller
                     $item->is_active ? 'Aktif' : 'Nonaktif',
                 ]),
             ],
+            'universities' => [
+                ['Singkatan', 'Nama Kampus', 'Jenis', 'Status'],
+                University::query()->orderBy('name')->get()->map(fn (University $item) => [
+                    $item->short_name ?? '-',
+                    $item->name,
+                    ['negeri' => 'Negeri', 'swasta' => 'Swasta', 'kedinasan' => 'Kedinasan', 'lainnya' => 'Lainnya'][$item->type] ?? 'Lainnya',
+                    $item->is_active ? 'Aktif' : 'Nonaktif',
+                ]),
+            ],
             'school-classes' => [
                 ['Nama Kelas', 'Tingkat', 'Jurusan', 'Tahun Ajaran', 'Wali Kelas'],
                 SchoolClass::query()->with(['major', 'academicYear', 'homeroomTeacher'])->orderBy('name')->get()->map(fn (SchoolClass $item) => [
@@ -141,6 +151,7 @@ class ExportController extends Controller
             'cohorts' => 'Angkatan',
             'majors' => 'Jurusan',
             'subjects' => 'Mata Pelajaran',
+            'universities' => 'Master Kampus',
             'school-classes' => 'Kelas',
             'teachers' => 'Guru',
             'students' => 'Siswa',
@@ -161,7 +172,7 @@ class ExportController extends Controller
         ];
 
         $rows = Student::query()
-            ->with(['schoolClass', 'cohort', 'user', 'profile', 'documents'])
+            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'documents'])
             ->orderBy('name')
             ->get()
             ->map(function (Student $student): array {
@@ -189,8 +200,8 @@ class ExportController extends Controller
                     $profile?->weight_kg ?? '-',
                     $profile?->medical_history ?? '-',
                     $profile?->mcu_status ? ucfirst($profile->mcu_status) : '-',
-                    $profile?->university_choice_1 ?? '-',
-                    $profile?->university_choice_2 ?? '-',
+                    $profile?->universityChoice1?->name ?? '-',
+                    $profile?->universityChoice2?->name ?? '-',
                     $profile?->grade_11_preparation ?? '-',
                     $profile?->career_concern ?? '-',
                     $profile?->school_achievements ?? '-',

@@ -6,6 +6,7 @@ use App\Models\Cohort;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\University;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
@@ -33,12 +34,18 @@ class StudentSeeder extends Seeder
             ['Banten', 'Kota Tangerang Selatan', 'Pamulang', 'Pamulang Barat', '15417'],
         ];
         $universities = [
-            'Universitas Indonesia - Kedokteran',
-            'Institut Teknologi Bandung - Teknik Informatika',
-            'Universitas Gadjah Mada - Manajemen',
-            'IPB University - Teknologi Pangan',
-            'Universitas Padjadjaran - Ilmu Komunikasi',
-            'Universitas Airlangga - Farmasi',
+            'Universitas Indonesia',
+            'Institut Teknologi Bandung',
+            'Universitas Gadjah Mada',
+            'IPB University',
+            'BINUS University',
+            'Telkom University',
+            'Universitas Trisakti',
+            'Universitas Islam Indonesia',
+            'Politeknik Keuangan Negara STAN',
+            'Institut Pemerintahan Dalam Negeri',
+            'Politeknik Statistika STIS',
+            'Sekolah Tinggi Intelijen Negara',
         ];
         $medicalHistories = ['Tidak ada', 'Alergi debu', 'Asma ringan', 'Rabun jauh'];
         $achievements = [
@@ -50,6 +57,7 @@ class StudentSeeder extends Seeder
         $organizations = ['OSIS bidang akademik', 'Pramuka', 'Paskibra', 'Klub sains sekolah'];
         $cohortId = Cohort::where('name', 'Angkatan 2025')->value('id');
         $classIds = SchoolClass::whereIn('name', $classes)->pluck('id', 'name');
+        $universityIds = University::whereIn('name', $universities)->pluck('id', 'name');
 
         foreach ($names as $index => $name) {
             $number = $index + 1;
@@ -91,8 +99,8 @@ class StudentSeeder extends Seeder
                     'height_cm' => 150 + ($index % 28),
                     'weight_kg' => 45 + ($index % 26),
                     'medical_history' => $medicalHistories[$index % count($medicalHistories)],
-                    'university_choice_1' => $universities[$index % count($universities)],
-                    'university_choice_2' => $universities[($index + 2) % count($universities)],
+                    'university_choice_1_id' => $universityIds[$universities[$index % count($universities)]],
+                    'university_choice_2_id' => $universityIds[$universities[($index + 2) % count($universities)]],
                     'grade_11_preparation' => 'Mengikuti pendalaman materi, try out rutin, dan menyusun jadwal belajar mingguan.',
                     'career_concern' => $index % 3 === 0
                         ? 'Masih mempertimbangkan jurusan yang paling sesuai dengan minat dan kemampuan.'

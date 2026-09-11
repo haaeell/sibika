@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Student;
+use App\Models\University;
 use App\Models\User;
 use App\Services\StudentProgressService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -46,8 +47,7 @@ class StudentBiodataTest extends TestCase
                 'height_cm' => 165,
                 'weight_kg' => 55,
                 'medical_history' => '-',
-                'university_choice_1' => 'UI - Kedokteran',
-                'university_choice_2' => 'ITB - Teknik',
+                ...$this->universityChoices(),
                 'grade_11_preparation' => 'Sudah belajar rutin',
                 'career_concern' => 'Takut tidak lolos',
                 'school_achievements' => '-',
@@ -58,7 +58,7 @@ class StudentBiodataTest extends TestCase
             ->assertRedirect(route('siswa.biodata.index'));
 
         $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'phone' => '08123456789', 'height_cm' => 165, 'mcu_status' => 'belum']);
-        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'university_choice_1' => 'UI - Kedokteran']);
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'university_choice_1_id' => $this->universityChoices()['university_choice_1_id']]);
     }
 
     public function test_progress_service_reports_empty_biodata_as_zero(): void
@@ -87,8 +87,7 @@ class StudentBiodataTest extends TestCase
             'height_cm' => 170,
             'weight_kg' => 60,
             'medical_history' => '-',
-            'university_choice_1' => 'UI - Kedokteran',
-            'university_choice_2' => 'ITB - Teknik',
+            ...$this->universityChoices(),
             'grade_11_preparation' => 'Belajar rutin',
             'career_concern' => 'Persaingan masuk kampus',
             'school_achievements' => '-',
@@ -113,8 +112,8 @@ class StudentBiodataTest extends TestCase
             ->put(route('siswa.biodata.update'), [])
             ->assertSessionHasErrors([
                 'gender', 'birth_place', 'birth_date', 'phone', 'province', 'city', 'district', 'village',
-                'postal_code', 'address', 'height_cm', 'weight_kg', 'medical_history', 'university_choice_1',
-                'university_choice_2', 'grade_11_preparation', 'career_concern', 'school_achievements',
+                'postal_code', 'address', 'height_cm', 'weight_kg', 'medical_history', 'university_choice_1_id',
+                'university_choice_2_id', 'grade_11_preparation', 'career_concern', 'school_achievements',
                 'organization_participation', 'self_improvement_notes', 'mcu_status',
             ]);
     }
@@ -209,8 +208,7 @@ class StudentBiodataTest extends TestCase
                 'height_cm' => 170,
                 'weight_kg' => 60,
                 'medical_history' => '-',
-                'university_choice_1' => 'UI - Kedokteran',
-                'university_choice_2' => 'ITB - Teknik',
+                ...$this->universityChoices(),
                 'grade_11_preparation' => 'Belajar rutin',
                 'career_concern' => 'Persaingan masuk kampus',
                 'school_achievements' => '-',
@@ -230,5 +228,22 @@ class StudentBiodataTest extends TestCase
         $user->assignRole($role);
 
         return $user;
+    }
+
+    private function universityChoices(): array
+    {
+        $first = University::firstOrCreate(
+            ['name' => 'Universitas Indonesia'],
+            ['short_name' => 'UI', 'type' => 'negeri', 'is_active' => true]
+        );
+        $second = University::firstOrCreate(
+            ['name' => 'Institut Teknologi Bandung'],
+            ['short_name' => 'ITB', 'type' => 'negeri', 'is_active' => true]
+        );
+
+        return [
+            'university_choice_1_id' => $first->id,
+            'university_choice_2_id' => $second->id,
+        ];
     }
 }

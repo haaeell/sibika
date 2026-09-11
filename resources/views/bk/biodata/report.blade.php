@@ -156,7 +156,7 @@
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5 text-slate-600">{{ $row['missing']->isEmpty() ? 'Lengkap' : $row['missing']->join(', ') }}</span></td>
                             <td>{{ ['sudah' => 'Sudah', 'proses' => 'Proses', 'belum' => 'Belum'][$student->profile?->mcu_status] ?? '-' }}</td>
                             <td><span class="block max-w-xs truncate" title="{{ $student->profile?->medical_history }}">{{ $student->profile?->medical_history ?? '-' }}</span></td>
-                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5">1. {{ $student->profile?->university_choice_1 ?? '-' }}<br>2. {{ $student->profile?->university_choice_2 ?? '-' }}</span></td>
+                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5">1. {{ $student->profile?->universityChoice1?->name ?? '-' }}<br>2. {{ $student->profile?->universityChoice2?->name ?? '-' }}</span></td>
                             <td>{{ $row['certificate_count'] }}</td>
                             <td><a href="{{ route('bk.students.biodata.show', $student) }}" class="btn-icon" aria-label="Lihat biodata {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>

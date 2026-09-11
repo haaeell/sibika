@@ -12,6 +12,7 @@ use App\Http\Controllers\StudentBiodataAdminController;
 use App\Http\Controllers\StudentScoreAdminController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\UniversityController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('bk')
@@ -20,7 +21,7 @@ Route::prefix('bk')
     ->group(function (): void {
         Route::view('/dashboard', 'bk.dashboard')->name('dashboard');
         Route::get('{resource}/export/{format}', [ExportController::class, 'download'])
-            ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'school-classes', 'teachers', 'students', 'biodata'])
+            ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'universities', 'school-classes', 'teachers', 'students', 'biodata'])
             ->whereIn('format', ['xlsx', 'pdf'])
             ->name('exports.download');
         Route::get('academic-years/data', [AcademicYearController::class, 'data'])->name('academic-years.data');
@@ -45,6 +46,8 @@ Route::prefix('bk')
         Route::resource('majors', MajorController::class)->except('show');
         Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
         Route::resource('subjects', SubjectController::class)->except('show');
+        Route::get('universities/data', [UniversityController::class, 'data'])->name('universities.data');
+        Route::resource('universities', UniversityController::class)->except('show');
         Route::get('student-scores/data', [StudentScoreAdminController::class, 'data'])->name('student-scores.data');
         Route::get('student-scores/{student}', [StudentScoreAdminController::class, 'show'])->name('student-scores.show');
         Route::get('student-scores', [StudentScoreAdminController::class, 'index'])->name('student-scores.index');

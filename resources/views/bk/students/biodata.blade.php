@@ -40,8 +40,8 @@
                         'Status MCU Mandiri' => $mcuLabels[$profile?->mcu_status] ?? $profile?->mcu_status,
                     ],
                     'Pilihan Kampus' => [
-                        'Pilihan 1 (Kampus)' => $profile?->university_choice_1,
-                        'Pilihan 2 (Kampus)' => $profile?->university_choice_2,
+                        'Pilihan 1 (Kampus)' => $profile?->universityChoice1?->name,
+                        'Pilihan 2 (Kampus)' => $profile?->universityChoice2?->name,
                     ],
                     'Persiapan & Karir' => [
                         'Persiapan di Kelas 11' => $profile?->grade_11_preparation,

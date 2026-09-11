@@ -14,7 +14,7 @@ class BiodataReportService
     public function generate(array $filters): array
     {
         $students = Student::query()
-            ->with(['profile', 'schoolClass', 'cohort', 'documents'])
+            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'schoolClass', 'cohort', 'documents'])
             ->when($filters['class_id'] ?? null, fn ($query, $value) => $query->where('class_id', $value))
             ->when($filters['cohort_id'] ?? null, fn ($query, $value) => $query->where('cohort_id', $value))
             ->when($filters['status'] ?? null, fn ($query, $value) => $query->where('status', $value))
@@ -54,8 +54,8 @@ class BiodataReportService
             ->map(fn (Collection $items) => (int) round($items->avg(fn (Student $student) => $student->biodata_progress['percentage'])))
             ->sortKeys();
 
-        $campusChoice1 = $this->topTextValues($students, 'university_choice_1');
-        $campusChoice2 = $this->topTextValues($students, 'university_choice_2');
+        $campusChoice1 = $this->topUniversityChoices($students, 'universityChoice1');
+        $campusChoice2 = $this->topUniversityChoices($students, 'universityChoice2');
         $provinces = $this->topTextValues($students, 'province');
         $cities = $this->topTextValues($students, 'city');
 
@@ -127,6 +127,16 @@ class BiodataReportService
         return $students
             ->map(fn (Student $student) => trim((string) $student->profile?->{$field}))
             ->filter(fn (string $value) => $value !== '' && $value !== '-')
+            ->countBy()
+            ->sortDesc()
+            ->take(8);
+    }
+
+    private function topUniversityChoices(Collection $students, string $relation): Collection
+    {
+        return $students
+            ->map(fn (Student $student) => $student->profile?->{$relation}?->name)
+            ->filter()
             ->countBy()
             ->sortDesc()
             ->take(8);
