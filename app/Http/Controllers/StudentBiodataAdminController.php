@@ -86,6 +86,18 @@ class StudentBiodataAdminController extends Controller
         return redirect()->route('bk.students.biodata.show', $student)->with('success', 'Biodata siswa berhasil diperbarui.');
     }
 
+    public function photo(Student $student)
+    {
+        $student->loadMissing('profile');
+        abort_unless($student->profile?->photo_path && Storage::disk('local')->exists($student->profile->photo_path), 404);
+
+        $response = response()->file(Storage::disk('local')->path($student->profile->photo_path));
+        $response->headers->set('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+
+        return $response;
+    }
+
     public function downloadDocument(Student $student, StudentDocument $document)
     {
         abort_unless($document->student_id === $student->id, 404);

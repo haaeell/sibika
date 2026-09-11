@@ -9,16 +9,39 @@
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <x-card>
             <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-6">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest text-blue-800">{{ $student->nis }}</p>
-                    <h2 class="mt-2 text-2xl font-extrabold text-slate-900">{{ $student->name }}</h2>
-                    <p class="mt-1 text-sm font-medium text-slate-500">{{ $student->schoolClass?->name ?? 'Belum ditempatkan' }} · {{ $student->cohort?->name ?? 'Tanpa angkatan' }}</p>
+                <div class="flex gap-4">
+                    <span class="hidden size-12 items-center justify-center rounded-xl bg-blue-900 text-white sm:flex"><i class="fa-solid fa-id-card"></i></span>
+                    <div>
+                        <p class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-blue-800"><i class="fa-solid fa-hashtag text-[10px]"></i> {{ $student->nis }}</p>
+                        <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">{{ $student->name }}</h2>
+                        <p class="mt-1 flex flex-wrap items-center gap-1.5 text-sm font-medium text-slate-500"><i class="fa-solid fa-school text-xs text-slate-400"></i> {{ $student->schoolClass?->name ?? 'Belum ditempatkan' }} <span class="text-slate-300">·</span> <i class="fa-solid fa-layer-group text-xs text-slate-400"></i> {{ $student->cohort?->name ?? 'Tanpa angkatan' }}</p>
+                    </div>
                 </div>
-                <span class="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-800">{{ $progress['percentage'] }}% biodata</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-800"><i class="fa-solid fa-chart-simple text-[11px]"></i> {{ $progress['percentage'] }}% biodata</span>
+            </div>
+
+            <div class="flex flex-col items-center border-b border-slate-100 py-4">
+                @if ($profile?->photo_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($profile->photo_path))
+                    <img src="{{ route('bk.students.biodata.photo.show', $student) }}" alt="Foto profil {{ $student->name }}" class="size-16 rounded-xl border border-white object-cover shadow-sm sm:size-20">
+                @else
+                    <div class="flex size-16 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 shadow-sm sm:size-20">
+                        <i class="fa-solid fa-user-graduate text-lg"></i>
+                    </div>
+                @endif
+                <p class="mt-2 text-xs font-bold text-slate-900">{{ $profile?->photo_path ? 'Foto Profil' : 'Belum ada foto profil' }}</p>
+                <p class="text-[11px] text-slate-500">{{ $student->name }}</p>
             </div>
 
             @php
                 $mcuLabels = ['belum' => 'Belum', 'proses' => 'Proses', 'sudah' => 'Sudah'];
+                $sectionMeta = [
+                    'Data Pribadi' => ['icon' => 'fa-user', 'bg' => 'bg-blue-50', 'fg' => 'text-blue-700'],
+                    'Alamat' => ['icon' => 'fa-map-location-dot', 'bg' => 'bg-sky-50', 'fg' => 'text-sky-700'],
+                    'Data Fisik & Kesehatan' => ['icon' => 'fa-heart-pulse', 'bg' => 'bg-rose-50', 'fg' => 'text-rose-700'],
+                    'Pilihan Kampus' => ['icon' => 'fa-graduation-cap', 'bg' => 'bg-indigo-50', 'fg' => 'text-indigo-700'],
+                    'Persiapan & Karir' => ['icon' => 'fa-bullseye', 'bg' => 'bg-amber-50', 'fg' => 'text-amber-700'],
+                    'Aktivitas & Evaluasi Diri' => ['icon' => 'fa-trophy', 'bg' => 'bg-emerald-50', 'fg' => 'text-emerald-700'],
+                ];
                 $sections = [
                     'Data Pribadi' => [
                         'Jenis Kelamin' => ['male' => 'Laki-laki', 'female' => 'Perempuan'][$profile?->gender] ?? null,
@@ -57,11 +80,18 @@
             @endphp
 
             @foreach ($sections as $title => $items)
+                @php $meta = $sectionMeta[$title] ?? ['icon' => 'fa-circle-info', 'bg' => 'bg-slate-100', 'fg' => 'text-slate-600']; @endphp
                 <section class="border-b border-slate-100 py-6 last:border-b-0">
-                    <h3 class="mb-4 text-base font-bold text-slate-900">{{ $title }}</h3>
+                    <div class="mb-4 flex items-center gap-3">
+                        <span class="flex size-9 items-center justify-center rounded-xl {{ $meta['bg'] }} {{ $meta['fg'] }}"><i class="fa-solid {{ $meta['icon'] }} text-sm"></i></span>
+                        <h3 class="text-base font-bold text-slate-900">{{ $title }}</h3>
+                    </div>
                     <dl class="grid gap-x-6 gap-y-4 sm:grid-cols-2">
                         @foreach ($items as $label => $value)
-                            <div><dt class="text-xs font-bold uppercase tracking-wide text-slate-400">{{ $label }}</dt><dd class="mt-1 whitespace-pre-line text-sm font-semibold text-slate-700">{{ filled($value) ? $value : 'Belum diisi' }}</dd></div>
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                                <dt class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-400"><i class="fa-solid fa-minus text-[8px] opacity-50"></i> {{ $label }}</dt>
+                                <dd class="mt-1 whitespace-pre-line text-sm font-semibold {{ filled($value) ? 'text-slate-800' : 'text-slate-400 italic' }}">{{ filled($value) ? $value : 'Belum diisi' }}</dd>
+                            </div>
                         @endforeach
                     </dl>
                 </section>
@@ -70,26 +100,43 @@
         </x-card>
 
         <aside class="space-y-6">
-            <x-card title="Progress Biodata" description="Ringkasan kelengkapan data siswa.">
-                <div class="text-4xl font-extrabold text-blue-900">{{ $progress['percentage'] }}%</div>
-                <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-blue-800" style="width: {{ $progress['percentage'] }}%"></div></div>
-                <div class="mt-5 space-y-3">
+            <x-card>
+                <div class="mb-3 flex items-center gap-3">
+                    <span class="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><i class="fa-solid fa-list-check"></i></span>
+                    <div><h3 class="text-sm font-bold text-slate-900">Progress Biodata</h3><p class="text-xs text-slate-500">Ringkasan kelengkapan data siswa.</p></div>
+                </div>
+                <div class="flex items-end gap-2">
+                    <div class="text-4xl font-extrabold tracking-tight text-blue-900">{{ $progress['percentage'] }}%</div>
+                    <span class="mb-1.5 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700"><i class="fa-solid fa-chart-simple mr-1"></i> lengkap</span>
+                </div>
+                <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-blue-800 transition-all" style="width: {{ $progress['percentage'] }}%"></div></div>
+                <div class="mt-5 space-y-2.5">
+                    @php $progressIcons = ['personal'=>'fa-user','address'=>'fa-location-dot','physical'=>'fa-heart-pulse','campus_choice'=>'fa-graduation-cap','career_preparation'=>'fa-bullseye','school_activity'=>'fa-trophy','documents'=>'fa-award']; @endphp
                     @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'campus_choice' => 'Pilihan Kampus', 'career_preparation' => 'Persiapan Karir', 'school_activity' => 'Aktivitas & Evaluasi', 'documents' => 'Sertifikat Prestasi'] as $key => $label)
-                        <div class="flex items-center justify-between text-sm"><span class="font-semibold text-slate-600">{{ $label }}</span><i class="fa-solid {{ $progress['sections'][$key] ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }}"></i></div>
+                        <div class="flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-2 text-sm"><span class="flex items-center gap-2 font-semibold text-slate-600"><i class="fa-solid {{ $progressIcons[$key] }} text-xs text-slate-400"></i> {{ $label }}</span><i class="fa-solid {{ $progress['sections'][$key] ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }}"></i></div>
                     @endforeach
                 </div>
             </x-card>
-            <x-card title="Sertifikat Prestasi" description="Sertifikat yang diunggah siswa.">
+            <x-card>
+                <div class="mb-3 flex items-center gap-3">
+                    <span class="flex size-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-award"></i></span>
+                    <div><h3 class="text-sm font-bold text-slate-900">Sertifikat Prestasi</h3><p class="text-xs text-slate-500">Sertifikat yang diunggah siswa.</p></div>
+                </div>
                 @forelse ($student->documents as $document)
-                    <div class="flex items-center justify-between gap-2 border-b border-slate-100 py-2 last:border-0">
+                    <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white p-3 last:mb-0">
+                        <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700"><i class="fa-solid fa-file-lines text-sm"></i></div>
                         <div class="min-w-0 flex-1">
-                            <p class="truncate text-xs font-bold text-slate-700">{{ $document->document_type }}</p>
-                            <a href="{{ route('bk.students.biodata.documents.download', [$student, $document]) }}" class="truncate text-xs font-semibold text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>
+                            <p class="truncate text-xs font-bold leading-tight text-slate-800">{{ $document->document_type }}</p>
+                            <a href="{{ route('bk.students.biodata.documents.download', [$student, $document]) }}" class="block truncate text-xs font-medium text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>
                         </div>
-                        <form action="{{ route('bk.students.biodata.documents.destroy', [$student, $document]) }}" method="POST">@csrf @method('DELETE')<button class="text-rose-600" aria-label="Hapus sertifikat"><i class="fa-solid fa-trash"></i></button></form>
+                        <form action="{{ route('bk.students.biodata.documents.destroy', [$student, $document]) }}" method="POST">@csrf @method('DELETE')<button class="flex size-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 transition hover:bg-rose-100" aria-label="Hapus sertifikat"><i class="fa-solid fa-trash text-xs"></i></button></form>
                     </div>
                 @empty
-                    <p class="text-sm font-medium text-slate-400">Belum ada sertifikat.</p>
+                    <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
+                        <div class="mx-auto flex size-10 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm"><i class="fa-solid fa-file-circle-xmark"></i></div>
+                        <p class="mt-2 text-sm font-semibold text-slate-500">Belum ada sertifikat</p>
+                        <p class="text-xs text-slate-400">Siswa belum mengunggah sertifikat.</p>
+                    </div>
                 @endforelse
             </x-card>
         </aside>
