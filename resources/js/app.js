@@ -202,8 +202,9 @@ window.initBiodataProgress = function (scope = document) {
                     : `${completed} dari ${total} data wajib terisi`,
             );
 
-            updateSection('personal');
-            updateSection('address');
+            $root.find('[data-progress-section-indicator]').each(function () {
+                updateSection($(this).data('progressSectionIndicator'));
+            });
         };
 
         $fields.on('input change', function () {

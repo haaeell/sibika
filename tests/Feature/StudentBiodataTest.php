@@ -69,7 +69,7 @@ class StudentBiodataTest extends TestCase
         $this->assertSame(0, app(StudentProgressService::class)->calculate($student)['percentage']);
     }
 
-    public function test_optional_fields_do_not_prevent_biodata_from_reaching_one_hundred_percent(): void
+    public function test_photo_and_certificates_do_not_prevent_biodata_from_reaching_one_hundred_percent(): void
     {
         $user = $this->studentUser();
         $student = Student::create(['nis' => 'S-005', 'name' => 'Siswa Lengkap', 'user_id' => $user->id]);
@@ -84,13 +84,39 @@ class StudentBiodataTest extends TestCase
             'village' => 'Dago',
             'postal_code' => '40135',
             'address' => 'Jalan Test',
+            'height_cm' => 170,
+            'weight_kg' => 60,
+            'medical_history' => '-',
+            'university_choice_1' => 'UI - Kedokteran',
+            'university_choice_2' => 'ITB - Teknik',
+            'grade_11_preparation' => 'Belajar rutin',
+            'career_concern' => 'Persaingan masuk kampus',
+            'school_achievements' => '-',
+            'organization_participation' => '-',
+            'self_improvement_notes' => 'Meningkatkan disiplin',
+            'mcu_status' => 'belum',
         ]);
 
         $progress = app(StudentProgressService::class)->calculate($student->fresh());
 
         $this->assertSame(100, $progress['percentage']);
-        $this->assertSame(10, $progress['completed']);
-        $this->assertSame(10, $progress['total']);
+        $this->assertSame(21, $progress['completed']);
+        $this->assertSame(21, $progress['total']);
+    }
+
+    public function test_all_biodata_fields_are_required(): void
+    {
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-007', 'name' => 'Siswa Wajib', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [])
+            ->assertSessionHasErrors([
+                'gender', 'birth_place', 'birth_date', 'phone', 'province', 'city', 'district', 'village',
+                'postal_code', 'address', 'height_cm', 'weight_kg', 'medical_history', 'university_choice_1',
+                'university_choice_2', 'grade_11_preparation', 'career_concern', 'school_achievements',
+                'organization_participation', 'self_improvement_notes', 'mcu_status',
+            ]);
     }
 
     public function test_student_can_upload_multiple_achievement_certificates(): void
@@ -149,6 +175,13 @@ class StudentBiodataTest extends TestCase
                 'height_cm' => 170,
                 'weight_kg' => 60,
                 'medical_history' => '-',
+                'university_choice_1' => 'UI - Kedokteran',
+                'university_choice_2' => 'ITB - Teknik',
+                'grade_11_preparation' => 'Belajar rutin',
+                'career_concern' => 'Persaingan masuk kampus',
+                'school_achievements' => '-',
+                'organization_participation' => '-',
+                'self_improvement_notes' => 'Meningkatkan disiplin',
                 'mcu_status' => 'sudah',
             ])
             ->assertRedirect(route('bk.students.biodata.show', $student));

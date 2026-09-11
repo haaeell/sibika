@@ -22,6 +22,17 @@ class StudentProgressService
             $profile?->village,
             $profile?->postal_code,
             $profile?->address,
+            $profile?->height_cm,
+            $profile?->weight_kg,
+            $profile?->medical_history,
+            $profile?->mcu_status,
+            $profile?->university_choice_1,
+            $profile?->university_choice_2,
+            $profile?->grade_11_preparation,
+            $profile?->career_concern,
+            $profile?->school_achievements,
+            $profile?->organization_participation,
+            $profile?->self_improvement_notes,
         ];
 
         $sections = [

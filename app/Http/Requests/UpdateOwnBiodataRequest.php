@@ -24,17 +24,17 @@ class UpdateOwnBiodataRequest extends FormRequest
             'village' => ['required', 'string', 'max:100'],
             'postal_code' => ['required', 'string', 'max:10'],
             'address' => ['required', 'string', 'max:1000'],
-            'height_cm' => ['nullable', 'integer', 'min:100', 'max:250'],
-            'weight_kg' => ['nullable', 'integer', 'min:20', 'max:200'],
-            'medical_history' => ['nullable', 'string', 'max:1000'],
-            'university_choice_1' => ['nullable', 'string', 'max:150'],
-            'university_choice_2' => ['nullable', 'string', 'max:150'],
-            'grade_11_preparation' => ['nullable', 'string', 'max:2000'],
-            'career_concern' => ['nullable', 'string', 'max:2000'],
-            'school_achievements' => ['nullable', 'string', 'max:2000'],
-            'organization_participation' => ['nullable', 'string', 'max:2000'],
-            'self_improvement_notes' => ['nullable', 'string', 'max:2000'],
-            'mcu_status' => ['nullable', 'in:belum,sudah,proses'],
+            'height_cm' => ['required', 'integer', 'min:100', 'max:250'],
+            'weight_kg' => ['required', 'integer', 'min:20', 'max:200'],
+            'medical_history' => ['required', 'string', 'max:1000'],
+            'university_choice_1' => ['required', 'string', 'max:150'],
+            'university_choice_2' => ['required', 'string', 'max:150'],
+            'grade_11_preparation' => ['required', 'string', 'max:2000'],
+            'career_concern' => ['required', 'string', 'max:2000'],
+            'school_achievements' => ['required', 'string', 'max:2000'],
+            'organization_participation' => ['required', 'string', 'max:2000'],
+            'self_improvement_notes' => ['required', 'string', 'max:2000'],
+            'mcu_status' => ['required', 'in:belum,sudah,proses'],
         ];
     }
 
@@ -42,8 +42,9 @@ class UpdateOwnBiodataRequest extends FormRequest
     {
         return [
             'birth_date.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
-            'email.email' => 'Format email tidak valid.',
-            'graduation_year.integer' => 'Tahun lulus harus berupa angka.',
+            'medical_history.required' => 'Riwayat kesehatan wajib diisi. Tuliskan (-) jika tidak ada.',
+            'school_achievements.required' => 'Prestasi wajib diisi. Tuliskan (-) jika tidak ada.',
+            'organization_participation.required' => 'Organisasi wajib diisi. Tuliskan (-) jika tidak ada.',
         ];
     }
 }

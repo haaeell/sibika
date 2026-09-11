@@ -15,7 +15,7 @@
 
     <div class="relative">
         @if ($icon)
-            <span class="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center text-slate-400">
+            <span class="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-12 items-center justify-center text-slate-400" data-form-icon>
                 <i class="{{ $icon }}"></i>
             </span>
         @endif
