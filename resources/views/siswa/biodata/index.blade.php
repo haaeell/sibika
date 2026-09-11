@@ -287,13 +287,14 @@
                     nameWrapper.classList.toggle('hidden', !isYa);
                     nameEl.required = isYa;
                     if (isYa) {
-                        nameEl.setAttribute('data-progress-required', '');
                         if (nameEl.value === '-') nameEl.value = '';
+                        nameEl.removeAttribute('readonly');
                     } else {
-                        nameEl.removeAttribute('data-progress-required');
                         nameEl.value = '-';
+                        nameEl.setAttribute('readonly', 'readonly');
                     }
-                    if (window.initBiodataProgress) window.initBiodataProgress(document);
+                    nameEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (window.$) window.$('[data-organization-status]').trigger('change');
                 };
                 statusEl.addEventListener('change', toggle);
                 toggle();

@@ -88,7 +88,13 @@ window.initRegionSelects = function (scope = document) {
             });
             setLoading(select, false);
 
-            const selected = items.find((item) => item.name === initialName);
+            let selected = items.find((item) => item.name === initialName);
+            if (!selected && initialName) {
+                const lowerInitial = initialName.toLowerCase();
+                selected = items.find((item) => item.name.toLowerCase() === lowerInitial)
+                    || items.find((item) => item.name.toLowerCase().includes(lowerInitial))
+                    || items.find((item) => lowerInitial.includes(item.name.toLowerCase()));
+            }
             if (selected) {
                 $(select).val(selected.name);
 
@@ -166,6 +172,9 @@ window.initBiodataProgress = function (scope = document) {
 
         const fieldValue = function (field) {
             const $field = $(field);
+            if ($field.is('[data-organization-name]') && $('[data-organization-status]').val() === 'tidak') {
+                return '-';
+            }
             const value = $field.val();
 
             if (String(value ?? '').trim() !== '') {
@@ -174,7 +183,7 @@ window.initBiodataProgress = function (scope = document) {
 
             return $field.data('progressInitialActive') === false
                 ? ''
-                : ($field.attr('data-initial') || '');
+                : ($field.attr('data-initial') || $field.data('initial') || '');
         };
 
         const updateSection = function (section) {
@@ -207,12 +216,19 @@ window.initBiodataProgress = function (scope = document) {
             });
         };
 
-        $fields.on('input change', function () {
+        $fields.on('input change change.select2', function () {
             $(this).data('progressInitialActive', false);
             update();
         });
 
+        $(document).on('change', '[data-organization-status]', update);
+        $(document).on('change change.select2', '[data-region-select]', function () {
+            setTimeout(update, 50);
+        });
+
         update();
+        setTimeout(update, 300);
+        setTimeout(update, 1000);
     });
 };
 

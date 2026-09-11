@@ -28,7 +28,7 @@ class StudentSeeder extends Seeder
         $classes = ['XI IPA 1', 'XI IPA 2', 'XI IPS 1', 'XI IPS 2'];
         $birthPlaces = ['Jakarta', 'Bandung', 'Bogor', 'Depok', 'Bekasi', 'Tangerang'];
         $locations = [
-            ['DKI Jakarta', 'Jakarta Selatan', 'Pasar Minggu', 'Pejaten Barat', '12510'],
+            ['DKI Jakarta', 'Kota Administrasi Jakarta Selatan', 'Pasar Minggu', 'Pejaten Barat', '12510'],
             ['Jawa Barat', 'Kota Bekasi', 'Bekasi Selatan', 'Pekayon Jaya', '17148'],
             ['Jawa Barat', 'Kota Depok', 'Beji', 'Kukusan', '16425'],
             ['Banten', 'Kota Tangerang Selatan', 'Pamulang', 'Pamulang Barat', '15417'],
