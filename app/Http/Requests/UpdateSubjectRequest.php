@@ -14,7 +14,7 @@ class UpdateSubjectRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:30', Rule::unique('subjects', 'code')->ignore($this->subject)],
             'name' => ['required', 'string', 'max:100', Rule::unique('subjects', 'name')->ignore($this->subject)],
-            'category' => ['required', 'in:general,tka_mandatory,tka_optional'],
+            'category' => ['required', 'in:general'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

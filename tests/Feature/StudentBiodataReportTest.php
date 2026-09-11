@@ -52,6 +52,10 @@ class StudentBiodataReportTest extends TestCase
         $this->assertSame(1, $report['summary']['incomplete']);
         $this->assertSame(55, $report['summary']['average_progress']);
         $this->assertSame(19, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
+        $this->assertSame(['Jawa Barat'], $report['charts']['province']['labels']);
+        $this->assertSame([1], $report['charts']['province']['values']);
+        $this->assertSame(['Bandung'], $report['charts']['city']['labels']);
+        $this->assertSame([1], $report['charts']['city']['values']);
     }
 
     public function test_report_filters_students_by_completeness_and_mcu_status(): void

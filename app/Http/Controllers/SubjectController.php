@@ -17,10 +17,8 @@ class SubjectController extends Controller
 
     public function data(Request $request): JsonResponse
     {
-        $categories = array_filter((array) $request->input('category', []));
         $activeValues = array_filter((array) $request->input('is_active', []), fn ($value) => $value !== '');
         return DataTables::eloquent(Subject::query()
-            ->when($categories, fn ($query) => $query->whereIn('category', $categories))
             ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
             ->withCount('teachers')
             ->latest())
@@ -76,8 +74,6 @@ class SubjectController extends Controller
 
     private function categoryLabel(string $category): string
     {
-        $labels = ['general' => 'Umum', 'tka_mandatory' => 'TKA Wajib', 'tka_optional' => 'TKA Pilihan'];
-
-        return '<span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">'.$labels[$category].'</span>';
+        return '<span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">Umum</span>';
     }
 }

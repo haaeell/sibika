@@ -91,6 +91,15 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
+        <x-card title="Sebaran Provinsi" description="Delapan provinsi dengan jumlah domisili siswa terbanyak.">
+            <div class="h-72"><canvas id="province-chart"></canvas></div>
+        </x-card>
+        <x-card title="Sebaran Kota / Kabupaten" description="Delapan kota atau kabupaten dengan jumlah domisili siswa terbanyak.">
+            <div class="h-72"><canvas id="city-chart"></canvas></div>
+        </x-card>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
         <x-card title="Pilihan Kampus Pertama" description="Delapan kampus pilihan pertama yang paling banyak diminati.">
             <div class="h-72"><canvas id="campus-choice-1-chart"></canvas></div>
         </x-card>
@@ -202,6 +211,8 @@
                 renderChart('organization-chart', charts.organization);
                 renderChart('height-chart', charts.height, 'bar');
                 renderChart('weight-chart', charts.weight, 'bar');
+                renderChart('province-chart', charts.province, 'bar', { horizontal: true });
+                renderChart('city-chart', charts.city, 'bar', { horizontal: true });
                 renderChart('campus-choice-1-chart', charts.campus_choice_1, 'bar', { horizontal: true });
                 renderChart('campus-choice-2-chart', charts.campus_choice_2, 'bar', { horizontal: true });
 

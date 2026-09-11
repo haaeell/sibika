@@ -14,12 +14,10 @@ class SchoolClassSeeder extends Seeder
     {
         $academicYear = AcademicYear::where('name', '2026 / 2027')->firstOrFail();
         $classes = [
-            ['name' => 'X IPA 1', 'grade_level' => 'X', 'major' => 'IPA', 'teacher' => '198501001'],
-            ['name' => 'X IPS 1', 'grade_level' => 'X', 'major' => 'IPS', 'teacher' => '198905005'],
             ['name' => 'XI IPA 1', 'grade_level' => 'XI', 'major' => 'IPA', 'teacher' => '198703003'],
+            ['name' => 'XI IPA 2', 'grade_level' => 'XI', 'major' => 'IPA', 'teacher' => '198804004'],
             ['name' => 'XI IPS 1', 'grade_level' => 'XI', 'major' => 'IPS', 'teacher' => '198905005'],
-            ['name' => 'XII IPA 1', 'grade_level' => 'XII', 'major' => 'IPA', 'teacher' => '198804004'],
-            ['name' => 'XII IPS 1', 'grade_level' => 'XII', 'major' => 'IPS', 'teacher' => '198905005'],
+            ['name' => 'XI IPS 2', 'grade_level' => 'XI', 'major' => 'IPS', 'teacher' => '198602002'],
         ];
 
         foreach ($classes as $classData) {

@@ -6,12 +6,6 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="subject-category-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua kategori">
-                    <option value="">Semua kategori</option>
-                    <option value="general">Umum</option>
-                    <option value="tka_mandatory">TKA Wajib</option>
-                    <option value="tka_optional">TKA Pilihan</option>
-                </select>
                 <select id="subject-status-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua status">
                     <option value="">Semua status</option>
                     <option value="1">Aktif</option>
@@ -32,7 +26,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                window.initDataTable('#subject-table', { serverSide: true, ajax: { url: @json(route('bk.subjects.data')), data: function (params) { params.category = window.$('#subject-category-filter').val(); params.is_active = window.$('#subject-status-filter').val(); } }, columns: [
+                window.initDataTable('#subject-table', { serverSide: true, ajax: { url: @json(route('bk.subjects.data')), data: function (params) { params.is_active = window.$('#subject-status-filter').val(); } }, columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false }, { data: 'code', name: 'code' }, { data: 'name', name: 'name' }, { data: 'category', name: 'category' }, { data: 'teachers', name: 'teachers' }, { data: 'is_active', name: 'is_active' }, { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
                 ], order: [[2, 'asc']] });
                 window.$('[data-table-filter]').on('change', function () { window.$('#subject-table').DataTable().ajax.reload(); });

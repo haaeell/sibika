@@ -35,7 +35,6 @@
                 ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Setting Nilai', 'icon' => 'fa-solid fa-sliders', 'url' => route('bk.score-subject-settings.index'), 'active' => request()->routeIs('bk.score-subject-settings.*')],
                 ['label' => 'Data Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('bk.student-scores.index'), 'active' => request()->routeIs('bk.student-scores.*')],
-                ['label' => 'TKA', 'icon' => 'fa-solid fa-book-open', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
         [

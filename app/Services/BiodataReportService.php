@@ -56,6 +56,8 @@ class BiodataReportService
 
         $campusChoice1 = $this->topTextValues($students, 'university_choice_1');
         $campusChoice2 = $this->topTextValues($students, 'university_choice_2');
+        $provinces = $this->topTextValues($students, 'province');
+        $cities = $this->topTextValues($students, 'city');
 
         $charts = [
             'completion' => $this->chart(['Lengkap', 'Belum lengkap'], [$complete, $total - $complete]),
@@ -74,6 +76,8 @@ class BiodataReportService
             'health' => $this->chart(['Ada riwayat', 'Tidak ada / -'], [$withMedicalHistory, $total - $withMedicalHistory]),
             'achievement' => $this->presenceChart($students, 'school_achievements'),
             'organization' => $this->presenceChart($students, 'organization_participation'),
+            'province' => $this->chart($provinces->keys()->all(), $provinces->values()->all()),
+            'city' => $this->chart($cities->keys()->all(), $cities->values()->all()),
             'campus_choice_1' => $this->chart($campusChoice1->keys()->all(), $campusChoice1->values()->all()),
             'campus_choice_2' => $this->chart($campusChoice2->keys()->all(), $campusChoice2->values()->all()),
             'height' => $this->rangeChart($students->pluck('profile.height_cm'), [150, 160, 170, 180], ['< 150 cm', '150-159 cm', '160-169 cm', '170-179 cm', '>= 180 cm']),

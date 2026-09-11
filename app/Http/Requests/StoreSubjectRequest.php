@@ -13,7 +13,7 @@ class StoreSubjectRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:30', 'unique:subjects,code'],
             'name' => ['required', 'string', 'max:100', 'unique:subjects,name'],
-            'category' => ['required', 'in:general,tka_mandatory,tka_optional'],
+            'category' => ['required', 'in:general'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

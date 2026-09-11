@@ -131,11 +131,7 @@ class ExportController extends Controller
 
     private function categoryLabel(string $category): string
     {
-        return match ($category) {
-            'tka_mandatory' => 'TKA Wajib',
-            'tka_optional' => 'TKA Pilihan',
-            default => 'Umum',
-        };
+        return 'Umum';
     }
 
     private function titleFor(string $resource): string

@@ -12,7 +12,7 @@ class SuperAdminSeeder extends Seeder
     {
         $user = User::firstOrCreate(
             [
-                'email' => 'tem',
+                'email' => 'admin@asthahannas.id',
             ],
             [
                 'name' => 'Super Admin',
