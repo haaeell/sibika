@@ -115,16 +115,16 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
     <div class="min-h-screen lg:flex">
-        <div class="hidden lg:fixed lg:inset-y-0 lg:flex">
-            <x-layout.sidebar :navigation="$navigation" />
+        <div class="hidden transition-transform duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:z-30 lg:flex" data-sidebar-desktop>
+            <x-layout.sidebar :navigation="$navigation" id-prefix="desktop-sidebar" />
         </div>
 
         <div class="fixed inset-0 z-40 hidden bg-slate-900/40 lg:hidden" data-sidebar-overlay></div>
         <div class="fixed inset-y-0 left-0 z-50 hidden lg:hidden" data-sidebar-drawer>
-            <x-layout.sidebar :navigation="$navigation" />
+            <x-layout.sidebar :navigation="$navigation" id-prefix="mobile-sidebar" />
         </div>
 
-        <div class="min-w-0 flex-1 lg:pl-64">
+        <div class="min-w-0 flex-1 transition-[padding] duration-300 ease-in-out lg:pl-64" data-app-content>
             <x-layout.header :title="$title" />
 
             <main class="p-4 lg:p-6">

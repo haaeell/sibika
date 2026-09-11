@@ -4,7 +4,7 @@
 
 <header {{ $attributes->merge(['class' => 'flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-6']) }}>
     <div class="flex items-center gap-3">
-        <button type="button" class="js-sidebar-open inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 lg:hidden" aria-label="Buka menu">
+        <button type="button" class="js-sidebar-layout-toggle inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2" aria-label="Buka atau tutup menu" aria-expanded="true">
             <i class="fa-solid fa-bars"></i>
         </button>
 

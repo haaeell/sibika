@@ -385,3 +385,13 @@ table.dataTable tbody tr:hover > * {
         width: min(100%, 18rem) !important;
     }
 }
+
+@media (min-width: 1024px) {
+    html.sidebar-collapsed [data-sidebar-desktop] {
+        transform: translateX(-100%);
+    }
+
+    html.sidebar-collapsed [data-app-content] {
+        padding-left: 0;
+    }
+}

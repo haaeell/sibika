@@ -337,12 +337,51 @@ $(function () {
         });
     });
 
-    $('.js-sidebar-open').on('click', function () {
+    const desktopSidebarQuery = window.matchMedia('(min-width: 1024px)');
+    const setDesktopSidebar = function (collapsed) {
+        document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+        $('.js-sidebar-layout-toggle')
+            .attr('aria-expanded', String(!collapsed))
+            .attr('aria-label', collapsed ? 'Buka menu' : 'Tutup menu');
+    };
+    const closeMobileSidebar = function () {
+        $('[data-sidebar-overlay], [data-sidebar-drawer]').addClass('hidden');
+        $('body').removeClass('overflow-hidden');
+        $('.js-sidebar-layout-toggle').attr('aria-expanded', 'false');
+    };
+
+    const syncSidebarForViewport = function () {
+        if (desktopSidebarQuery.matches) {
+            closeMobileSidebar();
+            setDesktopSidebar(localStorage.getItem('sidebarCollapsed') === 'true');
+            return;
+        }
+
+        $('.js-sidebar-layout-toggle').attr('aria-expanded', 'false').attr('aria-label', 'Buka menu');
+    };
+
+    syncSidebarForViewport();
+    desktopSidebarQuery.addEventListener('change', syncSidebarForViewport);
+
+    $('.js-sidebar-layout-toggle').on('click', function () {
+        if (desktopSidebarQuery.matches) {
+            const collapsed = !document.documentElement.classList.contains('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', String(collapsed));
+            setDesktopSidebar(collapsed);
+            return;
+        }
+
         $('[data-sidebar-overlay], [data-sidebar-drawer]').removeClass('hidden');
+        $('body').addClass('overflow-hidden');
+        $(this).attr('aria-expanded', 'true');
     });
 
-    $('[data-sidebar-overlay]').on('click', function () {
-        $('[data-sidebar-overlay], [data-sidebar-drawer]').addClass('hidden');
+    $('[data-sidebar-overlay], .js-sidebar-close').on('click', closeMobileSidebar);
+
+    $(document).on('keydown', function (event) {
+        if (event.key === 'Escape' && !desktopSidebarQuery.matches) {
+            closeMobileSidebar();
+        }
     });
 
     const setAcademicYear = function (year) {
