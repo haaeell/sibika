@@ -15,19 +15,23 @@ class StudentProgressService
         $sections = [
             'personal' => $this->filled([
                 $student->nis, $student->nisn, $student->name, $profile?->gender,
-                $profile?->birth_place, $profile?->birth_date, $profile?->phone, $profile?->email,
+                $profile?->birth_place, $profile?->birth_date, $profile?->phone,
             ]),
             'address' => $this->filled([
                 $profile?->province, $profile?->city, $profile?->district,
                 $profile?->village, $profile?->postal_code, $profile?->address,
             ]),
-            'parents' => $this->filled([
-                $parents->get('father')?->name, $parents->get('father')?->phone,
-                $parents->get('mother')?->name, $parents->get('mother')?->phone,
+            'physical' => $this->filled([
+                $profile?->height_cm, $profile?->weight_kg, $profile?->medical_history, $profile?->mcu_status,
             ]),
-            'education' => $this->filled([
-                $profile?->previous_school, $profile?->previous_school_address,
-                $profile?->graduation_year,
+            'campus_choice' => $this->filled([
+                $profile?->university_choice_1, $profile?->university_choice_2,
+            ]),
+            'career_preparation' => $this->filled([
+                $profile?->grade_11_preparation, $profile?->career_concern,
+            ]),
+            'school_activity' => $this->filled([
+                $profile?->school_achievements, $profile?->organization_participation, $profile?->self_improvement_notes,
             ]),
             'documents' => $student->documents->isNotEmpty(),
         ];

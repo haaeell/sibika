@@ -8,7 +8,6 @@ use App\Models\StudentDocument;
 use App\Services\StudentProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -34,26 +33,8 @@ class StudentBiodataController extends Controller
     {
         $student = $this->studentFor($request);
         $data = $request->validated();
-        $profileData = collect($data)->except(['father', 'mother', 'guardian'])->all();
 
-        DB::transaction(function () use ($student, $profileData, $data): void {
-            $student->profile()->updateOrCreate([], $profileData);
-
-            foreach (['father', 'mother', 'guardian'] as $type) {
-                $parent = $data[$type] ?? [];
-                $student->parents()->updateOrCreate(
-                    ['parent_type' => $type],
-                    [
-                        'name' => $parent['name'] ?? null,
-                        'phone' => $parent['phone'] ?? null,
-                        'occupation' => $parent['occupation'] ?? null,
-                        'education' => $parent['education'] ?? null,
-                        'income_range' => $parent['income_range'] ?? null,
-                        'relation' => $parent['relation'] ?? null,
-                    ]
-                );
-            }
-        });
+        $student->profile()->updateOrCreate([], $data);
 
         return redirect()->route('siswa.biodata.index')->with('success', 'Biodata berhasil diperbarui.');
     }
@@ -86,7 +67,7 @@ class StudentBiodataController extends Controller
     {
         $student = $this->studentFor($request);
         $validated = $request->validate([
-            'document_type' => ['required', 'in:kip,kartu_keluarga,dokumen_lainnya'],
+            'document_type' => ['required', 'string', 'max:100'],
             'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
@@ -100,7 +81,7 @@ class StudentBiodataController extends Controller
             'uploaded_by' => $request->user()->id,
         ]);
 
-        return back()->with('success', 'Dokumen berhasil diunggah.');
+        return back()->with('success', 'Sertifikat prestasi berhasil diunggah.');
     }
 
     public function destroyDocument(Request $request, StudentDocument $document): RedirectResponse
@@ -110,7 +91,7 @@ class StudentBiodataController extends Controller
         Storage::disk('local')->delete($document->file_path);
         $document->delete();
 
-        return back()->with('success', 'Dokumen berhasil dihapus.');
+        return back()->with('success', 'Sertifikat berhasil dihapus.');
     }
 
     public function downloadDocument(Request $request, StudentDocument $document)

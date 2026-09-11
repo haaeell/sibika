@@ -31,27 +31,32 @@ class StudentBiodataTest extends TestCase
 
         $this->actingAs($user)
             ->put(route('siswa.biodata.update'), [
-                'nickname' => 'Test',
                 'gender' => 'female',
                 'birth_place' => 'Bandung',
                 'birth_date' => '2008-05-10',
                 'phone' => '08123456789',
-                'email' => 'siswa@example.test',
                 'province' => 'Jawa Barat',
                 'city' => 'Bandung',
                 'district' => 'Coblong',
                 'village' => 'Dago',
                 'postal_code' => '40135',
                 'address' => 'Jalan Test',
-                'previous_school' => 'SMP Test',
-                'graduation_year' => 2024,
-                'father' => ['name' => 'Ayah Test', 'phone' => '0811111111'],
-                'mother' => ['name' => 'Ibu Test', 'phone' => '0822222222'],
+                'height_cm' => 165,
+                'weight_kg' => 55,
+                'medical_history' => '-',
+                'university_choice_1' => 'UI - Kedokteran',
+                'university_choice_2' => 'ITB - Teknik',
+                'grade_11_preparation' => 'Sudah belajar rutin',
+                'career_concern' => 'Takut tidak lolos',
+                'school_achievements' => '-',
+                'organization_participation' => 'OSIS',
+                'self_improvement_notes' => 'Perlu tingkatkan disiplin',
+                'mcu_status' => 'belum',
             ])
             ->assertRedirect(route('siswa.biodata.index'));
 
-        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'nickname' => 'Test']);
-        $this->assertDatabaseHas('student_parents', ['student_id' => $student->id, 'parent_type' => 'father', 'name' => 'Ayah Test']);
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'phone' => '08123456789', 'height_cm' => 165, 'mcu_status' => 'belum']);
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'university_choice_1' => 'UI - Kedokteran']);
     }
 
     public function test_progress_service_reports_empty_biodata_as_zero(): void
@@ -76,26 +81,24 @@ class StudentBiodataTest extends TestCase
 
         $this->actingAs($user)
             ->put(route('bk.students.biodata.update', $student), [
-                'nickname' => 'Diperbarui',
                 'gender' => 'male',
                 'birth_place' => 'Bandung',
                 'birth_date' => '2008-01-01',
                 'phone' => '08123456789',
-                'email' => 'bk-student@example.test',
                 'province' => 'Jawa Barat',
                 'city' => 'Bandung',
                 'district' => 'Coblong',
                 'village' => 'Dago',
                 'postal_code' => '40135',
                 'address' => 'Jalan Test',
-                'previous_school' => 'SMP Test',
-                'graduation_year' => 2024,
-                'father' => ['name' => 'Ayah Test'],
-                'mother' => ['name' => 'Ibu Test'],
+                'height_cm' => 170,
+                'weight_kg' => 60,
+                'medical_history' => '-',
+                'mcu_status' => 'sudah',
             ])
             ->assertRedirect(route('bk.students.biodata.show', $student));
 
-        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'nickname' => 'Diperbarui']);
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'height_cm' => 170]);
     }
 
     private function studentUser(): User

@@ -11,9 +11,13 @@ class StudentProfile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nickname', 'gender', 'birth_place', 'birth_date', 'phone', 'email', 'photo_path',
+        'gender', 'birth_place', 'birth_date', 'phone', 'photo_path',
         'province', 'city', 'district', 'village', 'postal_code', 'address',
-        'previous_school', 'previous_school_address', 'graduation_year', 'academic_notes',
+        'height_cm', 'weight_kg', 'medical_history',
+        'university_choice_1', 'university_choice_2',
+        'grade_11_preparation', 'career_concern',
+        'school_achievements', 'organization_participation',
+        'self_improvement_notes', 'mcu_status',
     ];
 
     protected function casts(): array

@@ -155,31 +155,26 @@ class ExportController extends Controller
     private function biodataData(): array
     {
         $headings = [
-            'NIS', 'NISN', 'Nama Lengkap', 'Nama Panggilan', 'Status', 'Email Akun', 'Kelas', 'Angkatan',
-            'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'Nomor HP', 'Email Biodata',
-            'Provinsi', 'Kota / Kabupaten', 'Kecamatan', 'Kelurahan / Desa', 'Kode Pos', 'Alamat Lengkap',
-            'Asal Sekolah', 'Alamat Asal Sekolah', 'Tahun Lulus', 'Catatan Akademik',
-            'Nama Ayah', 'HP Ayah', 'Pekerjaan Ayah', 'Pendidikan Ayah', 'Penghasilan Ayah',
-            'Nama Ibu', 'HP Ibu', 'Pekerjaan Ibu', 'Pendidikan Ibu', 'Penghasilan Ibu',
-            'Nama Wali', 'HP Wali', 'Hubungan Wali', 'Progress Biodata', 'Dokumen',
+            'NIS', 'NISN', 'Nama Lengkap', 'Status', 'Email Akun', 'Kelas', 'Angkatan',
+            'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'No WA Aktif',
+            'Provinsi', 'Kota / Kabupaten', 'Kecamatan', 'Kelurahan / Desa', 'Kode Pos', 'Alamat Rumah',
+            'Tinggi Badan (cm)', 'Berat Badan (kg)', 'Riwayat Kesehatan/Penyakit', 'Status MCU Mandiri',
+            'Pilihan 1 (Kampus)', 'Pilihan 2 (Kampus)', 'Persiapan Kelas 11', 'Kekhawatiran Karir',
+            'Prestasi SMA Plus Astha Hannas', 'Organisasi SMA Plus Astha Hannas', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
+            'Progress Biodata', 'Sertifikat Prestasi',
         ];
 
         $rows = Student::query()
-            ->with(['schoolClass', 'cohort', 'user', 'profile', 'parents', 'documents'])
+            ->with(['schoolClass', 'cohort', 'user', 'profile', 'documents'])
             ->orderBy('name')
             ->get()
             ->map(function (Student $student): array {
                 $profile = $student->profile;
-                $parents = $student->parents->keyBy('parent_type');
-                $father = $parents->get('father');
-                $mother = $parents->get('mother');
-                $guardian = $parents->get('guardian');
 
                 return [
                     $student->nis,
                     $student->nisn ?? '-',
                     $student->name,
-                    $profile?->nickname ?? '-',
                     $this->statusLabel($student->status),
                     $student->user?->email ?? '-',
                     $student->schoolClass?->name ?? '-',
@@ -188,32 +183,25 @@ class ExportController extends Controller
                     $profile?->birth_place ?? '-',
                     $profile?->birth_date?->format('Y-m-d') ?? '-',
                     $profile?->phone ?? '-',
-                    $profile?->email ?? '-',
                     $profile?->province ?? '-',
                     $profile?->city ?? '-',
                     $profile?->district ?? '-',
                     $profile?->village ?? '-',
                     $profile?->postal_code ?? '-',
                     $profile?->address ?? '-',
-                    $profile?->previous_school ?? '-',
-                    $profile?->previous_school_address ?? '-',
-                    $profile?->graduation_year ?? '-',
-                    $profile?->academic_notes ?? '-',
-                    $father?->name ?? '-',
-                    $father?->phone ?? '-',
-                    $father?->occupation ?? '-',
-                    $father?->education ?? '-',
-                    $father?->income_range ?? '-',
-                    $mother?->name ?? '-',
-                    $mother?->phone ?? '-',
-                    $mother?->occupation ?? '-',
-                    $mother?->education ?? '-',
-                    $mother?->income_range ?? '-',
-                    $guardian?->name ?? '-',
-                    $guardian?->phone ?? '-',
-                    $guardian?->relation ?? '-',
+                    $profile?->height_cm ?? '-',
+                    $profile?->weight_kg ?? '-',
+                    $profile?->medical_history ?? '-',
+                    $profile?->mcu_status ? ucfirst($profile->mcu_status) : '-',
+                    $profile?->university_choice_1 ?? '-',
+                    $profile?->university_choice_2 ?? '-',
+                    $profile?->grade_11_preparation ?? '-',
+                    $profile?->career_concern ?? '-',
+                    $profile?->school_achievements ?? '-',
+                    $profile?->organization_participation ?? '-',
+                    $profile?->self_improvement_notes ?? '-',
                     $this->progressService->calculate($student)['percentage'].'%',
-                    $student->documents->pluck('original_name')->join(', ') ?: '-',
+                    $student->documents->map(fn ($d) => $d->document_type.': '.$d->original_name)->join('; ') ?: '-',
                 ];
             });
 
