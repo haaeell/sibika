@@ -194,7 +194,17 @@
                     </div>
                     <div class="grid gap-4 grid-cols-1">
                         <x-form.textarea name="school_achievements" label="Apakah kamu memiliki prestasi selama sekolah di SMA Plus Astha Hannas?" icon="fa-solid fa-trophy" :value="old('school_achievements', $profile?->school_achievements)" placeholder="Tuliskan prestasi atau (-) jika tidak ada" data-progress-required data-progress-section="school_activity" required rows="3" />
-                        <x-form.textarea name="organization_participation" label="Apakah kamu mengikuti organisasi di SMA Plus Astha Hannas?" icon="fa-solid fa-people-group" :value="old('organization_participation', $profile?->organization_participation)" placeholder="Tuliskan organisasi atau (-) jika tidak ada" data-progress-required data-progress-section="school_activity" required rows="3" />
+                        <div class="rounded-xl border border-slate-200 p-4" data-organization-group>
+                            <x-form.select name="organization_status" label="Apakah kamu mengikuti organisasi di SMA Plus Astha Hannas?" icon="fa-solid fa-people-group" data-progress-required data-progress-section="school_activity" data-organization-status required>
+                                <option value="">Pilih jawaban</option>
+                                <option value="tidak" @selected(old('organization_status', $profile?->organization_status) === 'tidak')>Tidak</option>
+                                <option value="ya" @selected(old('organization_status', $profile?->organization_status) === 'ya')>Ya</option>
+                            </x-form.select>
+                            <div class="mt-4" data-organization-name-wrapper>
+                                <x-form.input name="organization_name" label="Jika ya, sebutkan nama organisasinya apa" icon="fa-solid fa-users" :value="old('organization_name', $profile?->organization_name)" placeholder="Contoh: Paskibra, OSIS, Pramuka" data-progress-required data-progress-section="school_activity" data-organization-name />
+                                <p class="mt-1.5 text-xs text-slate-500">Wajib diisi jika memilih Ya.</p>
+                            </div>
+                        </div>
                         <x-form.textarea name="self_improvement_notes" label="Hal yang Perlu Ditingkatkan (Evaluasi Diri)" icon="fa-solid fa-chart-line" :value="old('self_improvement_notes', $profile?->self_improvement_notes)" placeholder="Tuliskan hal yang ingin kamu tingkatkan" data-progress-required data-progress-section="school_activity" required rows="3" />
                     </div>
 
@@ -264,4 +274,30 @@
             </form>
         @endforeach
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const statusEl = document.querySelector('[data-organization-status]');
+                const nameWrapper = document.querySelector('[data-organization-name-wrapper]');
+                const nameEl = document.querySelector('[data-organization-name]');
+                if (!statusEl || !nameWrapper || !nameEl) return;
+                const toggle = function () {
+                    const isYa = statusEl.value === 'ya';
+                    nameWrapper.classList.toggle('hidden', !isYa);
+                    nameEl.required = isYa;
+                    if (isYa) {
+                        nameEl.setAttribute('data-progress-required', '');
+                        if (nameEl.value === '-') nameEl.value = '';
+                    } else {
+                        nameEl.removeAttribute('data-progress-required');
+                        nameEl.value = '-';
+                    }
+                    if (window.initBiodataProgress) window.initBiodataProgress(document);
+                };
+                statusEl.addEventListener('change', toggle);
+                toggle();
+            });
+        </script>
+    @endpush
 @endcomponent

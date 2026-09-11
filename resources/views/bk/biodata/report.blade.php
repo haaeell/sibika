@@ -80,7 +80,8 @@
             ['id' => 'mcu-chart', 'title' => 'Status MCU Mandiri', 'description' => 'Status pelaksanaan medical check-up siswa.'],
             ['id' => 'health-chart', 'title' => 'Riwayat Kesehatan', 'description' => 'Siswa yang memerlukan perhatian berdasarkan isian kesehatan.'],
             ['id' => 'achievement-chart', 'title' => 'Prestasi Sekolah', 'description' => 'Perbandingan siswa yang memiliki dan tidak memiliki prestasi.'],
-            ['id' => 'organization-chart', 'title' => 'Keikutsertaan Organisasi', 'description' => 'Partisipasi organisasi selama bersekolah.'],
+            ['id' => 'organization-chart', 'title' => 'Keikutsertaan Organisasi', 'description' => 'Jawaban Ya / Tidak mengikuti organisasi.'],
+            ['id' => 'organization-names-chart', 'title' => 'Nama Organisasi Terpopuler', 'description' => 'Delapan organisasi yang paling banyak diikuti.'],
             ['id' => 'height-chart', 'title' => 'Distribusi Tinggi Badan', 'description' => 'Pengelompokan tinggi badan siswa.'],
             ['id' => 'weight-chart', 'title' => 'Distribusi Berat Badan', 'description' => 'Pengelompokan berat badan siswa.'],
         ] as $chart)
@@ -209,6 +210,7 @@
                 renderChart('health-chart', charts.health);
                 renderChart('achievement-chart', charts.achievement);
                 renderChart('organization-chart', charts.organization);
+                renderChart('organization-names-chart', charts.organization_names, 'bar', { horizontal: true });
                 renderChart('height-chart', charts.height, 'bar');
                 renderChart('weight-chart', charts.weight, 'bar');
                 renderChart('province-chart', charts.province, 'bar', { horizontal: true });

@@ -49,7 +49,8 @@
                     ],
                     'Aktivitas & Evaluasi Diri' => [
                         'Prestasi di SMA Plus Astha Hannas' => $profile?->school_achievements,
-                        'Organisasi di SMA Plus Astha Hannas' => $profile?->organization_participation,
+                        'Mengikuti Organisasi' => $profile?->organization_status ? ucfirst($profile->organization_status) : null,
+                        'Nama Organisasi' => $profile?->organization_status === 'ya' ? ($profile?->organization_name ?? '-') : '-',
                         'Hal yang Perlu Ditingkatkan' => $profile?->self_improvement_notes,
                     ],
                 ];

@@ -18,8 +18,9 @@ return new class extends Migration
             $table->text('grade_11_preparation')->nullable()->after('university_choice_2');
             $table->text('career_concern')->nullable()->after('grade_11_preparation');
             $table->text('school_achievements')->nullable()->after('career_concern');
-            $table->text('organization_participation')->nullable()->after('school_achievements');
-            $table->text('self_improvement_notes')->nullable()->after('organization_participation');
+            $table->enum('organization_status', ['ya', 'tidak'])->nullable()->after('school_achievements');
+            $table->text('organization_name')->nullable()->after('organization_status');
+            $table->text('self_improvement_notes')->nullable()->after('organization_name');
             $table->string('mcu_status', 50)->nullable()->after('self_improvement_notes');
         });
 
@@ -68,7 +69,8 @@ return new class extends Migration
                 'grade_11_preparation',
                 'career_concern',
                 'school_achievements',
-                'organization_participation',
+                'organization_status',
+                'organization_name',
                 'self_improvement_notes',
                 'mcu_status',
             ]);

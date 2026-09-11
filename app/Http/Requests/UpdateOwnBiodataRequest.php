@@ -32,7 +32,8 @@ class UpdateOwnBiodataRequest extends FormRequest
             'grade_11_preparation' => ['required', 'string', 'max:2000'],
             'career_concern' => ['required', 'string', 'max:2000'],
             'school_achievements' => ['required', 'string', 'max:2000'],
-            'organization_participation' => ['required', 'string', 'max:2000'],
+            'organization_status' => ['required', 'in:ya,tidak'],
+            'organization_name' => ['nullable', 'string', 'max:200', 'required_if:organization_status,ya'],
             'self_improvement_notes' => ['required', 'string', 'max:2000'],
             'mcu_status' => ['required', 'in:belum,sudah,proses'],
         ];
@@ -44,9 +45,8 @@ class UpdateOwnBiodataRequest extends FormRequest
             'birth_date.before_or_equal' => 'Tanggal lahir tidak boleh melebihi hari ini.',
             'medical_history.required' => 'Riwayat kesehatan wajib diisi. Tuliskan (-) jika tidak ada.',
             'school_achievements.required' => 'Prestasi wajib diisi. Tuliskan (-) jika tidak ada.',
-            'organization_participation.required' => 'Organisasi wajib diisi. Tuliskan (-) jika tidak ada.',
-            'university_choice_1_id.different' => 'Pilihan kampus pertama dan kedua harus berbeda.',
-            'university_choice_2_id.different' => 'Pilihan kampus pertama dan kedua harus berbeda.',
+            'organization_status.required' => 'Status organisasi wajib dipilih.',
+            'organization_name.required_if' => 'Nama organisasi wajib diisi jika memilih ya.',
         ];
     }
 }

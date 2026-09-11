@@ -167,7 +167,7 @@ class ExportController extends Controller
             'Provinsi', 'Kota / Kabupaten', 'Kecamatan', 'Kelurahan / Desa', 'Kode Pos', 'Alamat Rumah',
             'Tinggi Badan (cm)', 'Berat Badan (kg)', 'Riwayat Kesehatan/Penyakit', 'Status MCU Mandiri',
             'Pilihan 1 (Kampus)', 'Pilihan 2 (Kampus)', 'Persiapan Kelas 11', 'Kekhawatiran Karir',
-            'Prestasi SMA Plus Astha Hannas', 'Organisasi SMA Plus Astha Hannas', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
+            'Prestasi SMA Plus Astha Hannas', 'Mengikuti Organisasi', 'Nama Organisasi', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
             'Progress Biodata', 'Sertifikat Prestasi',
         ];
 
@@ -205,7 +205,8 @@ class ExportController extends Controller
                     $profile?->grade_11_preparation ?? '-',
                     $profile?->career_concern ?? '-',
                     $profile?->school_achievements ?? '-',
-                    $profile?->organization_participation ?? '-',
+                    $profile?->organization_status ? ucfirst($profile->organization_status) : '-',
+                    $profile?->organization_status === 'ya' ? ($profile?->organization_name ?? '-') : '-',
                     $profile?->self_improvement_notes ?? '-',
                     $this->progressService->calculate($student)['percentage'].'%',
                     $student->documents->map(fn ($d) => $d->document_type.': '.$d->original_name)->join('; ') ?: '-',

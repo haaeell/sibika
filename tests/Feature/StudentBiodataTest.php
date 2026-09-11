@@ -33,7 +33,7 @@ class StudentBiodataTest extends TestCase
         $student = Student::create(['nis' => 'S-002', 'name' => 'Siswa Test', 'user_id' => $user->id]);
 
         $this->actingAs($user)
-            ->put(route('siswa.biodata.update'), [
+->put(route('siswa.biodata.update'), [
                 'gender' => 'female',
                 'birth_place' => 'Bandung',
                 'birth_date' => '2008-05-10',
@@ -51,7 +51,8 @@ class StudentBiodataTest extends TestCase
                 'grade_11_preparation' => 'Sudah belajar rutin',
                 'career_concern' => 'Takut tidak lolos',
                 'school_achievements' => '-',
-                'organization_participation' => 'OSIS',
+                'organization_status' => 'ya',
+                'organization_name' => 'OSIS',
                 'self_improvement_notes' => 'Perlu tingkatkan disiplin',
                 'mcu_status' => 'belum',
             ])
@@ -91,7 +92,8 @@ class StudentBiodataTest extends TestCase
             'grade_11_preparation' => 'Belajar rutin',
             'career_concern' => 'Persaingan masuk kampus',
             'school_achievements' => '-',
-            'organization_participation' => '-',
+            'organization_status' => 'tidak',
+            'organization_name' => '-',
             'self_improvement_notes' => 'Meningkatkan disiplin',
             'mcu_status' => 'belum',
         ]);
@@ -99,8 +101,8 @@ class StudentBiodataTest extends TestCase
         $progress = app(StudentProgressService::class)->calculate($student->fresh());
 
         $this->assertSame(100, $progress['percentage']);
-        $this->assertSame(21, $progress['completed']);
-        $this->assertSame(21, $progress['total']);
+        $this->assertSame(22, $progress['completed']);
+        $this->assertSame(22, $progress['total']);
     }
 
     public function test_all_biodata_fields_are_required(): void
@@ -114,7 +116,7 @@ class StudentBiodataTest extends TestCase
                 'gender', 'birth_place', 'birth_date', 'phone', 'province', 'city', 'district', 'village',
                 'postal_code', 'address', 'height_cm', 'weight_kg', 'medical_history', 'university_choice_1_id',
                 'university_choice_2_id', 'grade_11_preparation', 'career_concern', 'school_achievements',
-                'organization_participation', 'self_improvement_notes', 'mcu_status',
+                'organization_status', 'self_improvement_notes', 'mcu_status',
             ]);
     }
 
@@ -212,7 +214,8 @@ class StudentBiodataTest extends TestCase
                 'grade_11_preparation' => 'Belajar rutin',
                 'career_concern' => 'Persaingan masuk kampus',
                 'school_achievements' => '-',
-                'organization_participation' => '-',
+                'organization_status' => 'tidak',
+                'organization_name' => '-',
                 'self_improvement_notes' => 'Meningkatkan disiplin',
                 'mcu_status' => 'sudah',
             ])

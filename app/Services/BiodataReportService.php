@@ -75,7 +75,12 @@ class BiodataReportService
             ]),
             'health' => $this->chart(['Ada riwayat', 'Tidak ada / -'], [$withMedicalHistory, $total - $withMedicalHistory]),
             'achievement' => $this->presenceChart($students, 'school_achievements'),
-            'organization' => $this->presenceChart($students, 'organization_participation'),
+            'organization' => $this->chart(['Ya', 'Tidak', 'Belum diisi'], [
+                $students->where('profile.organization_status', 'ya')->count(),
+                $students->where('profile.organization_status', 'tidak')->count(),
+                $students->filter(fn (Student $student) => blank($student->profile?->organization_status))->count(),
+            ]),
+            'organization_names' => $this->topTextValues($students, 'organization_name'),
             'province' => $this->chart($provinces->keys()->all(), $provinces->values()->all()),
             'city' => $this->chart($cities->keys()->all(), $cities->values()->all()),
             'campus_choice_1' => $this->chart($campusChoice1->keys()->all(), $campusChoice1->values()->all()),

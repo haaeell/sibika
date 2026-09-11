@@ -31,7 +31,7 @@ class StudentProgressService
                 $profile?->grade_11_preparation, $profile?->career_concern,
             ]),
             'school_activity' => $this->filled([
-                $profile?->school_achievements, $profile?->organization_participation, $profile?->self_improvement_notes,
+                $profile?->school_achievements, $profile?->organization_status, $this->organizationNameValue($profile), $profile?->self_improvement_notes,
             ]),
             'documents' => $student->documents
                 ->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'dokumen_lainnya'], true))
@@ -70,9 +70,19 @@ class StudentProgressService
             'Persiapan kelas 11' => $profile?->grade_11_preparation,
             'Kekhawatiran karir' => $profile?->career_concern,
             'Prestasi sekolah' => $profile?->school_achievements,
-            'Organisasi sekolah' => $profile?->organization_participation,
+            'Ikut organisasi' => $profile?->organization_status,
+            'Nama organisasi' => $this->organizationNameValue($profile),
             'Evaluasi diri' => $profile?->self_improvement_notes,
         ];
+    }
+
+    private function organizationNameValue($profile): ?string
+    {
+        if ($profile?->organization_status === 'tidak') {
+            return '-';
+        }
+
+        return $profile?->organization_name;
     }
 
     private function filled(array $values): bool

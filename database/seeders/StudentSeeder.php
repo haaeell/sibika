@@ -106,7 +106,10 @@ class StudentSeeder extends Seeder
                         ? 'Masih mempertimbangkan jurusan yang paling sesuai dengan minat dan kemampuan.'
                         : 'Membutuhkan informasi tentang jalur masuk perguruan tinggi dan peluang beasiswa.',
                     'school_achievements' => $achievements[$index % count($achievements)],
-                    'organization_participation' => $organizations[$index % count($organizations)],
+                    'organization_status' => $index % 3 !== 0 ? 'ya' : 'tidak',
+                    'organization_name' => $index % 3 !== 0
+                        ? $organizations[$index % count($organizations)]
+                        : '-',
                     'self_improvement_notes' => 'Perlu meningkatkan konsistensi belajar, manajemen waktu, dan kepercayaan diri.',
                     'mcu_status' => ['sudah', 'proses', 'belum'][$index % 3],
                 ]
