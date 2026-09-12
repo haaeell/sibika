@@ -2,7 +2,7 @@
 
 <div class="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-900">
     <i class="fa-solid fa-circle-info mr-1.5"></i>
-    Akun login dibuat otomatis: email <code>siswa.{NIS}@asthahannas.sch.id</code>, password awal = <b>NIS</b>. Siswa wajib menggantinya saat login pertama.
+    Akun login dibuat otomatis: email <code>{NISN}@smaplusasthahannas.id</code> (atau NIS bila NISN kosong), password awal = <b>NIS</b>. Siswa wajib menggantinya saat login pertama.
 </div>
 
 <div class="grid gap-4 md:grid-cols-2">

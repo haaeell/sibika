@@ -66,7 +66,7 @@ class StudentController extends Controller
 
         return redirect()->route('bk.students.index')->with(
             'success',
-            "Siswa {$student->name} berhasil ditambahkan. Akun login dibuat otomatis (email: ".StudentAccountService::emailFor($student->nis).", password awal: NIS)."
+            "Siswa {$student->name} berhasil ditambahkan. Akun login dibuat otomatis (email: ".StudentAccountService::emailFor($student->nisn, $student->nis).", password awal: NIS)."
         );
     }
 

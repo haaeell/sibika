@@ -27,7 +27,7 @@ class StudentTemplateGuideExport implements FromArray, ShouldAutoSize, WithStyle
             ['Status', 'Ya', 'Salah satu: active (Aktif), graduated (Lulus), inactive (Nonaktif). Default: active.'],
             [],
             ['Catatan akun login:'],
-            ['Setiap baris baru otomatis dibuatkan akun: email siswa.{NIS}@asthahannas.sch.id, password awal = NIS.'],
+            ['Setiap baris baru otomatis dibuatkan akun: email {NISN}@smaplusasthahannas.id (atau NIS bila NISN kosong), password awal = NIS.'],
             ['Siswa wajib mengganti password saat login pertama (popup akan muncul).'],
             ['Baris dengan NIS yang sudah ada akan meng-update data, akun lama tidak di-reset passwordnya.'],
         ];

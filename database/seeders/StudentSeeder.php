@@ -65,16 +65,23 @@ class StudentSeeder extends Seeder
             $gender = $index % 2 === 0 ? 'female' : 'male';
             [$province, $city, $district, $village, $postalCode] = $locations[$index % count($locations)];
 
-            $user = User::updateOrCreate(
-                ['email' => "siswa.$nis@asthahannas.sch.id"],
-                ['name' => $name, 'password' => $nis, 'must_change_password' => true]
-            );
+            $nisn = '006'.str_pad((string) $number, 7, '0', STR_PAD_LEFT);
+            $email = strtolower($nisn).'@smaplusasthahannas.id';
+
+            $user = User::where('email', $email)
+                ->orWhere('email', "siswa.$nis@asthahannas.sch.id")
+                ->first();
+            if ($user) {
+                $user->update(['name' => $name, 'email' => $email, 'password' => $nis, 'must_change_password' => true]);
+            } else {
+                $user = User::create(['name' => $name, 'email' => $email, 'password' => $nis, 'must_change_password' => true]);
+            }
             $user->syncRoles(['siswa']);
 
             $student = Student::updateOrCreate(
                 ['nis' => $nis],
                 [
-                    'nisn' => '006'.str_pad((string) $number, 7, '0', STR_PAD_LEFT),
+                    'nisn' => $nisn,
                     'name' => $name,
                     'class_id' => $classIds[$classes[$index % count($classes)]],
                     'cohort_id' => $cohortId,

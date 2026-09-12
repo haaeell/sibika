@@ -8,9 +8,15 @@ use Illuminate\Support\Facades\DB;
 
 class StudentAccountService
 {
-    public static function emailFor(string $nis): string
+    /**
+     * Format email akun siswa: {NISN}@smaplusasthahannas.id,
+     * fallback ke NIS bila NISN kosong.
+     */
+    public static function emailFor(?string $nisn, string $nis): string
     {
-        return 'siswa.'.strtolower(trim($nis)).'@asthahannas.sch.id';
+        $local = trim((string) ($nisn !== null && trim($nisn) !== '' ? $nisn : $nis));
+
+        return strtolower($local).'@smaplusasthahannas.id';
     }
 
     /**
@@ -21,7 +27,7 @@ class StudentAccountService
     {
         return DB::transaction(function () use ($student, $forceResetPassword) {
             $student->refresh();
-            $email = self::emailFor($student->nis);
+            $email = self::emailFor($student->nisn, $student->nis);
 
             $user = $student->user_id ? User::find($student->user_id) : null;
             $user ??= User::where('email', $email)->first();

@@ -68,7 +68,7 @@
             <x-card>
                 <h3 class="font-bold text-slate-900"><i class="fa-solid fa-key mr-1.5 text-emerald-700"></i>Akun Otomatis</h3>
                 <p class="mt-2 text-sm leading-6 text-slate-600">
-                    Email: <code class="rounded bg-slate-100 px-1.5 py-0.5">siswa.{NIS}@asthahannas.sch.id</code><br>
+                    Email: <code class="rounded bg-slate-100 px-1.5 py-0.5">{NISN}@smaplusasthahannas.id</code> (atau NIS bila NISN kosong)<br>
                     Password awal: <b>NIS</b>. Siswa wajib menggantinya saat login pertama via popup.
                 </p>
             </x-card>
