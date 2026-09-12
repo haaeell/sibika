@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\BkDashboardController;
 use App\Http\Controllers\BiodataReportController;
 use App\Http\Controllers\CohortController;
 use App\Http\Controllers\ExportController;
@@ -19,7 +20,7 @@ Route::prefix('bk')
     ->name('bk.')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
-        Route::view('/dashboard', 'bk.dashboard')->name('dashboard');
+        Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
         Route::get('{resource}/export/{format}', [ExportController::class, 'download'])
             ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'universities', 'school-classes', 'teachers', 'students', 'biodata'])
             ->whereIn('format', ['xlsx', 'pdf'])

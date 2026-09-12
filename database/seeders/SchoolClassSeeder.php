@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\Major;
 use App\Models\SchoolClass;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class SchoolClassSeeder extends Seeder
@@ -33,5 +34,14 @@ class SchoolClassSeeder extends Seeder
                 ]
             );
         }
+
+        Teacher::whereHas('homeroomClasses')->get()->each(function (Teacher $teacher): void {
+            $user = User::updateOrCreate(
+                ['email' => $teacher->email],
+                ['name' => $teacher->name, 'password' => 'password']
+            );
+            $user->syncRoles(['wali_kelas']);
+            $teacher->update(['user_id' => $user->id]);
+        });
     }
 }
