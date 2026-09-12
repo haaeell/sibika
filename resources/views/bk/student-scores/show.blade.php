@@ -67,6 +67,8 @@
                     </div>
                 @endif
             </x-card>
+
+            <x-scores.semester-line-chart :id="'admin-score-chart-'.$semester" :settings="$data['settings']" :scores="$data['scores']" title="Grafik Semester {{ $semester }}" />
         </div>
     @endforeach
 

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ScoreAverageSubjectSetting;
+use App\Models\ScoreEditRequest;
 use App\Models\ScoreSubjectSetting;
 use App\Models\Student;
 use App\Models\StudentScore;
@@ -185,5 +186,57 @@ class StudentScoreService
                 $record->save();
             }
         });
+    }
+
+    /**
+     * Semester terkunci bila sudah ada nilai terisi dan
+     * tidak ada persetujuan edit yang masih berlaku.
+     */
+    public function isSemesterLocked(Student $student, int $semester): bool
+    {
+        if (! $this->hasFilledScores($student, $semester)) {
+            return false;
+        }
+
+        return is_null($this->usableApproval($student, $semester));
+    }
+
+    public function hasFilledScores(Student $student, int $semester): bool
+    {
+        return $student->scores()
+            ->where('semester_number', $semester)
+            ->whereNotNull('score')
+            ->exists();
+    }
+
+    public function usableApproval(Student $student, int $semester): ?ScoreEditRequest
+    {
+        return ScoreEditRequest::query()
+            ->where('student_id', $student->id)
+            ->where('semester_number', $semester)
+            ->where('status', 'approved')
+            ->whereNull('consumed_at')
+            ->latest()
+            ->first();
+    }
+
+    public function pendingRequest(Student $student, int $semester): ?ScoreEditRequest
+    {
+        return ScoreEditRequest::query()
+            ->where('student_id', $student->id)
+            ->where('semester_number', $semester)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+    }
+
+    public function latestRejectedRequest(Student $student, int $semester): ?ScoreEditRequest
+    {
+        return ScoreEditRequest::query()
+            ->where('student_id', $student->id)
+            ->where('semester_number', $semester)
+            ->where('status', 'rejected')
+            ->latest()
+            ->first();
     }
 }

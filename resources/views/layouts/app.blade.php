@@ -37,6 +37,7 @@
                 ['label' => 'Setting Nilai', 'icon' => 'fa-solid fa-sliders', 'url' => route('bk.score-subject-settings.index'), 'active' => request()->routeIs('bk.score-subject-settings.*')],
                 ['label' => 'Data Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('bk.student-scores.index'), 'active' => request()->routeIs('bk.student-scores.index', 'bk.student-scores.show', 'bk.student-scores.data', 'bk.student-scores.export')],
                 ['label' => 'Laporan Nilai', 'icon' => 'fa-solid fa-chart-pie', 'url' => route('bk.student-scores.report'), 'active' => request()->routeIs('bk.student-scores.report')],
+                ['label' => 'Persetujuan Nilai', 'icon' => 'fa-solid fa-stamp', 'url' => route('bk.score-edit-requests.index'), 'active' => request()->routeIs('bk.score-edit-requests.*')],
             ],
         ],
         [

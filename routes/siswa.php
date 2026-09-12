@@ -21,4 +21,5 @@ Route::prefix('siswa')
         Route::delete('/biodata/documents/{document}', [StudentBiodataController::class, 'destroyDocument'])->name('biodata.documents.destroy');
         Route::get('/nilai', [StudentScoreController::class, 'index'])->name('scores.index');
         Route::post('/nilai/save', [StudentScoreController::class, 'save'])->name('scores.save');
+        Route::post('/nilai/request-edit', [StudentScoreController::class, 'requestEdit'])->name('scores.request-edit');
     });

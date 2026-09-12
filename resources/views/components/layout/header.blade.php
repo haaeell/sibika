@@ -2,6 +2,20 @@
     'title' => 'Dashboard',
 ])
 
+@php
+    $headerNotifications = auth()->check()
+        ? \App\Models\Notification::where('user_id', auth()->id())->latest()->take(10)->get()
+        : collect();
+    $headerUnreadCount = auth()->check()
+        ? \App\Models\Notification::where('user_id', auth()->id())->unread()->count()
+        : 0;
+    $headerNotifIcons = [
+        'score_edit_requested' => 'fa-pen-to-square text-amber-600',
+        'score_edit_approved' => 'fa-circle-check text-emerald-600',
+        'score_edit_rejected' => 'fa-circle-xmark text-rose-600',
+    ];
+@endphp
+
 <header {{ $attributes->merge(['class' => 'flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-6']) }}>
     <div class="flex items-center gap-3">
         <button type="button" class="js-sidebar-layout-toggle inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2" aria-label="Buka atau tutup menu" aria-expanded="true">
@@ -15,9 +29,43 @@
     </div>
 
     <div class="flex items-center gap-2">
-        <button type="button" class="inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50" aria-label="Notifikasi">
-            <i class="fa-solid fa-bell"></i>
-        </button>
+        <div class="relative">
+            <button type="button" class="js-notif-toggle relative inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50" aria-label="Notifikasi" aria-expanded="false" aria-controls="notif-menu">
+                <i class="fa-solid fa-bell"></i>
+                @if ($headerUnreadCount > 0)
+                    <span data-notif-badge class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[11px] font-extrabold text-white">{{ $headerUnreadCount > 9 ? '9+' : $headerUnreadCount }}</span>
+                @endif
+            </button>
+
+            <div id="notif-menu" class="absolute right-0 z-50 mt-2 hidden w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" data-notif-menu>
+                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                    <p class="text-sm font-extrabold text-slate-900">Notifikasi</p>
+                    @if ($headerUnreadCount > 0)
+                        <button type="button" data-notif-read-all class="text-xs font-bold text-blue-800 hover:underline">Tandai semua dibaca</button>
+                    @endif
+                </div>
+                <div class="max-h-80 overflow-y-auto py-1" data-notif-list>
+                    @forelse ($headerNotifications as $notif)
+                        <form action="{{ route('notifications.read', $notif) }}" method="POST" class="block border-b border-slate-50 last:border-0 {{ is_null($notif->read_at) ? 'bg-blue-50/50' : '' }}">
+                            @csrf
+                            <button type="submit" class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50">
+                                <i class="fa-solid {{ $headerNotifIcons[$notif->type] ?? 'fa-circle-info text-slate-400' }} mt-0.5"></i>
+                                <span class="min-w-0">
+                                    <span class="block text-sm font-bold text-slate-900">{{ $notif->title }}</span>
+                                    <span class="mt-0.5 block text-xs leading-5 text-slate-500">{{ $notif->message }}</span>
+                                    <span class="mt-1 block text-[11px] font-semibold text-slate-400">{{ $notif->created_at->diffForHumans() }}</span>
+                                </span>
+                                @if (is_null($notif->read_at))
+                                    <span class="mt-1.5 size-2 shrink-0 rounded-full bg-blue-700"></span>
+                                @endif
+                            </button>
+                        </form>
+                    @empty
+                        <p class="px-4 py-6 text-center text-sm font-semibold text-slate-400">Belum ada notifikasi.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
 
         <div class="relative">
             <button type="button" class="js-user-menu-toggle flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-2 py-2 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 sm:px-3" aria-expanded="false" aria-controls="user-menu">
@@ -53,3 +101,43 @@
         </div>
     </div>
 </header>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var $toggle = window.$('.js-notif-toggle');
+            var $menu = window.$('[data-notif-menu]');
+
+            $toggle.on('click', function (event) {
+                event.stopPropagation();
+                var expanded = $toggle.attr('aria-expanded') === 'true';
+                $toggle.attr('aria-expanded', String(!expanded));
+                $menu.toggleClass('hidden', expanded);
+            });
+
+            window.$(document).on('click', function (event) {
+                if (!window.$(event.target).closest('.js-notif-toggle, [data-notif-menu]').length) {
+                    $menu.addClass('hidden');
+                    $toggle.attr('aria-expanded', 'false');
+                }
+            });
+
+            window.$('[data-notif-read-all]').on('click', function () {
+                var $btn = window.$(this);
+                window.setButtonLoading($btn, true, '...');
+                fetch(@json(route('notifications.read-all')), {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': window.$('meta[name="csrf-token"]').attr('content'),
+                    },
+                })
+                    .then(function () { window.location.reload(); })
+                    .catch(function () {
+                        window.setButtonLoading($btn, false);
+                        window.handleAjaxError({ responseJSON: { message: 'Gagal menandai notifikasi.' } });
+                    });
+            });
+        });
+    </script>
+@endpush

@@ -23,6 +23,10 @@ Route::post('/academic-year/select', function (\Illuminate\Http\Request $request
     return response()->json(['academic_year' => $validated['academic_year']]);
 })->middleware('auth')->name('academic-year.select');
 Route::get('/regions/{resource}/{code?}', RegionController::class)->middleware('auth')->name('regions.index');
+Route::middleware('auth')->group(function (): void {
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
+});
 Route::view('/dashboard', 'pages.dashboard')->middleware('auth')->name('dashboard');
 
 require __DIR__.'/admin.php';

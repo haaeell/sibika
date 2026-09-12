@@ -57,6 +57,9 @@ Route::prefix('bk')
         Route::get('student-scores/data', [StudentScoreAdminController::class, 'data'])->name('student-scores.data');
         Route::get('student-scores/export', [\App\Http\Controllers\StudentScoreExportController::class, 'download'])->name('student-scores.export');
         Route::get('student-scores/report', [\App\Http\Controllers\StudentScoreReportController::class, 'index'])->name('student-scores.report');
+        Route::get('score-edit-requests', [\App\Http\Controllers\ScoreEditApprovalController::class, 'index'])->name('score-edit-requests.index');
+        Route::post('score-edit-requests/{editRequest}/approve', [\App\Http\Controllers\ScoreEditApprovalController::class, 'approve'])->name('score-edit-requests.approve');
+        Route::post('score-edit-requests/{editRequest}/reject', [\App\Http\Controllers\ScoreEditApprovalController::class, 'reject'])->name('score-edit-requests.reject');
         Route::get('student-scores/{student}', [StudentScoreAdminController::class, 'show'])->name('student-scores.show');
         Route::get('student-scores', [StudentScoreAdminController::class, 'index'])->name('student-scores.index');
         Route::put('score-subject-settings/average-subjects', [ScoreSubjectSettingController::class, 'updateAverageSubjects'])->name('score-subject-settings.average-subjects.update');
