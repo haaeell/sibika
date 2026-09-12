@@ -76,7 +76,7 @@
                         @csrf
 
                         <div>
-                            <label for="login" class="mb-2 block text-sm font-bold text-slate-800">Email</label>
+                            <label for="login" class="mb-2 block text-sm font-bold text-slate-800">Email / NIS / NISN</label>
                             <div class="relative">
                                 <span class="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center text-slate-400">
                                     <i class="fa-regular fa-user"></i>
@@ -84,9 +84,9 @@
                                 <input
                                     id="login"
                                     name="login"
-                                    type="email"
+                                    type="text"
                                     autocomplete="username"
-                                    placeholder="Masukkan email"
+                                    placeholder="Masukkan email, NIS, atau NISN"
                                     value="{{ old('login') }}"
                                     class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"
                                 >
@@ -95,10 +95,7 @@
                         </div>
 
                         <div>
-                            <div class="mb-2 flex items-center justify-between gap-3">
-                                <label for="password" class="block text-sm font-bold text-slate-800">Password</label>
-                                <a href="#" class="text-sm font-bold text-blue-800 hover:text-blue-900">Lupa password?</a>
-                            </div>
+                            <label for="password" class="mb-2 block text-sm font-bold text-slate-800">Password</label>
                             <div class="relative">
                                 <span class="pointer-events-none absolute inset-y-0 left-0 flex w-12 items-center justify-center text-slate-400">
                                     <i class="fa-solid fa-lock"></i>

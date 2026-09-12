@@ -27,6 +27,35 @@ class StudentBiodataTest extends TestCase
             ->assertSee('Biodata Saya');
     }
 
+    public function test_student_dashboard_shows_active_shortcuts_without_soon_cards(): void
+    {
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-009', 'name' => 'Siswa Dashboard', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->get(route('siswa.dashboard'))
+            ->assertOk()
+            ->assertSee('Akses Cepat')
+            ->assertSee('Biodata Saya')
+            ->assertSee('Nilai Semester')
+            ->assertDontSee('Segera Hadir')
+            ->assertDontSee('Soon');
+    }
+
+    public function test_student_score_page_hides_average_and_rank_cards(): void
+    {
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-010', 'name' => 'Siswa Nilai', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->get(route('siswa.scores.index'))
+            ->assertOk()
+            ->assertSee('Nilai Semester')
+            ->assertDontSee('Rata-rata Keseluruhan')
+            ->assertDontSee('Ranking Kelas')
+            ->assertDontSee('Ranking Jurusan');
+    }
+
     public function test_student_can_update_biodata(): void
     {
         $user = $this->studentUser();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,16 +13,18 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'login' => ['required', 'email'],
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt([
-            'email' => $credentials['login'],
-            'password' => $credentials['password'],
-        ], $request->boolean('remember'))) {
+        $login = trim($credentials['login']);
+        $email = filter_var($login, FILTER_VALIDATE_EMAIL)
+            ? $login
+            : Student::where('nis', $login)->orWhere('nisn', $login)->with('user')->first()?->user?->email;
+
+        if (! $email || ! Auth::attempt(['email' => $email, 'password' => $credentials['password']], $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'login' => 'Email atau password salah.',
+                'login' => 'Email, NIS, NISN, atau password salah.',
             ]);
         }
 

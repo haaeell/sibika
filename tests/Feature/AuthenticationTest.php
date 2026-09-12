@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -28,6 +30,28 @@ class AuthenticationTest extends TestCase
         ])->assertRedirect(route('dashboard'));
 
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_students_can_login_with_nis_or_nisn(): void
+    {
+        foreach (['nis', 'nisn'] as $field) {
+            $user = User::factory()->create(['password' => 'password']);
+            $user->assignRole(Role::firstOrCreate(['name' => 'siswa', 'guard_name' => 'web']));
+            $student = Student::create([
+                'nis' => 'S-'.$field,
+                'nisn' => 'N-'.$field,
+                'name' => 'Siswa '.$field,
+                'user_id' => $user->id,
+            ]);
+
+            $this->post('/login', [
+                'login' => $student->{$field},
+                'password' => 'password',
+            ])->assertRedirect(route('siswa.dashboard'));
+
+            $this->assertAuthenticatedAs($user);
+            $this->post('/logout');
+        }
     }
 
     public function test_users_cannot_login_with_wrong_password(): void

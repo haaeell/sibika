@@ -25,9 +25,8 @@ class StudentScoreController extends Controller
                 'scores' => $this->scoreService->scoresFor($student, $semester),
             ],
         ]);
-        $summary = $this->scoreService->overallSummary($student);
 
-        return view('siswa.scores.index', compact('student', 'activeSemester', 'semesters', 'summary'));
+        return view('siswa.scores.index', compact('student', 'activeSemester', 'semesters'));
     }
 
     public function save(SaveStudentScoresRequest $request): RedirectResponse

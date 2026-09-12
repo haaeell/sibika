@@ -20,10 +20,13 @@
     <nav class="flex-1 space-y-3 overflow-y-auto px-3 py-5">
         @foreach ($navigation as $groupIndex => $group)
             @php
+                $items = collect($group['items'])->reject(fn ($item) => ($item['disabled'] ?? false) || ! empty($item['badge']));
                 $hasLabel = ! empty($group['label']);
                 $panelId = $idPrefix.'-menu-'.$groupIndex;
                 $isOpen = true;
             @endphp
+
+            @continue($items->isEmpty())
 
             <div class="sidebar-group">
                 @if ($hasLabel)
@@ -39,32 +42,18 @@
                 @endif
 
                 <div id="{{ $panelId }}" class="{{ $hasLabel ? 'mt-1' : '' }} space-y-1 {{ $isOpen ? '' : 'hidden' }}" data-sidebar-panel>
-                    @foreach ($group['items'] as $item)
+                    @foreach ($items as $item)
                         @php
                             $isActive = $item['active'] ?? false;
-                            $isDisabled = $item['disabled'] ?? false;
-                            $itemClass = $isDisabled
-                                ? 'cursor-not-allowed text-slate-400'
-                                : ($isActive
+                            $itemClass = $isActive
                                 ? 'bg-blue-50 text-blue-900'
-                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900');
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900';
                         @endphp
 
-                        @if ($isDisabled)
-                            <div class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold {{ $itemClass }}" aria-disabled="true">
-                        @else
-                            <a href="{{ $item['url'] }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ $itemClass }}">
-                        @endif
+                        <a href="{{ $item['url'] }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ $itemClass }}">
                             <i class="{{ $item['icon'] }} w-5 text-center"></i>
                             <span class="min-w-0 flex-1">{{ $item['label'] }}</span>
-                            @if (! empty($item['badge']))
-                                <span class="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">{{ $item['badge'] }}</span>
-                            @endif
-                        @if ($isDisabled)
-                            </div>
-                        @else
-                            </a>
-                        @endif
+                        </a>
                     @endforeach
                 </div>
             </div>
