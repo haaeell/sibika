@@ -22,21 +22,39 @@ class StudentScoreController extends Controller
 
     public function index(Request $request): View
     {
-        $student = $this->studentFor($request)->load('schoolClass.major');
+        $student = $this->studentFor($request)->load(['schoolClass.major', 'scores.subject']);
         $activeSemester = max(1, min(5, (int) $request->integer('semester', 1)));
+
+        // 1 query pengajuan untuk seluruh semester + hitung dari relasi ter-load.
+        $editRequests = $this->scoreService->editRequestsFor($student);
+        $filledSemesters = $student->scores
+            ->filter(fn ($score) => filled($score->score))
+            ->pluck('semester_number')->unique()->flip();
+
+        $approvalFor = function (int $semester) use ($editRequests) {
+            return $editRequests->get($semester, collect())
+                ->first(fn ($item) => $item->status === 'approved' && is_null($item->consumed_at));
+        };
+
+        $semesters = collect(range(1, 5))->mapWithKeys(function (int $semester) use ($student, $editRequests, $filledSemesters, $approvalFor) {
+            $hasFilled = $filledSemesters->has($semester);
+            $approval = $approvalFor($semester);
+
+            return [
+                $semester => [
+                    'settings' => $this->scoreService->subjectsFor($student, $semester),
+                    'scores' => $student->scores->where('semester_number', $semester)->keyBy('subject_id'),
+                    'locked' => $hasFilled && is_null($approval),
+                    'has_filled' => $hasFilled,
+                    'approval' => $approval,
+                    'pending_request' => $editRequests->get($semester, collect())->firstWhere('status', 'pending'),
+                    'rejected_request' => $editRequests->get($semester, collect())->firstWhere('status', 'rejected'),
+                ],
+            ];
+        });
+
         $averages = collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
             $semester => $this->scoreService->semesterAverage($student, $semester),
-        ]);
-        $semesters = collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
-            $semester => [
-                'settings' => $this->scoreService->subjectsFor($student, $semester),
-                'scores' => $this->scoreService->scoresFor($student, $semester),
-                'locked' => $this->scoreService->isSemesterLocked($student, $semester),
-                'has_filled' => $this->scoreService->hasFilledScores($student, $semester),
-                'approval' => $this->scoreService->usableApproval($student, $semester),
-                'pending_request' => $this->scoreService->pendingRequest($student, $semester),
-                'rejected_request' => $this->scoreService->latestRejectedRequest($student, $semester),
-            ],
         ]);
 
         return view('siswa.scores.index', compact('student', 'activeSemester', 'averages', 'semesters'));

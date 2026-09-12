@@ -56,7 +56,7 @@
                                 @foreach ($data['settings'] as $setting)
                                     @php
                                         $score = $data['scores']->get($setting->subject_id);
-                                        $included = app(\App\Services\StudentScoreService::class)->isIncludedInAverageForStudent($student, $setting);
+                                        $included = $data['included'][$setting->subject_id] ?? true;
                                     @endphp
                                     <tr>
                                         <td class="px-4 py-3 font-bold text-slate-900">{{ $setting->subject?->name }}</td>

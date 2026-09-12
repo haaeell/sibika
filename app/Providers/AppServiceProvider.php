@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\AcademicYear;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Deteksi regresi lambat di production (tanpa infra tambahan).
+        if (! app()->isLocal()) {
+            DB::whenQueryingForLongerThan(500, function ($connection, $query): void {
+                Log::warning('slow_query', ['sql' => $query->sql, 'time' => $query->time, 'connection' => $connection->getName()]);
+            });
+        }
+
         View::composer('components.layout.sidebar', function ($view) {
             $academicYears = AcademicYear::orderByDesc('is_active')->orderByDesc('start_year')->get();
             $sessionYear = session('academic_year');

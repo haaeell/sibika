@@ -22,16 +22,16 @@ class StudentScoreReportService
             ])
             ->with(['schoolClass.academicYear', 'schoolClass.major', 'scores.subject'])
             ->orderBy('name')
-            ->get()
-            ->map(function (Student $student): Student {
-                $semesters = collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
-                    $semester => $this->semesterAverage($student, $semester),
-                ]);
-                $student->setAttribute('semester_averages', $semesters);
-                $student->setAttribute('overall_average', $this->overallAverage($student));
+            ->get();
 
-                return $student;
-            });
+        // Batch: seluruh rata-rata dihitung murni in-memory (tanpa query per siswa).
+        $batch = $this->scoreService->averagesForMany($students);
+        $students = $students->map(function (Student $student) use ($batch): Student {
+            $student->setAttribute('semester_averages', collect($batch[$student->id]['semesters']));
+            $student->setAttribute('overall_average', $batch[$student->id]['overall']);
+
+            return $student;
+        });
 
         if (($filters['completeness'] ?? null) === 'complete') {
             $students = $students->filter(fn (Student $student) => ! is_null($student->overall_average));
@@ -153,30 +153,6 @@ class StudentScoreReportService
         });
 
         return compact('summary', 'charts', 'insights', 'rows');
-    }
-
-    private function semesterAverage(Student $student, int $semester): ?float
-    {
-        return $this->scoreService->semesterAverage($student, $semester);
-    }
-
-    private function overallAverage(Student $student): ?float
-    {
-        $subjectIds = collect(range(1, 5))
-            ->flatMap(fn (int $semester) => $this->scoreService->averageSubjectsFor($student, $semester)->pluck('subject_id'))
-            ->unique()
-            ->values();
-
-        if ($subjectIds->isEmpty()) {
-            return null;
-        }
-
-        $scores = $student->scores
-            ->whereIn('subject_id', $subjectIds->all())
-            ->whereBetween('semester_number', [1, 5])
-            ->filter(fn ($score) => filled($score->score));
-
-        return $scores->isEmpty() ? null : round((float) $scores->avg('score'), 2);
     }
 
     /**

@@ -26,9 +26,13 @@ class StudentScoreExportController extends Controller
             ->orderBy('name')
             ->get();
 
-        $sheets = [$this->recapSheet($students)];
+        // Batch: seluruh rata-rata + ranking dihitung in-memory sekali jalan.
+        $averages = $this->scoreService->averagesForMany($students);
+        $ranks = $this->scoreService->ranksForMany($students, $averages);
+
+        $sheets = [$this->recapSheet($students, $averages, $ranks)];
         foreach (range(1, 5) as $semester) {
-            $sheets[] = $this->semesterSheet($students, $semester);
+            $sheets[] = $this->semesterSheet($students, $averages, $semester);
         }
 
         $filename = 'export-nilai-'.now()->format('Ymd-His').'.xlsx';
@@ -36,14 +40,14 @@ class StudentScoreExportController extends Controller
         return Excel::download(new StudentScoreWorkbook($sheets), $filename, ExcelType::XLSX);
     }
 
-    private function recapSheet(Collection $students): StudentScoreSheetExport
+    private function recapSheet(Collection $students, array $averages, array $ranks): StudentScoreSheetExport
     {
         $headings = ['No', 'NIS', 'NISN', 'Nama', 'Kelas', 'Jurusan', 'Status',
             'Rata-rata Smt 1', 'Rata-rata Smt 2', 'Rata-rata Smt 3', 'Rata-rata Smt 4', 'Rata-rata Smt 5',
             'Rata-rata Keseluruhan', 'Ranking Kelas', 'Ranking Jurusan'];
 
-        $rows = $students->values()->map(function (Student $student, int $index): array {
-            $summary = $this->scoreService->overallSummary($student);
+        $rows = $students->values()->map(function (Student $student, int $index) use ($averages, $ranks): array {
+            $row = $ranks[$student->id];
 
             return [
                 $index + 1,
@@ -53,17 +57,17 @@ class StudentScoreExportController extends Controller
                 $student->schoolClass?->name ?? '-',
                 $student->schoolClass?->major?->name ?? '-',
                 $this->statusLabel($student->status),
-                ...collect(range(1, 5))->map(fn (int $semester) => $this->fmt($this->semesterAverage($student, $semester)))->all(),
-                $this->fmt($summary['average']),
-                ($summary['class_rank'] ?? '-').'/'.$summary['class_total'],
-                ($summary['major_rank'] ?? '-').'/'.$summary['major_total'],
+                ...collect(range(1, 5))->map(fn (int $semester) => $this->fmt($averages[$student->id]['semesters'][$semester] ?? null))->all(),
+                $this->fmt($averages[$student->id]['overall'] ?? null),
+                ($row['class_rank'] ?? '-').'/'.$row['class_total'],
+                ($row['major_rank'] ?? '-').'/'.$row['major_total'],
             ];
         });
 
         return new StudentScoreSheetExport('Rekap', $headings, $rows);
     }
 
-    private function semesterSheet(Collection $students, int $semester): StudentScoreSheetExport
+    private function semesterSheet(Collection $students, array $averages, int $semester): StudentScoreSheetExport
     {
         // Union mapel semester ini lintas jurusan siswa hasil filter.
         $subjects = collect();
@@ -76,7 +80,7 @@ class StudentScoreExportController extends Controller
 
         $headings = ['No', 'NIS', 'Nama', 'Kelas', ...array_values($subjects), 'Rata-rata', 'Kelengkapan'];
 
-        $rows = $students->values()->map(function (Student $student, int $index) use ($subjects, $semester): array {
+        $rows = $students->values()->map(function (Student $student, int $index) use ($subjects, $semester, $averages): array {
             $scores = $student->scores->where('semester_number', $semester)->keyBy('subject_id');
             $filled = 0;
 
@@ -92,18 +96,13 @@ class StudentScoreExportController extends Controller
             }
 
             $total = count($subjects);
-            $row[] = $this->fmt($this->semesterAverage($student, $semester));
+            $row[] = $this->fmt($averages[$student->id]['semesters'][$semester] ?? null);
             $row[] = $filled === 0 ? 'Belum Diisi' : ($total > 0 && $filled >= $total ? 'Lengkap' : 'Sebagian');
 
             return $row;
         });
 
         return new StudentScoreSheetExport('Semester '.$semester, $headings, $rows);
-    }
-
-    private function semesterAverage(Student $student, int $semester): ?float
-    {
-        return $this->scoreService->semesterAverage($student, $semester);
     }
 
     private function fmt(mixed $value): string

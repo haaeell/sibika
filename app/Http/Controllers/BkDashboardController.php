@@ -33,8 +33,8 @@ class BkDashboardController extends Controller
             ],
             'averageProgress' => $total ? (int) round($students->avg(fn (Student $student) => $student->progress['percentage'])) : 0,
             'healthAttention' => $students->filter(fn (Student $student) => filled($student->profile?->medical_history) && trim((string) $student->profile->medical_history) !== '-')->count(),
-            'classProgress' => SchoolClass::with('students.profile', 'students.documents')->withCount('students')->orderBy('name')->get()->map(function (SchoolClass $class) {
-                $items = $class->students->map(fn (Student $student) => $this->progressService->calculate($student)['percentage']);
+            'classProgress' => SchoolClass::with('academicYear')->withCount('students')->orderBy('name')->get()->map(function (SchoolClass $class) use ($students) {
+                $items = $students->where('class_id', $class->id)->map(fn (Student $student) => $student->progress['percentage']);
                 return ['name' => $class->name, 'students' => $class->students_count, 'progress' => $items->count() ? (int) round($items->avg()) : 0];
             }),
             'incompleteStudents' => $students->filter(fn (Student $student) => $student->progress['percentage'] < 100)->sortBy('progress.percentage')->take(8),
