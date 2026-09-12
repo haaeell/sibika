@@ -37,7 +37,7 @@
                 @endif
             </button>
 
-            <div id="notif-menu" class="absolute right-0 z-50 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" data-notif-menu>
+            <div id="notif-menu" class="absolute right-0 z-50 mt-2 hidden w-[26.25rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" data-notif-menu>
                 <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
                     <p class="shrink-0 text-sm font-extrabold text-slate-900">Notifikasi</p>
                     @if ($headerUnreadCount > 0)

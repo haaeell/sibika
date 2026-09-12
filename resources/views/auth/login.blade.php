@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Login - {{ config('app.name', 'SIBIKA') }}</title>
+    <x-seo-meta title="Login" description="Masuk ke E-Learning BK SMA Plus Astha Hannas — portal BK, akademik, dan karir siswa." />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
