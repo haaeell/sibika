@@ -87,6 +87,32 @@ class StudentScoreService
         return $student->scores()->with('subject')->where('semester_number', $semester)->get()->keyBy('subject_id');
     }
 
+    /**
+     * Rata-rata semester dari mapel yang dihitung dalam rata-rata.
+     * Bekerja dari relasi scores yang sudah di-load maupun query langsung.
+     */
+    public function semesterAverage(Student $student, int $semester): ?float
+    {
+        $averageSubjectIds = $this->averageSubjectsFor($student, $semester)->pluck('subject_id');
+
+        if ($student->relationLoaded('scores')) {
+            $scores = $student->scores
+                ->where('semester_number', $semester)
+                ->whereIn('subject_id', $averageSubjectIds->all())
+                ->filter(fn ($score) => filled($score->score));
+
+            return $scores->isEmpty() ? null : round((float) $scores->avg('score'), 2);
+        }
+
+        $scores = $student->scores()
+            ->where('semester_number', $semester)
+            ->whereIn('subject_id', $averageSubjectIds)
+            ->whereNotNull('score')
+            ->pluck('score');
+
+        return $scores->isEmpty() ? null : round((float) $scores->avg(), 2);
+    }
+
     public function overallSummary(Student $student): array
     {
         return [

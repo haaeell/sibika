@@ -29,6 +29,8 @@
         </x-card>
     </div>
 
+    <x-scores.average-trend-chart id="admin-average-trend" :averages="$averages" />
+
     <x-card>
         <div class="flex flex-wrap gap-2" data-semester-tabs>
             @foreach ($semesters as $semester => $data)

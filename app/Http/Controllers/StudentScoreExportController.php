@@ -103,14 +103,7 @@ class StudentScoreExportController extends Controller
 
     private function semesterAverage(Student $student, int $semester): ?float
     {
-        $averageSubjectIds = $this->scoreService->averageSubjectsFor($student, $semester)->pluck('subject_id');
-
-        $scores = $student->scores
-            ->where('semester_number', $semester)
-            ->whereIn('subject_id', $averageSubjectIds->all())
-            ->filter(fn ($score) => filled($score->score));
-
-        return $scores->isEmpty() ? null : round((float) $scores->avg('score'), 2);
+        return $this->scoreService->semesterAverage($student, $semester);
     }
 
     private function fmt(mixed $value): string

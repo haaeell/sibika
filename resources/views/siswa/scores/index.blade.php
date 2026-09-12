@@ -11,6 +11,8 @@
         </div>
     </x-card>
 
+    <x-scores.average-trend-chart id="student-average-trend" :averages="$averages" />
+
     @foreach ($semesters as $semester => $data)
         @php
             $settings = $data['settings'];

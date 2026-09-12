@@ -64,11 +64,14 @@ class StudentScoreAdminController extends Controller
 
     public function show(Student $student): View
     {
-        $student->load(['schoolClass.major', 'schoolClass.academicYear']);
+        $student->load(['schoolClass.major', 'schoolClass.academicYear', 'scores.subject']);
 
         return view('bk.student-scores.show', [
             'student' => $student,
             'summary' => $this->scoreService->overallSummary($student),
+            'averages' => collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
+                $semester => $this->scoreService->semesterAverage($student, $semester),
+            ]),
             'semesters' => collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
                 $semester => [
                     'settings' => $this->scoreService->subjectsFor($student, $semester),

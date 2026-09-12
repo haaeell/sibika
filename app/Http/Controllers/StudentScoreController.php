@@ -24,6 +24,9 @@ class StudentScoreController extends Controller
     {
         $student = $this->studentFor($request)->load('schoolClass.major');
         $activeSemester = max(1, min(5, (int) $request->integer('semester', 1)));
+        $averages = collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
+            $semester => $this->scoreService->semesterAverage($student, $semester),
+        ]);
         $semesters = collect(range(1, 5))->mapWithKeys(fn (int $semester) => [
             $semester => [
                 'settings' => $this->scoreService->subjectsFor($student, $semester),
@@ -36,7 +39,7 @@ class StudentScoreController extends Controller
             ],
         ]);
 
-        return view('siswa.scores.index', compact('student', 'activeSemester', 'semesters'));
+        return view('siswa.scores.index', compact('student', 'activeSemester', 'averages', 'semesters'));
     }
 
     public function save(SaveStudentScoresRequest $request): RedirectResponse

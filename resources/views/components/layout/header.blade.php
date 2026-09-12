@@ -37,11 +37,11 @@
                 @endif
             </button>
 
-            <div id="notif-menu" class="absolute right-0 z-50 mt-2 hidden w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" data-notif-menu>
-                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                    <p class="text-sm font-extrabold text-slate-900">Notifikasi</p>
+            <div id="notif-menu" class="absolute right-0 z-50 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" data-notif-menu>
+                <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+                    <p class="shrink-0 text-sm font-extrabold text-slate-900">Notifikasi</p>
                     @if ($headerUnreadCount > 0)
-                        <button type="button" data-notif-read-all class="text-xs font-bold text-blue-800 hover:underline">Tandai semua dibaca</button>
+                        <button type="button" data-notif-read-all class="whitespace-nowrap text-xs font-bold text-blue-800 hover:underline">Tandai semua dibaca</button>
                     @endif
                 </div>
                 <div class="max-h-80 overflow-y-auto py-1" data-notif-list>
@@ -49,11 +49,11 @@
                         <form action="{{ route('notifications.read', $notif) }}" method="POST" class="block border-b border-slate-50 last:border-0 {{ is_null($notif->read_at) ? 'bg-blue-50/50' : '' }}">
                             @csrf
                             <button type="submit" class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50">
-                                <i class="fa-solid {{ $headerNotifIcons[$notif->type] ?? 'fa-circle-info text-slate-400' }} mt-0.5"></i>
-                                <span class="min-w-0">
-                                    <span class="block text-sm font-bold text-slate-900">{{ $notif->title }}</span>
+                                <i class="fa-solid {{ $headerNotifIcons[$notif->type] ?? 'fa-circle-info text-slate-400' }} mt-1 shrink-0"></i>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block text-sm font-bold leading-6 text-slate-900">{{ $notif->title }}</span>
                                     <span class="mt-0.5 block text-xs leading-5 text-slate-500">{{ $notif->message }}</span>
-                                    <span class="mt-1 block text-[11px] font-semibold text-slate-400">{{ $notif->created_at->diffForHumans() }}</span>
+                                    <span class="mt-1 block text-[11px] font-semibold text-slate-400">{{ $notif->created_at->locale('id')->diffForHumans() }}</span>
                                 </span>
                                 @if (is_null($notif->read_at))
                                     <span class="mt-1.5 size-2 shrink-0 rounded-full bg-blue-700"></span>
