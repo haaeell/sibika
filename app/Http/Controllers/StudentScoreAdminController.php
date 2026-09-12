@@ -30,18 +30,9 @@ class StudentScoreAdminController extends Controller
 
     public function data(Request $request): JsonResponse
     {
-        $academicYearIds = array_filter((array) $request->input('academic_year_id', []));
-        $classIds = array_filter((array) $request->input('class_id', []));
-        $majorIds = array_filter((array) $request->input('major_id', []));
-        $statuses = array_filter((array) $request->input('status', []));
-
-        return DataTables::eloquent(Student::query()
-            ->with(['schoolClass.academicYear', 'schoolClass.major', 'scores.subject'])
-            ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
-            ->when($classIds, fn ($query) => $query->whereIn('class_id', array_map('intval', $classIds)))
-            ->when($majorIds, fn ($query) => $query->whereHas('schoolClass', fn ($classQuery) => $classQuery->whereIn('major_id', array_map('intval', $majorIds))))
-            ->when($academicYearIds, fn ($query) => $query->whereHas('schoolClass', fn ($classQuery) => $classQuery->whereIn('academic_year_id', array_map('intval', $academicYearIds))))
-            ->latest())
+        return DataTables::eloquent($this->scoreService->filteredStudents($request->only([
+            'academic_year_id', 'class_id', 'major_id', 'status',
+        ]))->with(['schoolClass.academicYear', 'schoolClass.major', 'scores.subject'])->latest())
             ->addIndexColumn()
             ->addColumn('student', fn (Student $student) => '<div class="font-bold text-slate-900">'.e($student->name).'</div><div class="text-xs font-semibold text-slate-400">'.e($student->nis).'</div>')
             ->addColumn('class_name', fn (Student $student) => $student->schoolClass?->name ?? '-')

@@ -55,6 +55,7 @@ Route::prefix('bk')
         Route::get('universities/data', [UniversityController::class, 'data'])->name('universities.data');
         Route::resource('universities', UniversityController::class)->except('show');
         Route::get('student-scores/data', [StudentScoreAdminController::class, 'data'])->name('student-scores.data');
+        Route::get('student-scores/export', [\App\Http\Controllers\StudentScoreExportController::class, 'download'])->name('student-scores.export');
         Route::get('student-scores/{student}', [StudentScoreAdminController::class, 'show'])->name('student-scores.show');
         Route::get('student-scores', [StudentScoreAdminController::class, 'index'])->name('student-scores.index');
         Route::put('score-subject-settings/average-subjects', [ScoreSubjectSettingController::class, 'updateAverageSubjects'])->name('score-subject-settings.average-subjects.update');

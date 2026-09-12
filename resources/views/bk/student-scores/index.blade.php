@@ -1,5 +1,9 @@
 @component('layouts.app', ['title' => 'Data Nilai'])
-    <x-page-header title="Data Nilai" description="Rekap nilai semester 1 sampai 5 per siswa." />
+    <x-page-header title="Data Nilai" description="Rekap nilai semester 1 sampai 5 per siswa.">
+        <x-slot:actions>
+            <x-button id="score-export-btn" variant="secondary"><i class="fa-solid fa-file-excel"></i> Export Excel</x-button>
+        </x-slot:actions>
+    </x-page-header>
 
     <x-card>
         <div class="mb-4 flex flex-wrap items-center gap-2">
@@ -84,6 +88,29 @@
 
                 window.$('[data-table-filter]').on('change', function () {
                     window.$('#student-score-table').DataTable().ajax.reload();
+                });
+
+                // Export mengikuti filter aktif (jurusan, kelas, tahun ajaran, status).
+                window.$('#score-export-btn').on('click', function () {
+                    var $btn = window.$(this);
+                    window.setButtonLoading($btn, true, 'Menyiapkan...');
+
+                    var params = new URLSearchParams();
+                    [
+                        ['academic_year_id', '#score-year-filter'],
+                        ['class_id', '#score-class-filter'],
+                        ['major_id', '#score-major-filter'],
+                        ['status', '#score-status-filter'],
+                    ].forEach(function ([key, selector]) {
+                        (window.$(selector).val() || []).forEach(function (val) {
+                            if (val !== '' && val !== null) params.append(key + '[]', val);
+                        });
+                    });
+
+                    window.location = @json(route('bk.student-scores.export')) + '?' + params.toString();
+                    setTimeout(function () {
+                        window.setButtonLoading($btn, false);
+                    }, 3000);
                 });
             });
         </script>

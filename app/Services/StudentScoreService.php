@@ -11,6 +11,24 @@ use Illuminate\Support\Facades\DB;
 
 class StudentScoreService
 {
+    /**
+     * Query siswa dengan filter halaman Data Nilai
+     * (tahun ajaran, kelas, jurusan, status) — dipakai tabel + export.
+     */
+    public function filteredStudents(array $filters = [])
+    {
+        $academicYearIds = array_filter((array) ($filters['academic_year_id'] ?? []));
+        $classIds = array_filter((array) ($filters['class_id'] ?? []));
+        $majorIds = array_filter((array) ($filters['major_id'] ?? []));
+        $statuses = array_filter((array) ($filters['status'] ?? []));
+
+        return Student::query()
+            ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
+            ->when($classIds, fn ($query) => $query->whereIn('class_id', array_map('intval', $classIds)))
+            ->when($majorIds, fn ($query) => $query->whereHas('schoolClass', fn ($classQuery) => $classQuery->whereIn('major_id', array_map('intval', $majorIds))))
+            ->when($academicYearIds, fn ($query) => $query->whereHas('schoolClass', fn ($classQuery) => $classQuery->whereIn('academic_year_id', array_map('intval', $academicYearIds))));
+    }
+
     public function subjectsFor(Student $student, int $semester): Collection
     {
         return $this->settingsFor($student, $semester);
