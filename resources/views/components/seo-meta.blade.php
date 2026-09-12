@@ -1,6 +1,6 @@
 @props([
     'title' => null,
-    'description' => 'E-Learning BK SMA Plus Astha Hannas — portal bimbingan konseling, akademik, dan perencanaan karir siswa.',
+    'description' => 'SIBIKA SMA Plus Astha Hannas — portal bimbingan konseling, akademik, dan perencanaan karir siswa.',
 ])
 
 @php

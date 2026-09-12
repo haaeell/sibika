@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <x-seo-meta title="Login" description="Masuk ke E-Learning BK SMA Plus Astha Hannas — portal BK, akademik, dan karir siswa." />
+    <x-seo-meta title="Login" description="Masuk ke SIBIKA SMA Plus Astha Hannas — portal BK, akademik, dan karir siswa." />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -29,7 +29,7 @@
                         class="size-14 object-contain drop-shadow-xl"
                     >
                     <div>
-                        <p class="text-xl font-bold tracking-tight">E-Learning BK</p>
+                        <p class="text-xl font-bold tracking-tight">SIBIKA</p>
                         <p class="mt-1 text-base font-medium text-white/85">SMA Plus Astha Hannas</p>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                             class="mx-auto size-16 object-contain"
                         >
                         <h1 class="mt-5 text-2xl font-bold tracking-tight text-slate-950">Selamat Datang</h1>
-                        <p class="mt-2 text-sm font-semibold text-slate-500">E-Learning BK SMA Plus Astha Hannas</p>
+                        <p class="mt-2 text-sm font-semibold text-slate-500">SIBIKA SMA Plus Astha Hannas</p>
                     </div>
 
                     <form action="{{ route('login.store') }}" method="POST" class="mt-7 space-y-4">

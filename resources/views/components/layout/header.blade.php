@@ -23,7 +23,7 @@
         </button>
 
         <div>
-            <p class="text-xs font-medium text-slate-500">E-Learning BK</p>
+            <p class="text-xs font-medium text-slate-500">SIBIKA</p>
             <h1 class="text-base font-bold text-slate-900">{{ $title }}</h1>
         </div>
     </div>
