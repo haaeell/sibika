@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Support\DashboardRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,15 +46,6 @@ class AuthController extends Controller
 
     private function dashboardRoute(): string
     {
-        $user = Auth::user();
-
-        return match (true) {
-            $user->hasRole('super_admin') => route('admin.dashboard'),
-            $user->hasRole('bk') => route('bk.dashboard'),
-            $user->hasRole('guru') => route('guru.dashboard'),
-            $user->hasRole('wali_kelas') => route('wali-kelas.dashboard'),
-            $user->hasRole('siswa') => route('siswa.dashboard'),
-            default => route('dashboard'),
-        };
+        return DashboardRedirector::for(Auth::user());
     }
 }

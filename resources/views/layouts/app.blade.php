@@ -5,6 +5,7 @@
 @php
     $isStudent = auth()->check() && auth()->user()->hasRole('siswa');
     $canManageBiodata = auth()->check() && auth()->user()->hasAnyRole(['bk', 'super_admin']);
+    $dashboardUrl = auth()->check() ? \App\Support\DashboardRedirector::for(auth()->user()) : route('login');
     $navigation = [
         [
             'label' => null,
@@ -12,7 +13,7 @@
                 [
                     'label' => 'Dashboard',
                     'icon' => 'fa-solid fa-house',
-                    'url' => route('dashboard'),
+                    'url' => $dashboardUrl,
                     'active' => request()->routeIs('dashboard') || request()->routeIs('*.dashboard'),
                 ],
             ],

@@ -27,7 +27,16 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markRead'])->name('notifications.read');
 });
-Route::view('/dashboard', 'pages.dashboard')->middleware('auth')->name('dashboard');
+Route::get('/dashboard', function () {
+    $target = \App\Support\DashboardRedirector::for(auth()->user());
+
+    // Pengaman: user tanpa role tetap melihat placeholder, bukan redirect loop.
+    if ($target === route('dashboard')) {
+        return view('pages.dashboard');
+    }
+
+    return redirect($target);
+})->middleware('auth')->name('dashboard');
 
 require __DIR__.'/admin.php';
 require __DIR__.'/bk.php';
