@@ -36,6 +36,12 @@
                     <p class="truncate text-sm font-bold text-slate-900">{{ auth()->user()->name ?? 'Guest' }}</p>
                     <p class="truncate text-xs font-medium text-slate-500">{{ auth()->user()->email ?? 'guest@example.test' }}</p>
                 </div>
+                @if (auth()->check() && auth()->user()->hasRole('siswa'))
+                    <button type="button" data-change-password-open class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <i class="fa-solid fa-key w-5 text-center text-slate-400"></i>
+                        Ganti Password
+                    </button>
+                @endif
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm font-semibold text-rose-600 transition hover:bg-rose-50">

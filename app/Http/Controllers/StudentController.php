@@ -7,9 +7,11 @@ use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Cohort;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Services\StudentAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -52,11 +54,20 @@ class StudentController extends Controller
         ]);
     }
 
-    public function store(StoreStudentRequest $request): RedirectResponse
+    public function store(StoreStudentRequest $request, StudentAccountService $accounts): RedirectResponse
     {
-        Student::create($request->validated());
+        $student = DB::transaction(function () use ($request, $accounts) {
+            $student = Student::create($request->validated());
+            $student->profile()->firstOrCreate([]);
+            $accounts->ensureAccount($student);
 
-        return redirect()->route('bk.students.index')->with('success', 'Siswa berhasil ditambahkan.');
+            return $student;
+        });
+
+        return redirect()->route('bk.students.index')->with(
+            'success',
+            "Siswa {$student->name} berhasil ditambahkan. Akun login dibuat otomatis (email: ".StudentAccountService::emailFor($student->nis).", password awal: NIS)."
+        );
     }
 
     public function edit(Student $student): View
@@ -68,18 +79,30 @@ class StudentController extends Controller
         ]);
     }
 
-    public function update(UpdateStudentRequest $request, Student $student): RedirectResponse
+    public function update(UpdateStudentRequest $request, Student $student, StudentAccountService $accounts): RedirectResponse
     {
-        $student->update($request->validated());
+        DB::transaction(function () use ($request, $student, $accounts) {
+            $student->update($request->validated());
+            $accounts->ensureAccount($student);
+        });
 
         return redirect()->route('bk.students.index')->with('success', 'Siswa berhasil diperbarui.');
     }
 
+    public function resetAccount(Student $student, StudentAccountService $accounts): RedirectResponse
+    {
+        $accounts->resetToDefault($student);
+
+        return back()->with('success', "Akun {$student->name} direset. Password awal kembali ke NIS dan wajib diganti saat login.");
+    }
+
     public function destroy(Student $student): RedirectResponse
     {
+        $user = $student->user;
         $student->delete();
+        $user?->delete();
 
-        return redirect()->route('bk.students.index')->with('success', 'Siswa berhasil dihapus.');
+        return redirect()->route('bk.students.index')->with('success', 'Siswa beserta akun loginnya berhasil dihapus.');
     }
 
     private function statusBadge(string $status): string

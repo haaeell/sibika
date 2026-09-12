@@ -151,6 +151,8 @@
         </script>
     @endif
 
+    @includeWhen(auth()->check(), 'components.auth.force-change-password-modal')
+
     @stack('scripts')
 </body>
 </html>

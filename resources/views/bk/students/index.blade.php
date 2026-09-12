@@ -1,9 +1,25 @@
 @component('layouts.app', ['title' => 'Siswa'])
     <x-page-header title="Siswa" description="Kelola data siswa dan penempatan kelas.">
         <x-slot:actions>
+            <x-button variant="secondary" :href="route('bk.students.template')"><i class="fa-solid fa-file-arrow-down"></i> Template</x-button>
+            <x-button variant="secondary" :href="route('bk.students.import.create')"><i class="fa-solid fa-upload"></i> Import Excel</x-button>
             <x-button :href="route('bk.students.create')"><i class="fa-solid fa-plus"></i> Tambah Siswa</x-button>
         </x-slot:actions>
     </x-page-header>
+
+    @if (session('import_failures'))
+        <x-card class="border-rose-200">
+            <p class="text-sm font-bold text-rose-700">
+                {{ count(session('import_failures')) }} baris gagal saat import terakhir:
+            </p>
+            <ul class="mt-2 max-h-40 list-disc space-y-1 overflow-auto pl-5 text-sm text-slate-600">
+                @foreach (session('import_failures') as $failure)
+                    <li>Baris {{ $failure['row'] }} (NIS: {{ $failure['nis'] ?: '-' }}) — {{ $failure['message'] }}</li>
+                @endforeach
+            </ul>
+            <p class="mt-2 text-sm text-slate-500">Lihat detail di <a href="{{ route('bk.students.import.create') }}" class="font-bold text-blue-800 underline">halaman import</a>.</p>
+        </x-card>
+    @endif
 
     <x-card>
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">

@@ -44,6 +44,10 @@ Route::prefix('bk')
         Route::get('students/{student}/biodata/documents/{document}/download', [StudentBiodataAdminController::class, 'downloadDocument'])->name('students.biodata.documents.download');
         Route::delete('students/{student}/biodata/documents/{document}', [StudentBiodataAdminController::class, 'destroyDocument'])->name('students.biodata.documents.destroy');
         Route::resource('students', StudentController::class)->except('show');
+        Route::post('students/{student}/reset-account', [StudentController::class, 'resetAccount'])->name('students.reset-account');
+        Route::get('students/import', [\App\Http\Controllers\StudentImportController::class, 'create'])->name('students.import.create');
+        Route::post('students/import', [\App\Http\Controllers\StudentImportController::class, 'store'])->name('students.import.store');
+        Route::get('students/template', [\App\Http\Controllers\StudentImportController::class, 'template'])->name('students.template');
         Route::get('majors/data', [MajorController::class, 'data'])->name('majors.data');
         Route::resource('majors', MajorController::class)->except('show');
         Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');

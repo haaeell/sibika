@@ -67,7 +67,7 @@ class StudentSeeder extends Seeder
 
             $user = User::updateOrCreate(
                 ['email' => "siswa.$nis@asthahannas.sch.id"],
-                ['name' => $name, 'password' => 'password']
+                ['name' => $name, 'password' => $nis, 'must_change_password' => true]
             );
             $user->syncRoles(['siswa']);
 

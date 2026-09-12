@@ -128,11 +128,6 @@
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </form>
-
-                    <div class="mt-6 flex items-center justify-center gap-3 rounded-2xl bg-blue-50 px-5 py-4 text-blue-900">
-                        <i class="fa-solid fa-shield-halved text-lg"></i>
-                        <p class="text-sm font-semibold">Khusus civitas akademik sekolah</p>
-                    </div>
                 </div>
             </div>
 

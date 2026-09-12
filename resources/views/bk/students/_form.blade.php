@@ -1,5 +1,10 @@
 @csrf
 
+<div class="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-900">
+    <i class="fa-solid fa-circle-info mr-1.5"></i>
+    Akun login dibuat otomatis: email <code>siswa.{NIS}@asthahannas.sch.id</code>, password awal = <b>NIS</b>. Siswa wajib menggantinya saat login pertama.
+</div>
+
 <div class="grid gap-4 md:grid-cols-2">
     <x-form.input name="nis" label="NIS" icon="fa-solid fa-id-card" placeholder="Nomor induk siswa" :value="old('nis', $student->nis)" />
     <x-form.input name="nisn" label="NISN" icon="fa-solid fa-fingerprint" placeholder="Nomor induk siswa nasional" :value="old('nisn', $student->nisn)" />

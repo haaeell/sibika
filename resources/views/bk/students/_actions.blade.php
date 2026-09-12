@@ -1,6 +1,10 @@
 <div class="flex items-center justify-end gap-1">
     <a href="{{ route('bk.students.biodata.show', $student) }}" class="btn-icon has-tooltip" data-tooltip="Biodata" aria-label="Lihat biodata"><i class="fa-solid fa-id-card"></i></a>
     <a href="{{ route('bk.students.edit', $student) }}" class="btn-icon has-tooltip" data-tooltip="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+    <form action="{{ route('bk.students.reset-account', $student) }}" method="POST" class="js-confirm-form inline-flex" data-confirm-title="Reset akun siswa?" data-confirm-text="Password dikembalikan ke NIS dan siswa wajib menggantinya saat login berikutnya." data-confirm-button="Ya, reset" data-confirm-icon="warning">
+        @csrf
+        <button type="submit" class="btn-icon has-tooltip text-amber-600" data-tooltip="Reset akun (password = NIS)" aria-label="Reset akun"><i class="fa-solid fa-key"></i></button>
+    </form>
     <form action="{{ route('bk.students.destroy', $student) }}" method="POST" class="js-delete-form inline-flex">
         @csrf
         @method('DELETE')
