@@ -401,17 +401,38 @@ $(function () {
         }
     });
 
-    const setAcademicYear = function (year) {
+    const setAcademicYear = function (year, persist = true) {
         $('.js-academic-year-label').text(year);
         $('.js-academic-year-option').each(function () {
             const isSelected = $(this).data('academic-year') === year;
 
             $(this).toggleClass('bg-blue-50 text-blue-900', isSelected);
+            $(this).toggleClass('text-slate-600', !isSelected);
             $(this).find('[data-academic-year-check]').toggleClass('hidden', !isSelected);
         });
+        if (persist) {
+            localStorage.setItem('academicYear', year);
+            // sync to server session
+            fetch('/academic-year/select', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({ academic_year: year }),
+            }).catch(() => {});
+            // notify listeners (e.g., filter tables)
+            $(document).trigger('academicYear:changed', [year]);
+        }
     };
 
-    setAcademicYear(localStorage.getItem('academicYear') || '2026 / 2027');
+    const initialYear = $('.js-academic-year-label').data('initial-year') || localStorage.getItem('academicYear') || '2026 / 2027';
+    setAcademicYear(initialYear, false);
+    // keep server session in sync on load if different
+    if (initialYear !== localStorage.getItem('academicYear')) {
+        localStorage.setItem('academicYear', initialYear);
+    }
 
     $('.js-academic-year-toggle').on('click', function (event) {
         event.stopPropagation();
@@ -427,10 +448,26 @@ $(function () {
     $('.js-academic-year-option').on('click', function () {
         const year = $(this).data('academic-year');
 
-        localStorage.setItem('academicYear', year);
-        setAcademicYear(year);
+        setAcademicYear(year, true);
         $('[data-academic-year-menu]').addClass('hidden');
         $('.js-academic-year-toggle').attr('aria-expanded', 'false');
+    });
+
+    // Auto-filter tables that support academic_year_id when year changes
+    $(document).on('academicYear:changed', function (_e, year) {
+        const label = year;
+        // If user is on a DataTable page with academic year filter, try to apply it
+        const $filter = $('[data-academic-year-filter]');
+        if ($filter.length) {
+            // Try to find option value by label
+            let matchedVal = null;
+            $filter.find('option').each(function () {
+                if ($(this).text().trim() === label) matchedVal = $(this).val();
+            });
+            if (matchedVal && $filter.val() !== matchedVal) {
+                $filter.val(matchedVal).trigger('change');
+            }
+        }
     });
 
     $('.js-user-menu-toggle').on('click', function (event) {

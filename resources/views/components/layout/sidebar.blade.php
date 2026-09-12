@@ -84,7 +84,7 @@
                 </span>
                 <span class="min-w-0 flex-1">
                     <span class="block text-xs font-semibold text-slate-500">Tahun Ajaran</span>
-                    <span class="js-academic-year-label block truncate text-base font-bold text-slate-900">2026 / 2027</span>
+                    <span class="js-academic-year-label block truncate text-base font-bold text-slate-900" data-initial-year="{{ $activeAcademicYear ?? '2026 / 2027' }}">{{ $activeAcademicYear ?? '2026 / 2027' }}</span>
                 </span>
                 <span class="flex flex-col text-slate-400">
                     <i class="fa-solid fa-chevron-up text-[10px] leading-none"></i>
@@ -94,19 +94,27 @@
 
             <div
                 id="{{ $idPrefix }}-academic-year-menu"
-                class="absolute bottom-full left-0 right-0 z-50 mb-2 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl"
+                class="absolute bottom-full left-0 right-0 z-50 mb-2 hidden max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white py-2 shadow-xl"
                 data-academic-year-menu
             >
-                @foreach (['2026 / 2027', '2025 / 2026', '2024 / 2025'] as $academicYear)
+                @forelse ($academicYears ?? [] as $academicYear)
                     <button
                         type="button"
-                        class="js-academic-year-option flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-semibold text-slate-600 transition hover:bg-blue-50 hover:text-blue-900"
-                        data-academic-year="{{ $academicYear }}"
+                        class="js-academic-year-option flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-semibold transition hover:bg-blue-50 hover:text-blue-900 {{ ($activeAcademicYear ?? null) === $academicYear->name ? 'bg-blue-50 text-blue-900' : 'text-slate-600' }}"
+                        data-academic-year="{{ $academicYear->name }}"
                     >
-                        <span>{{ $academicYear }}</span>
-                        <i class="fa-solid fa-check hidden text-xs text-yellow-500" data-academic-year-check></i>
+                        <span class="flex flex-col text-left">
+                            <span>{{ $academicYear->name }}</span>
+                            <span class="text-xs font-medium {{ $academicYear->is_active ? 'text-emerald-600' : 'text-slate-400' }}">{{ $academicYear->is_active ? 'Aktif' : '' }} {{ $academicYear->semester ? '· '.ucfirst($academicYear->semester) : '' }}</span>
+                        </span>
+                        <i class="fa-solid fa-check text-xs text-blue-700 {{ ($activeAcademicYear ?? null) === $academicYear->name ? '' : 'hidden' }}" data-academic-year-check></i>
                     </button>
-                @endforeach
+                @empty
+                    <div class="px-4 py-3 text-sm text-slate-500">Belum ada tahun ajaran</div>
+                @endforelse
+                <a href="{{ route('bk.academic-years.index') }}" class="mt-1 flex items-center gap-2 border-t border-slate-100 px-4 py-2.5 text-xs font-bold text-blue-700 hover:bg-slate-50">
+                    <i class="fa-solid fa-gear"></i> Kelola Tahun Ajaran
+                </a>
             </div>
         </div>
     </div>

@@ -16,6 +16,12 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::post('/academic-year/select', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate(['academic_year' => ['required', 'string', 'exists:academic_years,name']]);
+    session(['academic_year' => $validated['academic_year']]);
+
+    return response()->json(['academic_year' => $validated['academic_year']]);
+})->middleware('auth')->name('academic-year.select');
 Route::get('/regions/{resource}/{code?}', RegionController::class)->middleware('auth')->name('regions.index');
 Route::view('/dashboard', 'pages.dashboard')->middleware('auth')->name('dashboard');
 

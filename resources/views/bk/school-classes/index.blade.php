@@ -9,10 +9,10 @@
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-500">Filter:</span>
-                <select id="school-class-year-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua tahun ajaran">
+                <select id="school-class-year-filter" data-table-filter data-academic-year-filter class="table-filter-select select2" multiple data-placeholder="Semua tahun ajaran">
                     <option value="">Semua tahun ajaran</option>
                     @foreach ($academicYears as $academicYear)
-                        <option value="{{ $academicYear->id }}">{{ $academicYear->name }}</option>
+                        <option value="{{ $academicYear->id }}" @selected(session('academic_year', $academicYears->firstWhere('is_active', true)?->name) === $academicYear->name)>{{ $academicYear->name }}</option>
                     @endforeach
                 </select>
                 <select id="school-class-major-filter" data-table-filter class="table-filter-select select2" multiple data-placeholder="Semua jurusan">
