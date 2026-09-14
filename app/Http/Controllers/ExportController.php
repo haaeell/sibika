@@ -12,17 +12,15 @@ use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\University;
 use App\Services\StudentProgressService;
-use Illuminate\Http\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Response;
 use Maatwebsite\Excel\Excel;
 use Maatwebsite\Excel\Facades\Excel as ExcelFacade;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExportController extends Controller
 {
-    public function __construct(private readonly StudentProgressService $progressService)
-    {
-    }
+    public function __construct(private readonly StudentProgressService $progressService) {}
 
     public function download(string $resource, string $format): Response|BinaryFileResponse
     {
@@ -166,13 +164,13 @@ class ExportController extends Controller
             'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir', 'No WA Aktif',
             'Provinsi', 'Kota / Kabupaten', 'Kecamatan', 'Kelurahan / Desa', 'Kode Pos', 'Alamat Rumah',
             'Tinggi Badan (cm)', 'Berat Badan (kg)', 'Riwayat Kesehatan/Penyakit', 'Status MCU Mandiri',
-            'Pilihan 1 (Kampus)', 'Pilihan 2 (Kampus)', 'Persiapan Kelas 11', 'Kekhawatiran Karir',
+            'Pilihan 1 (Kampus)', 'Pilihan 2 (Kampus)', 'Pilihan 3 (Kampus)', 'Persiapan Kelas 11', 'Kekhawatiran Karir',
             'Prestasi SMA Plus Astha Hannas', 'Mengikuti Organisasi', 'Nama Organisasi', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
             'Progress Biodata', 'Sertifikat Prestasi',
         ];
 
         $rows = Student::query()
-            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'documents'])
+            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'documents'])
             ->orderBy('name')
             ->get()
             ->map(function (Student $student): array {
@@ -202,6 +200,7 @@ class ExportController extends Controller
                     $profile?->mcu_status ? ucfirst($profile->mcu_status) : '-',
                     $profile?->universityChoice1?->name ?? '-',
                     $profile?->universityChoice2?->name ?? '-',
+                    $profile?->universityChoice3?->name ?? '-',
                     $profile?->grade_11_preparation ?? '-',
                     $profile?->career_concern ?? '-',
                     $profile?->school_achievements ?? '-',

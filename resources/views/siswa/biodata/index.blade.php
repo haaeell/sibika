@@ -157,8 +157,8 @@
                         <span class="flex size-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700"><i class="fa-solid fa-graduation-cap"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Pilihan Kampus</h2><p class="text-sm leading-5 text-slate-500">Rencana melanjutkan kuliah.</p></div>
                     </div>
-                    <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                        @foreach ([1 => 'Pilihan 1 (Kampus)', 2 => 'Pilihan 2 (Kampus)'] as $choice => $label)
+                    <div class="grid gap-4 grid-cols-1 lg:grid-cols-3">
+                        @foreach ([1 => 'Pilihan 1 (Kampus)', 2 => 'Pilihan 2 (Kampus)', 3 => 'Pilihan 3 (Kampus)'] as $choice => $label)
                             @php($field = 'university_choice_'.$choice.'_id')
                             <x-form.select :name="$field" :label="$label" icon="fa-solid fa-building-columns" class="select2" data-placeholder="Pilih kampus" data-progress-required data-progress-section="campus_choice" required>
                                 <option value="">Pilih kampus</option>

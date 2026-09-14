@@ -38,7 +38,7 @@
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 @foreach ([
                     ['label' => 'Status MCU', 'value' => ['belum' => 'Belum', 'proses' => 'Proses', 'sudah' => 'Sudah'][$student->profile?->mcu_status] ?? 'Belum diisi', 'icon' => 'fa-file-medical', 'class' => 'bg-sky-50 text-sky-700'],
-                    ['label' => 'Kampus Pilihan 1', 'value' => $student->profile?->universityChoice1?->name ?? 'Belum diisi', 'icon' => 'fa-building-columns', 'class' => 'bg-indigo-50 text-indigo-700'],
+                    ['label' => 'Pilihan Kampus', 'value' => collect([$student->profile?->universityChoice1?->short_name ?? $student->profile?->universityChoice1?->name, $student->profile?->universityChoice2?->short_name ?? $student->profile?->universityChoice2?->name, $student->profile?->universityChoice3?->short_name ?? $student->profile?->universityChoice3?->name])->filter()->join(' / ') ?: 'Belum diisi', 'icon' => 'fa-building-columns', 'class' => 'bg-indigo-50 text-indigo-700'],
                     ['label' => 'Organisasi', 'value' => $student->profile?->organization_status === 'ya' ? ($student->profile?->organization_name ?? '-') : 'Tidak mengikuti', 'icon' => 'fa-people-group', 'class' => 'bg-emerald-50 text-emerald-700'],
                 ] as $item)
                     <x-card class="p-4">

@@ -52,7 +52,7 @@ class StudentBiodataReportTest extends TestCase
         $this->assertSame(1, $report['summary']['complete']);
         $this->assertSame(1, $report['summary']['incomplete']);
         $this->assertSame(55, $report['summary']['average_progress']);
-        $this->assertSame(20, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
+        $this->assertSame(21, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
         $this->assertSame(['Jawa Barat'], $report['charts']['province']['labels']);
         $this->assertSame([1], $report['charts']['province']['values']);
         $this->assertSame(['Bandung'], $report['charts']['city']['labels']);
@@ -99,6 +99,10 @@ class StudentBiodataReportTest extends TestCase
             'university_choice_2_id' => University::firstOrCreate(
                 ['name' => 'Institut Teknologi Bandung'],
                 ['short_name' => 'ITB', 'type' => 'negeri', 'is_active' => true]
+            )->id,
+            'university_choice_3_id' => University::firstOrCreate(
+                ['name' => 'Universitas Padjadjaran'],
+                ['short_name' => 'Unpad', 'type' => 'negeri', 'is_active' => true]
             )->id,
             'grade_11_preparation' => 'Belajar rutin',
             'career_concern' => 'Persaingan masuk kampus',

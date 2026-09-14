@@ -15,7 +15,7 @@ class StudentDashboardController extends Controller
     public function __invoke(Request $request): View
     {
         $student = Student::where('user_id', $request->user()->id)
-            ->with(['schoolClass.academicYear', 'cohort', 'profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents'])
+            ->with(['schoolClass.academicYear', 'cohort', 'profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents'])
             ->firstOrFail();
 
         return view('siswa.dashboard', [

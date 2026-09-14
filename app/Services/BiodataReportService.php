@@ -7,14 +7,12 @@ use Illuminate\Support\Collection;
 
 class BiodataReportService
 {
-    public function __construct(private readonly StudentProgressService $progressService)
-    {
-    }
+    public function __construct(private readonly StudentProgressService $progressService) {}
 
     public function generate(array $filters): array
     {
         $students = Student::query()
-            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'schoolClass', 'cohort', 'documents'])
+            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'schoolClass', 'cohort', 'documents'])
             ->when($filters['class_id'] ?? null, fn ($query, $value) => $query->where('class_id', $value))
             ->when($filters['cohort_id'] ?? null, fn ($query, $value) => $query->where('cohort_id', $value))
             ->when($filters['status'] ?? null, fn ($query, $value) => $query->where('status', $value))
@@ -56,6 +54,7 @@ class BiodataReportService
 
         $campusChoice1 = $this->topUniversityChoices($students, 'universityChoice1');
         $campusChoice2 = $this->topUniversityChoices($students, 'universityChoice2');
+        $campusChoice3 = $this->topUniversityChoices($students, 'universityChoice3');
         $provinces = $this->topTextValues($students, 'province');
         $cities = $this->topTextValues($students, 'city');
 
@@ -85,6 +84,7 @@ class BiodataReportService
             'city' => $this->chart($cities->keys()->all(), $cities->values()->all()),
             'campus_choice_1' => $this->chart($campusChoice1->keys()->all(), $campusChoice1->values()->all()),
             'campus_choice_2' => $this->chart($campusChoice2->keys()->all(), $campusChoice2->values()->all()),
+            'campus_choice_3' => $this->chart($campusChoice3->keys()->all(), $campusChoice3->values()->all()),
             'height' => $this->rangeChart($students->pluck('profile.height_cm'), [150, 160, 170, 180], ['< 150 cm', '150-159 cm', '160-169 cm', '170-179 cm', '>= 180 cm']),
             'weight' => $this->rangeChart($students->pluck('profile.weight_kg'), [45, 55, 65, 75], ['< 45 kg', '45-54 kg', '55-64 kg', '65-74 kg', '>= 75 kg']),
         ];

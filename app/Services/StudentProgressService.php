@@ -25,7 +25,7 @@ class StudentProgressService
                 $profile?->height_cm, $profile?->weight_kg, $profile?->medical_history, $profile?->mcu_status,
             ]),
             'campus_choice' => $this->filled([
-                $profile?->university_choice_1_id, $profile?->university_choice_2_id,
+                $profile?->university_choice_1_id, $profile?->university_choice_2_id, $profile?->university_choice_3_id,
             ]),
             'career_preparation' => $this->filled([
                 $profile?->grade_11_preparation, $profile?->career_concern,
@@ -67,6 +67,7 @@ class StudentProgressService
             'Status MCU' => $profile?->mcu_status,
             'Pilihan kampus 1' => $profile?->university_choice_1_id,
             'Pilihan kampus 2' => $profile?->university_choice_2_id,
+            'Pilihan kampus 3' => $profile?->university_choice_3_id,
             'Persiapan kelas 11' => $profile?->grade_11_preparation,
             'Kekhawatiran karir' => $profile?->career_concern,
             'Prestasi sekolah' => $profile?->school_achievements,

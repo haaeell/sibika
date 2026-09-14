@@ -108,6 +108,7 @@ class StudentSeeder extends Seeder
                     'medical_history' => $medicalHistories[$index % count($medicalHistories)],
                     'university_choice_1_id' => $universityIds[$universities[$index % count($universities)]],
                     'university_choice_2_id' => $universityIds[$universities[($index + 2) % count($universities)]],
+                    'university_choice_3_id' => $universityIds[$universities[($index + 4) % count($universities)]],
                     'grade_11_preparation' => 'Mengikuti pendalaman materi, try out rutin, dan menyusun jadwal belajar mingguan.',
                     'career_concern' => $index % 3 === 0
                         ? 'Masih mempertimbangkan jurusan yang paling sesuai dengan minat dan kemampuan.'

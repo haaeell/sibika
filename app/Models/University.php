@@ -26,4 +26,9 @@ class University extends Model
     {
         return $this->hasMany(StudentProfile::class, 'university_choice_2_id');
     }
+
+    public function thirdChoiceProfiles(): HasMany
+    {
+        return $this->hasMany(StudentProfile::class, 'university_choice_3_id');
+    }
 }

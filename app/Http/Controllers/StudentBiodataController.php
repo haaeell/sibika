@@ -14,13 +14,11 @@ use Illuminate\View\View;
 
 class StudentBiodataController extends Controller
 {
-    public function __construct(private readonly StudentProgressService $progressService)
-    {
-    }
+    public function __construct(private readonly StudentProgressService $progressService) {}
 
     public function index(Request $request): View
     {
-        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents']);
+        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents']);
 
         return view('siswa.biodata.index', [
             'student' => $student,

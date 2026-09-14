@@ -65,6 +65,7 @@
                     'Pilihan Kampus' => [
                         'Pilihan 1 (Kampus)' => $profile?->universityChoice1?->name,
                         'Pilihan 2 (Kampus)' => $profile?->universityChoice2?->name,
+                        'Pilihan 3 (Kampus)' => $profile?->universityChoice3?->name,
                     ],
                     'Persiapan & Karir' => [
                         'Persiapan di Kelas 11' => $profile?->grade_11_preparation,

@@ -26,12 +26,12 @@ class UniversityController extends Controller
         return DataTables::eloquent(University::query()
             ->when($types, fn ($query) => $query->whereIn('type', $types))
             ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
-            ->withCount(['firstChoiceProfiles', 'secondChoiceProfiles'])
+            ->withCount(['firstChoiceProfiles', 'secondChoiceProfiles', 'thirdChoiceProfiles'])
             ->latest())
             ->addIndexColumn()
             ->editColumn('type', fn (University $university) => $this->typeBadge($university->type))
             ->editColumn('is_active', fn (University $university) => $this->statusBadge($university->is_active))
-            ->addColumn('students', fn (University $university) => $university->first_choice_profiles_count + $university->second_choice_profiles_count)
+            ->addColumn('students', fn (University $university) => $university->first_choice_profiles_count + $university->second_choice_profiles_count + $university->third_choice_profiles_count)
             ->addColumn('action', fn (University $university) => view('bk.universities._actions', compact('university'))->render())
             ->rawColumns(['type', 'is_active', 'action'])
             ->toJson();
@@ -67,7 +67,7 @@ class UniversityController extends Controller
 
     public function destroy(University $university): RedirectResponse
     {
-        if ($university->firstChoiceProfiles()->exists() || $university->secondChoiceProfiles()->exists()) {
+        if ($university->firstChoiceProfiles()->exists() || $university->secondChoiceProfiles()->exists() || $university->thirdChoiceProfiles()->exists()) {
             return back()->with('error', 'Kampus yang masih dipilih siswa tidak dapat dihapus. Nonaktifkan kampus jika tidak ingin menampilkannya.');
         }
 

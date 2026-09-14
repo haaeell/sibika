@@ -62,7 +62,7 @@ class StudentBiodataTest extends TestCase
         $student = Student::create(['nis' => 'S-002', 'name' => 'Siswa Test', 'user_id' => $user->id]);
 
         $this->actingAs($user)
-->put(route('siswa.biodata.update'), [
+            ->put(route('siswa.biodata.update'), [
                 'gender' => 'female',
                 'birth_place' => 'Bandung',
                 'birth_date' => '2008-05-10',
@@ -130,8 +130,8 @@ class StudentBiodataTest extends TestCase
         $progress = app(StudentProgressService::class)->calculate($student->fresh());
 
         $this->assertSame(100, $progress['percentage']);
-        $this->assertSame(22, $progress['completed']);
-        $this->assertSame(22, $progress['total']);
+        $this->assertSame(23, $progress['completed']);
+        $this->assertSame(23, $progress['total']);
     }
 
     public function test_all_biodata_fields_are_required(): void
@@ -144,9 +144,44 @@ class StudentBiodataTest extends TestCase
             ->assertSessionHasErrors([
                 'gender', 'birth_place', 'birth_date', 'phone', 'province', 'city', 'district', 'village',
                 'postal_code', 'address', 'height_cm', 'weight_kg', 'medical_history', 'university_choice_1_id',
-                'university_choice_2_id', 'grade_11_preparation', 'career_concern', 'school_achievements',
+                'university_choice_2_id', 'university_choice_3_id', 'grade_11_preparation', 'career_concern', 'school_achievements',
                 'organization_status', 'self_improvement_notes', 'mcu_status',
             ]);
+    }
+
+    public function test_university_choices_must_be_unique(): void
+    {
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-008', 'name' => 'Siswa Kampus Sama', 'user_id' => $user->id]);
+        $choices = $this->universityChoices();
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                'gender' => 'male',
+                'birth_place' => 'Bandung',
+                'birth_date' => '2008-01-01',
+                'phone' => '08123456789',
+                'province' => 'Jawa Barat',
+                'city' => 'Bandung',
+                'district' => 'Coblong',
+                'village' => 'Dago',
+                'postal_code' => '40135',
+                'address' => 'Jalan Test',
+                'height_cm' => 165,
+                'weight_kg' => 55,
+                'medical_history' => '-',
+                'university_choice_1_id' => $choices['university_choice_1_id'],
+                'university_choice_2_id' => $choices['university_choice_1_id'],
+                'university_choice_3_id' => $choices['university_choice_3_id'],
+                'grade_11_preparation' => 'Belajar rutin',
+                'career_concern' => 'Persaingan masuk kampus',
+                'school_achievements' => '-',
+                'organization_status' => 'tidak',
+                'organization_name' => '-',
+                'self_improvement_notes' => 'Meningkatkan disiplin',
+                'mcu_status' => 'belum',
+            ])
+            ->assertSessionHasErrors('university_choice_1_id');
     }
 
     public function test_student_can_upload_multiple_achievement_certificates(): void
@@ -272,10 +307,15 @@ class StudentBiodataTest extends TestCase
             ['name' => 'Institut Teknologi Bandung'],
             ['short_name' => 'ITB', 'type' => 'negeri', 'is_active' => true]
         );
+        $third = University::firstOrCreate(
+            ['name' => 'Universitas Padjadjaran'],
+            ['short_name' => 'Unpad', 'type' => 'negeri', 'is_active' => true]
+        );
 
         return [
             'university_choice_1_id' => $first->id,
             'university_choice_2_id' => $second->id,
+            'university_choice_3_id' => $third->id,
         ];
     }
 }

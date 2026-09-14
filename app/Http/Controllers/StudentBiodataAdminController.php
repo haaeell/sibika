@@ -18,9 +18,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class StudentBiodataAdminController extends Controller
 {
-    public function __construct(private readonly StudentProgressService $progressService)
-    {
-    }
+    public function __construct(private readonly StudentProgressService $progressService) {}
 
     public function index(): View
     {
@@ -51,7 +49,7 @@ class StudentBiodataAdminController extends Controller
 
     public function show(Student $student): View
     {
-        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents', 'schoolClass.academicYear', 'cohort']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'schoolClass.academicYear', 'cohort']);
 
         return view('bk.students.biodata', [
             'student' => $student,
@@ -63,7 +61,7 @@ class StudentBiodataAdminController extends Controller
 
     public function edit(Student $student): View
     {
-        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'parents', 'documents', 'schoolClass.academicYear', 'cohort', 'user']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'schoolClass.academicYear', 'cohort', 'user']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
