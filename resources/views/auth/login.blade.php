@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <x-seo-meta title="Login" description="Masuk ke SIBIKA SMA Plus Astha Hannas — portal BK, akademik, dan karir siswa." />
+    <x-seo-meta title="Login" :description="$loginSetting->seo_description" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -13,8 +13,8 @@
     <main class="min-h-screen lg:grid lg:h-screen lg:grid-cols-[1.15fr_0.85fr] lg:overflow-hidden">
         <section class="relative hidden min-h-screen overflow-hidden bg-slate-900 lg:block lg:min-h-0">
             <img
-                src="{{ asset('images/login-school-hero.png') }}"
-                alt="Gedung sekolah modern"
+                src="{{ $loginSetting->heroImageUrl() }}"
+                alt="{{ $loginSetting->school_name }}"
                 class="absolute inset-0 h-full w-full object-cover"
             >
             <div class="absolute inset-0 bg-blue-950/40"></div>
@@ -24,30 +24,30 @@
             <div class="relative flex h-full min-h-screen flex-col justify-between px-10 py-8 xl:px-14">
                 <div class="flex items-center gap-4 text-white">
                     <img
-                        src="{{ asset('images/logo.png') }}"
-                        alt="Logo SMA Plus Astha Hannas"
+                        src="{{ $loginSetting->logoUrl() }}"
+                        alt="Logo {{ $loginSetting->school_name }}"
                         class="size-14 object-contain drop-shadow-xl"
                     >
                     <div>
-                        <p class="text-xl font-bold tracking-tight">SIBIKA</p>
-                        <p class="mt-1 text-base font-medium text-white/85">SMA Plus Astha Hannas</p>
+                        <p class="text-xl font-bold tracking-tight">{{ $loginSetting->app_name }}</p>
+                        <p class="mt-1 text-base font-medium text-white/85">{{ $loginSetting->school_name }}</p>
                     </div>
                 </div>
 
                 <div class="max-w-xl">
                     <div class="mb-8 h-1 w-12 rounded-full bg-yellow-400"></div>
                     <h1 class="text-4xl font-bold leading-tight tracking-tight text-white xl:text-5xl">
-                        Portal BK dan Karir Siswa
+                        {{ $loginSetting->hero_title }}
                     </h1>
                     <p class="mt-5 text-lg leading-8 text-white/85">
-                        Satu akses untuk pendampingan akademik, pengembangan diri, dan rencana masa depan.
+                        {{ $loginSetting->hero_description }}
                     </p>
                 </div>
 
                 <div class="text-white">
                     <div class="mb-5 h-1 w-12 rounded-full bg-yellow-400"></div>
-                    <p class="text-sm font-bold">SMA Plus Astha Hannas</p>
-                    <p class="mt-1 text-sm font-semibold text-white/80">Berilmu &bull; Berakhlak &bull; Berprestasi</p>
+                    <p class="text-sm font-bold">{{ $loginSetting->footer_name }}</p>
+                    <p class="mt-1 text-sm font-semibold text-white/80">{{ $loginSetting->footer_tagline }}</p>
                 </div>
             </div>
         </section>
@@ -56,7 +56,7 @@
             <div class="flex justify-end">
                 <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-800">
                     <i class="fa-regular fa-circle-question"></i>
-                    Butuh bantuan?
+                    {{ $loginSetting->help_text }}
                 </a>
             </div>
 
@@ -64,12 +64,12 @@
                 <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm sm:px-8 lg:px-10">
                     <div class="text-center">
                         <img
-                            src="{{ asset('images/logo.png') }}"
-                            alt="Logo SMA Plus Astha Hannas"
+                            src="{{ $loginSetting->logoUrl() }}"
+                            alt="Logo {{ $loginSetting->school_name }}"
                             class="mx-auto size-16 object-contain"
                         >
-                        <h1 class="mt-5 text-2xl font-bold tracking-tight text-slate-950">Selamat Datang</h1>
-                        <p class="mt-2 text-sm font-semibold text-slate-500">SIBIKA SMA Plus Astha Hannas</p>
+                        <h1 class="mt-5 text-2xl font-bold tracking-tight text-slate-950">{{ $loginSetting->welcome_title }}</h1>
+                        <p class="mt-2 text-sm font-semibold text-slate-500">{{ $loginSetting->welcome_subtitle }}</p>
                     </div>
 
                     <form action="{{ route('login.store') }}" method="POST" class="mt-7 space-y-4">
@@ -131,7 +131,7 @@
                 </div>
             </div>
 
-            <p class="text-center text-sm font-semibold text-slate-400">&copy; 2026 SMA Plus Astha Hannas. All rights reserved.</p>
+            <p class="text-center text-sm font-semibold text-slate-400">{{ $loginSetting->copyright_text }}</p>
         </section>
     </main>
 </body>

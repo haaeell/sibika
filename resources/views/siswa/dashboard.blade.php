@@ -57,6 +57,18 @@
                 <div class="space-y-2">
                     <a href="{{ route('siswa.biodata.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-900"><i class="fa-solid fa-id-card w-5 text-center text-blue-800"></i> Biodata Saya <i class="fa-solid fa-chevron-right ml-auto text-xs text-slate-400"></i></a>
                     <a href="{{ route('siswa.scores.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-900"><i class="fa-solid fa-chart-line w-5 text-center text-blue-800"></i> Nilai Semester <i class="fa-solid fa-chevron-right ml-auto text-xs text-slate-400"></i></a>
+                    <a href="{{ route('siswa.articles.index') }}" class="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-900"><i class="fa-regular fa-newspaper w-5 text-center text-blue-800"></i> Artikel & Informasi <i class="fa-solid fa-chevron-right ml-auto text-xs text-slate-400"></i></a>
+                </div>
+            </x-card>
+
+            <x-card>
+                <div class="mb-4 flex items-center justify-between gap-3"><div class="flex items-center gap-3"><span class="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-800"><i class="fa-regular fa-newspaper"></i></span><div><h3 class="font-bold text-slate-900">Informasi Terbaru</h3><p class="text-sm text-slate-500">Universitas, beasiswa, dan karir.</p></div></div><a href="{{ route('siswa.articles.index') }}" class="text-xs font-extrabold text-blue-800">Lihat semua</a></div>
+                <div class="space-y-3">
+                    @forelse ($articles as $article)
+                        <a href="{{ route('siswa.articles.show', $article) }}" class="block rounded-xl border border-slate-100 bg-slate-50 p-3 transition hover:bg-blue-50"><p class="text-xs font-bold uppercase tracking-wide text-blue-800">{{ $article->categoryLabel() }} · {{ $article->published_at?->translatedFormat('d M Y') }}</p><p class="mt-1 line-clamp-2 text-sm font-extrabold text-slate-900">{{ $article->title }}</p></a>
+                    @empty
+                        <p class="rounded-xl bg-slate-50 p-3 text-sm font-semibold text-slate-500">Belum ada artikel terbaru.</p>
+                    @endforelse
                 </div>
             </x-card>
 

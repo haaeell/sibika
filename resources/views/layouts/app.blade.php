@@ -45,6 +45,7 @@
             'label' => 'BK & Karir',
             'items' => [
                 ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => $isStudent ? route('siswa.biodata.index') : ($canManageBiodata ? route('bk.biodata.index') : null), 'active' => ($isStudent && request()->routeIs('siswa.biodata.*')) || ($canManageBiodata && request()->routeIs('bk.biodata.index', 'bk.students.biodata.*')), 'disabled' => ! $isStudent && ! $canManageBiodata, 'badge' => $isStudent || $canManageBiodata ? null : 'Soon'],
+                ['label' => 'Artikel', 'icon' => 'fa-regular fa-newspaper', 'url' => $isStudent ? route('siswa.articles.index') : ($canManageBiodata ? route('bk.articles.index') : null), 'active' => request()->routeIs('siswa.articles.*') || request()->routeIs('bk.articles.*'), 'disabled' => ! $isStudent && ! $canManageBiodata, 'badge' => $isStudent || $canManageBiodata ? null : 'Soon'],
                 ['label' => 'Laporan Biodata', 'icon' => 'fa-solid fa-chart-pie', 'url' => $canManageBiodata ? route('bk.biodata.report') : null, 'active' => $canManageBiodata && request()->routeIs('bk.biodata.report'), 'disabled' => ! $canManageBiodata, 'badge' => $canManageBiodata ? null : 'Soon'],
                 ['label' => 'Karir Siswa', 'icon' => 'fa-solid fa-compass', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Prestasi', 'icon' => 'fa-solid fa-trophy', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
@@ -71,7 +72,7 @@
             'items' => [
                 ['label' => 'Monitoring', 'icon' => 'fa-solid fa-chart-pie', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Laporan', 'icon' => 'fa-solid fa-file-export', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
-                ['label' => 'Pengaturan', 'icon' => 'fa-solid fa-gear', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Pengaturan Login', 'icon' => 'fa-solid fa-gear', 'url' => route('admin.login-settings.edit'), 'active' => request()->routeIs('admin.login-settings.*')],
             ],
         ],
     ];
@@ -93,6 +94,7 @@
                 'label' => 'BK & Karir',
                 'items' => [
                     ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => route('siswa.biodata.index'), 'active' => request()->routeIs('siswa.biodata.*')],
+                    ['label' => 'Artikel', 'icon' => 'fa-regular fa-newspaper', 'url' => route('siswa.articles.index'), 'active' => request()->routeIs('siswa.articles.*')],
                 ],
             ],
             [

@@ -1,16 +1,21 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
-use App\Http\Controllers\BkDashboardController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BiodataReportController;
+use App\Http\Controllers\BkDashboardController;
 use App\Http\Controllers\CohortController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\SchoolClassController;
+use App\Http\Controllers\ScoreEditApprovalController;
 use App\Http\Controllers\ScoreSubjectSettingController;
-use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentBiodataAdminController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentImportController;
 use App\Http\Controllers\StudentScoreAdminController;
+use App\Http\Controllers\StudentScoreExportController;
+use App\Http\Controllers\StudentScoreReportController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UniversityController;
@@ -21,6 +26,8 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
+        Route::post('articles/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.upload-image');
+        Route::resource('articles', ArticleController::class)->except('show');
         Route::get('{resource}/export/{format}', [ExportController::class, 'download'])
             ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'universities', 'school-classes', 'teachers', 'students', 'biodata'])
             ->whereIn('format', ['xlsx', 'pdf'])
@@ -45,9 +52,9 @@ Route::prefix('bk')
         Route::delete('students/{student}/biodata/documents/{document}', [StudentBiodataAdminController::class, 'destroyDocument'])->name('students.biodata.documents.destroy');
         Route::resource('students', StudentController::class)->except('show');
         Route::post('students/{student}/reset-account', [StudentController::class, 'resetAccount'])->name('students.reset-account');
-        Route::get('students/import', [\App\Http\Controllers\StudentImportController::class, 'create'])->name('students.import.create');
-        Route::post('students/import', [\App\Http\Controllers\StudentImportController::class, 'store'])->name('students.import.store');
-        Route::get('students/template', [\App\Http\Controllers\StudentImportController::class, 'template'])->name('students.template');
+        Route::get('students/import', [StudentImportController::class, 'create'])->name('students.import.create');
+        Route::post('students/import', [StudentImportController::class, 'store'])->name('students.import.store');
+        Route::get('students/template', [StudentImportController::class, 'template'])->name('students.template');
         Route::get('majors/data', [MajorController::class, 'data'])->name('majors.data');
         Route::resource('majors', MajorController::class)->except('show');
         Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
@@ -55,11 +62,11 @@ Route::prefix('bk')
         Route::get('universities/data', [UniversityController::class, 'data'])->name('universities.data');
         Route::resource('universities', UniversityController::class)->except('show');
         Route::get('student-scores/data', [StudentScoreAdminController::class, 'data'])->name('student-scores.data');
-        Route::get('student-scores/export', [\App\Http\Controllers\StudentScoreExportController::class, 'download'])->name('student-scores.export');
-        Route::get('student-scores/report', [\App\Http\Controllers\StudentScoreReportController::class, 'index'])->name('student-scores.report');
-        Route::get('score-edit-requests', [\App\Http\Controllers\ScoreEditApprovalController::class, 'index'])->name('score-edit-requests.index');
-        Route::post('score-edit-requests/{editRequest}/approve', [\App\Http\Controllers\ScoreEditApprovalController::class, 'approve'])->name('score-edit-requests.approve');
-        Route::post('score-edit-requests/{editRequest}/reject', [\App\Http\Controllers\ScoreEditApprovalController::class, 'reject'])->name('score-edit-requests.reject');
+        Route::get('student-scores/export', [StudentScoreExportController::class, 'download'])->name('student-scores.export');
+        Route::get('student-scores/report', [StudentScoreReportController::class, 'index'])->name('student-scores.report');
+        Route::get('score-edit-requests', [ScoreEditApprovalController::class, 'index'])->name('score-edit-requests.index');
+        Route::post('score-edit-requests/{editRequest}/approve', [ScoreEditApprovalController::class, 'approve'])->name('score-edit-requests.approve');
+        Route::post('score-edit-requests/{editRequest}/reject', [ScoreEditApprovalController::class, 'reject'])->name('score-edit-requests.reject');
         Route::get('student-scores/{student}', [StudentScoreAdminController::class, 'show'])->name('student-scores.show');
         Route::get('student-scores', [StudentScoreAdminController::class, 'index'])->name('student-scores.index');
         Route::put('score-subject-settings/average-subjects', [ScoreSubjectSettingController::class, 'updateAverageSubjects'])->name('score-subject-settings.average-subjects.update');

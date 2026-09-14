@@ -82,6 +82,50 @@
         @apply inline-flex size-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2;
     }
 
+    .editor-btn {
+        @apply inline-flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-600 transition hover:bg-blue-50 hover:text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2;
+    }
+
+    .article-editor h2,
+    .article-content h2 {
+        @apply mt-8 text-2xl font-extrabold tracking-tight text-slate-950;
+    }
+
+    .article-editor h3,
+    .article-content h3 {
+        @apply mt-6 text-xl font-extrabold tracking-tight text-slate-900;
+    }
+
+    .article-editor p,
+    .article-content p {
+        @apply mt-4 text-base leading-8 text-slate-700;
+    }
+
+    .article-editor ul,
+    .article-content ul {
+        @apply mt-4 list-disc space-y-2 pl-6 text-slate-700;
+    }
+
+    .article-editor ol,
+    .article-content ol {
+        @apply mt-4 list-decimal space-y-2 pl-6 text-slate-700;
+    }
+
+    .article-editor blockquote,
+    .article-content blockquote {
+        @apply mt-6 rounded-2xl border-l-4 border-blue-800 bg-blue-50 px-5 py-4 text-slate-700;
+    }
+
+    .article-editor a,
+    .article-content a {
+        @apply font-bold text-blue-800 underline decoration-blue-200 underline-offset-4 hover:text-blue-950;
+    }
+
+    .article-editor img,
+    .article-content img {
+        @apply mt-6 w-full rounded-2xl object-cover shadow-sm;
+    }
+
     .has-tooltip {
         @apply relative;
     }
