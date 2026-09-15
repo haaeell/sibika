@@ -8,6 +8,7 @@ use App\Models\StudentDocument;
 use App\Models\TkaSubject;
 use App\Models\University;
 use App\Services\StudentProgressService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -104,6 +105,47 @@ class StudentBiodataController extends Controller
         }
 
         return back()->with('success', count($validated['documents']).' dokumen berhasil diunggah.');
+    }
+
+    public function uploadPersonalDocument(Request $request): JsonResponse
+    {
+        $student = $this->studentFor($request);
+        $validated = $request->validate([
+            'type' => ['required', 'string', 'in:ijazah_smp,akte,kartu_keluarga'],
+            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+        ], [
+            'type.in' => 'Jenis dokumen tidak valid.',
+            'file.max' => 'Ukuran dokumen maksimal 2 MB.',
+            'file.mimes' => 'Dokumen harus berupa PDF, JPG, JPEG, atau PNG.',
+        ]);
+
+        $labels = ['ijazah_smp' => 'Ijazah SMP', 'akte' => 'Akte', 'kartu_keluarga' => 'Kartu Keluarga'];
+        $documentType = $labels[$validated['type']];
+
+        $student->documents()->where('document_type', $documentType)->get()->each(function (StudentDocument $document): void {
+            Storage::disk('local')->delete($document->file_path);
+            $document->delete();
+        });
+
+        $file = $validated['file'];
+        $document = $student->documents()->create([
+            'document_type' => $documentType,
+            'file_path' => $file->store('student-documents/'.$student->id, 'local'),
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getMimeType(),
+            'file_size' => $file->getSize(),
+            'uploaded_by' => $request->user()->id,
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'document' => [
+                'id' => $document->id,
+                'document_type' => $document->document_type,
+                'original_name' => $document->original_name,
+                'download_url' => route('siswa.biodata.documents.download', $document),
+            ],
+        ]);
     }
 
     public function destroyDocument(Request $request, StudentDocument $document): RedirectResponse

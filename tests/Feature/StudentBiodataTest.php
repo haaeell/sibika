@@ -506,6 +506,87 @@ class StudentBiodataTest extends TestCase
         $this->assertSame(0, $reportRow['certificate_count']);
     }
 
+    public function test_student_can_upload_personal_document_via_ajax(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-030', 'name' => 'Siswa Ajax', 'user_id' => $user->id]);
+
+        $response = $this->actingAs($user)
+            ->postJson(route('siswa.biodata.personal-documents.store'), [
+                'type' => 'akte',
+                'file' => UploadedFile::fake()->create('akte.pdf', 200, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('document.document_type', 'Akte')
+            ->assertJsonPath('document.original_name', 'akte.pdf');
+
+        $document = $student->fresh()->documents()->firstOrFail();
+        $this->assertSame($document->id, $response->json('document.id'));
+        Storage::disk('local')->assertExists($document->file_path);
+    }
+
+    public function test_ajax_personal_document_upload_replaces_previous_file(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-031', 'name' => 'Siswa Ajax Ganti', 'user_id' => $user->id]);
+        Storage::disk('local')->put('student-documents/'.$student->id.'/akte-lama.pdf', 'lama');
+        $student->documents()->create([
+            'document_type' => 'Akte',
+            'file_path' => 'student-documents/'.$student->id.'/akte-lama.pdf',
+            'original_name' => 'akte-lama.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 4,
+            'uploaded_by' => $user->id,
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.personal-documents.store'), [
+                'type' => 'akte',
+                'file' => UploadedFile::fake()->create('akte-baru.pdf', 200, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->assertJsonPath('document.original_name', 'akte-baru.pdf');
+
+        $this->assertDatabaseMissing('student_documents', ['student_id' => $student->id, 'original_name' => 'akte-lama.pdf']);
+        $this->assertDatabaseHas('student_documents', ['student_id' => $student->id, 'document_type' => 'Akte', 'original_name' => 'akte-baru.pdf']);
+        $this->assertSame(1, $student->fresh()->documents()->where('document_type', 'Akte')->count());
+        Storage::disk('local')->assertMissing('student-documents/'.$student->id.'/akte-lama.pdf');
+    }
+
+    public function test_ajax_personal_document_upload_validates_type_and_file(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-032', 'name' => 'Siswa Ajax Validasi', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.personal-documents.store'), [
+                'type' => 'akte',
+                'file' => UploadedFile::fake()->create('besar.pdf', 3000, 'application/pdf'),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('file');
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.personal-documents.store'), [
+                'type' => 'akte',
+                'file' => UploadedFile::fake()->create('catatan.txt', 100, 'text/plain'),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('file');
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.personal-documents.store'), [
+                'type' => 'transkrip',
+                'file' => UploadedFile::fake()->create('dok.pdf', 200, 'application/pdf'),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('type');
+    }
+
     public function test_legacy_personal_document_types_count_as_complete(): void
     {
         Storage::fake('local');

@@ -20,6 +20,7 @@ Route::prefix('siswa')
         Route::post('/biodata/photo', [StudentBiodataController::class, 'uploadPhoto'])->name('biodata.photo.store');
         Route::get('/biodata/photo', [StudentBiodataController::class, 'photo'])->name('biodata.photo.show');
         Route::post('/biodata/documents', [StudentBiodataController::class, 'uploadDocument'])->name('biodata.documents.store');
+        Route::post('/biodata/personal-documents', [StudentBiodataController::class, 'uploadPersonalDocument'])->name('biodata.personal-documents.store');
         Route::get('/biodata/documents/{document}/download', [StudentBiodataController::class, 'downloadDocument'])->name('biodata.documents.download');
         Route::delete('/biodata/documents/{document}', [StudentBiodataController::class, 'destroyDocument'])->name('biodata.documents.destroy');
         Route::get('/nilai', [StudentScoreController::class, 'index'])->name('scores.index');

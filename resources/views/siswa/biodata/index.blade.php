@@ -386,22 +386,27 @@
                         <div class="grid gap-3 md:grid-cols-3">
                             @foreach (['ijazah_smp' => 'Ijazah SMP', 'akte' => 'Akte', 'kartu_keluarga' => 'Kartu Keluarga'] as $type => $label)
                                 @php($document = $student->documents->filter(fn ($document) => in_array($document->document_type, $personalDocumentLabels[$label], true))->last())
-                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3" data-personal-document-card="{{ $type }}">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
                                             <p class="text-sm font-bold text-slate-900">{{ $label }}</p>
-                                            <p class="mt-1 text-xs text-slate-500">{{ $document ? $document->original_name : 'Belum diupload' }}</p>
+                                            <p class="mt-1 text-xs text-slate-500" data-personal-document-name>{{ $document ? $document->original_name : 'Belum diupload' }}</p>
                                         </div>
-                                        <i class="fa-solid {{ $document ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }} mt-1"></i>
+                                        <i class="fa-solid {{ $document ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }} mt-1" data-personal-document-icon></i>
                                     </div>
                                     @if (! $isAdmin)
-                                        <input type="file" name="{{ $type }}" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" data-personal-document-file data-progress-initial="{{ $document ? '1' : '' }}" class="mt-3 block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800" data-progress-required data-progress-section="documents">
-                                        <p class="mt-2 text-xs text-slate-400">Dokumen ikut tersimpan saat klik Simpan Biodata.</p>
+                                        <input type="file" name="{{ $type }}" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" data-personal-document-file data-personal-document-type="{{ $type }}" data-progress-initial="{{ $document ? '1' : '' }}" class="mt-3 block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800 disabled:opacity-60" data-progress-required data-progress-section="documents">
+                                        <p class="mt-2 text-xs text-slate-400">Dokumen otomatis tersimpan saat file dipilih.</p>
+                                        <p class="mt-1 hidden text-xs font-semibold" data-personal-document-status></p>
                                     @endif
                                     @if ($document)
-                                        <div class="mt-3 flex gap-2">
-                                            <a href="{{ $isAdmin ? route('bk.students.biodata.documents.download', [$student, $document]) : route('siswa.biodata.documents.download', $document) }}" class="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-bold text-blue-800 ring-1 ring-slate-200 hover:bg-blue-50"><i class="fa-solid fa-download"></i> Download</a>
+                                        <div class="mt-3 flex gap-2" data-personal-document-actions>
+                                            <a href="{{ $isAdmin ? route('bk.students.biodata.documents.download', [$student, $document]) : route('siswa.biodata.documents.download', $document) }}" class="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-bold text-blue-800 ring-1 ring-slate-200 hover:bg-blue-50" data-personal-document-download><i class="fa-solid fa-download"></i> Download</a>
                                             <button type="submit" form="certificate-delete-{{ $document->id }}" class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600 ring-1 ring-rose-100 hover:bg-rose-100" aria-label="Hapus {{ $label }}"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    @elseif (! $isAdmin)
+                                        <div class="mt-3 hidden gap-2" data-personal-document-actions>
+                                            <a href="#" class="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-bold text-blue-800 ring-1 ring-slate-200 hover:bg-blue-50" data-personal-document-download><i class="fa-solid fa-download"></i> Download</a>
                                         </div>
                                     @endif
                                 </div>
@@ -508,9 +513,12 @@
                 };
                 document.addEventListener('change', function (event) {
                     if (!event.target.matches('input[type="file"][data-max-file-size]')) return;
-                    validateFileSize(event.target);
-                    if (event.target.matches('[data-personal-document-file]')) validatePersonalDocumentSize();
-                    event.target.reportValidity();
+                    const fileInput = event.target;
+                    const sizeOk = validateFileSize(fileInput);
+                    let totalOk = true;
+                    if (fileInput.matches('[data-personal-document-file]')) totalOk = validatePersonalDocumentSize();
+                    fileInput.reportValidity();
+                    if (sizeOk && totalOk && fileInput.matches('[data-personal-document-file]')) uploadPersonalDocument(fileInput);
                 });
                 biodataForm?.addEventListener('submit', function (event) {
                     const valid = Array.from(biodataForm.querySelectorAll('input[type="file"][data-max-file-size]')).every(validateFileSize) && validatePersonalDocumentSize();
@@ -519,6 +527,93 @@
                         biodataForm.querySelector('input[type="file"]:invalid')?.reportValidity();
                     }
                 });
+
+                const personalDocumentUploadUrl = @json(route('siswa.biodata.personal-documents.store'));
+                const personalDocumentDestroyTemplate = @json(route('siswa.biodata.documents.destroy', ['document' => '__DOCUMENT_ID__']));
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const setPersonalDocumentStatus = function (card, message, state) {
+                    const statusEl = card?.querySelector('[data-personal-document-status]');
+                    if (!statusEl) return;
+                    statusEl.textContent = message || '';
+                    statusEl.classList.remove('hidden', 'text-emerald-600', 'text-rose-600', 'text-slate-500');
+                    if (!message) {
+                        statusEl.classList.add('hidden');
+                        return;
+                    }
+                    statusEl.classList.add(state === 'ok' ? 'text-emerald-600' : (state === 'error' ? 'text-rose-600' : 'text-slate-500'));
+                };
+                const refreshPersonalDocumentCard = function (card, doc) {
+                    const nameEl = card.querySelector('[data-personal-document-name]');
+                    if (nameEl) nameEl.textContent = doc.original_name;
+                    const iconEl = card.querySelector('[data-personal-document-icon]');
+                    if (iconEl) iconEl.className = 'fa-solid fa-circle-check text-emerald-500 mt-1';
+                    const actions = card.querySelector('[data-personal-document-actions]');
+                    if (!actions) return;
+                    actions.classList.remove('hidden');
+                    actions.classList.add('flex');
+                    const download = actions.querySelector('[data-personal-document-download]');
+                    if (download) download.href = doc.download_url;
+                    let deleteForm = window.document.getElementById('certificate-delete-' + doc.id);
+                    if (!deleteForm) {
+                        deleteForm = window.document.createElement('form');
+                        deleteForm.id = 'certificate-delete-' + doc.id;
+                        deleteForm.method = 'POST';
+                        deleteForm.action = personalDocumentDestroyTemplate.replace('__DOCUMENT_ID__', doc.id);
+                        deleteForm.className = 'hidden';
+                        deleteForm.innerHTML = '<input type="hidden" name="_token" value="' + csrfToken + '"><input type="hidden" name="_method" value="DELETE">';
+                        window.document.body.appendChild(deleteForm);
+                    }
+                    let deleteButton = actions.querySelector('button[type="submit"]');
+                    if (!deleteButton) {
+                        deleteButton = window.document.createElement('button');
+                        deleteButton.type = 'submit';
+                        deleteButton.className = 'inline-flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600 ring-1 ring-rose-100 hover:bg-rose-100';
+                        deleteButton.setAttribute('aria-label', 'Hapus ' + doc.document_type);
+                        deleteButton.innerHTML = '<i class="fa-solid fa-trash text-xs"></i>';
+                        actions.appendChild(deleteButton);
+                    }
+                    deleteButton.setAttribute('form', deleteForm.id);
+                };
+                const uploadPersonalDocument = function (input) {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+                    const card = input.closest('[data-personal-document-card]');
+                    input.disabled = true;
+                    setPersonalDocumentStatus(card, 'Mengunggah "' + file.name + '"...', 'progress');
+                    const formData = new FormData();
+                    formData.append('type', input.getAttribute('data-personal-document-type'));
+                    formData.append('file', file);
+                    fetch(personalDocumentUploadUrl, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData,
+                    }).then(function (response) {
+                        return response.json().then(function (payload) {
+                            return { ok: response.ok, payload: payload };
+                        }).catch(function () {
+                            return { ok: false, payload: null };
+                        });
+                    }).then(function (result) {
+                        input.disabled = false;
+                        if (!result.ok || !result.payload || !result.payload.ok) {
+                            const errors = (result.payload && result.payload.errors) || {};
+                            const message = errors.file ? errors.file[0] : (errors.type ? errors.type[0] : ((result.payload && result.payload.message) || 'Upload gagal. Coba lagi.'));
+                            input.value = '';
+                            setPersonalDocumentStatus(card, message, 'error');
+                            return;
+                        }
+                        input.value = '';
+                        input.setAttribute('data-progress-initial', '1');
+                        input.setCustomValidity('');
+                        refreshPersonalDocumentCard(card, result.payload.document);
+                        setPersonalDocumentStatus(card, 'Tersimpan otomatis.', 'ok');
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }).catch(function () {
+                        input.disabled = false;
+                        input.value = '';
+                        setPersonalDocumentStatus(card, 'Upload gagal karena koneksi. Coba lagi.', 'error');
+                    });
+                };
 
                 const organizationStatusEl = document.querySelector('[data-organization-status]');
                 const organizationWrapper = document.querySelector('[data-organization-name-wrapper]');
