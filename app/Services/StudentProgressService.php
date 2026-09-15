@@ -76,16 +76,24 @@ class StudentProgressService
             'Ikut organisasi' => $profile?->organization_status,
             'Organisasi / ekskul' => $this->organizationValue($student),
             'Evaluasi diri' => $profile?->self_improvement_notes,
-            'Ijazah SMP' => $student->documents->firstWhere('document_type', 'Ijazah SMP')?->id,
-            'Akte' => $student->documents->firstWhere('document_type', 'Akte')?->id,
-            'Kartu Keluarga' => $student->documents->firstWhere('document_type', 'Kartu Keluarga')?->id,
+            'Ijazah SMP' => $this->documentId($student, ['Ijazah SMP', 'Ijazah', 'ijazah', 'ijazah_smp']),
+            'Akte' => $this->documentId($student, ['Akte', 'akte']),
+            'Kartu Keluarga' => $this->documentId($student, ['Kartu Keluarga', 'kartu_keluarga']),
         ];
     }
 
     private function requiredDocumentsFilled(Student $student): bool
     {
-        return collect(['Ijazah SMP', 'Akte', 'Kartu Keluarga'])
-            ->every(fn (string $type) => $student->documents->contains('document_type', $type));
+        return collect([
+            ['Ijazah SMP', 'Ijazah', 'ijazah', 'ijazah_smp'],
+            ['Akte', 'akte'],
+            ['Kartu Keluarga', 'kartu_keluarga'],
+        ])->every(fn (array $types) => $this->documentId($student, $types));
+    }
+
+    private function documentId(Student $student, array $types): ?int
+    {
+        return $student->documents->first(fn ($document) => in_array($document->document_type, $types, true))?->id;
     }
 
     private function organizationValue(Student $student): ?string

@@ -109,8 +109,8 @@
                     <h3 class="text-base font-bold text-slate-900">Dokumen Pribadi</h3>
                 </div>
                 <div class="grid gap-3 sm:grid-cols-3">
-                    @foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type)
-                        @php($document = $student->documents->where('document_type', $type)->last())
+                    @foreach (['Ijazah SMP' => ['Ijazah SMP', 'Ijazah', 'ijazah', 'ijazah_smp'], 'Akte' => ['Akte', 'akte'], 'Kartu Keluarga' => ['Kartu Keluarga', 'kartu_keluarga']] as $type => $aliases)
+                        @php($document = $student->documents->filter(fn ($document) => in_array($document->document_type, $aliases, true))->last())
                         <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
                             <p class="text-sm font-bold text-slate-900">{{ $type }}</p>
                             @if ($document)

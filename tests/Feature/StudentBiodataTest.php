@@ -293,6 +293,32 @@ class StudentBiodataTest extends TestCase
         $this->assertSame(0, $reportRow['certificate_count']);
     }
 
+    public function test_legacy_personal_document_types_count_as_complete(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-012', 'name' => 'Siswa Legacy Dokumen', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), $this->validBiodataPayload())
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $student->documents()->delete();
+        foreach (['ijazah_smp' => 'ijazah.pdf', 'akte' => 'akte.pdf', 'kartu_keluarga' => 'kk.pdf'] as $type => $name) {
+            $student->documents()->create(['document_type' => $type, 'file_path' => $name, 'original_name' => $name, 'mime_type' => 'application/pdf', 'file_size' => 1]);
+        }
+
+        $progress = app(StudentProgressService::class)->calculate($student->fresh('documents', 'profile', 'organizations'));
+
+        $this->assertTrue($progress['sections']['documents']);
+        $this->assertSame(100, $progress['percentage']);
+
+        $this->actingAs($user)
+            ->get(route('siswa.biodata.index'))
+            ->assertOk()
+            ->assertSee('data-progress-initial="1"', false);
+    }
+
     public function test_student_can_replace_profile_photo_and_see_the_latest_file(): void
     {
         Storage::fake('local');

@@ -2,8 +2,7 @@
     $isAdmin = $isAdmin ?? false;
     $biodataUpdateRoute = $biodataUpdateRoute ?? route('siswa.biodata.update');
     $biodataBackRoute = $biodataBackRoute ?? route('siswa.dashboard');
-    $personalDocumentLabels = ['Ijazah SMP' => 'Ijazah SMP', 'Akte' => 'Akte', 'Kartu Keluarga' => 'Kartu Keluarga'];
-    $personalDocuments = $student->documents->whereIn('document_type', array_keys($personalDocumentLabels))->groupBy('document_type');
+    $personalDocumentLabels = ['Ijazah SMP' => ['Ijazah SMP', 'Ijazah', 'ijazah', 'ijazah_smp'], 'Akte' => ['Akte', 'akte'], 'Kartu Keluarga' => ['Kartu Keluarga', 'kartu_keluarga']];
     $certificates = $student->documents->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'Kartu Keluarga', 'Ijazah SMP', 'Ijazah', 'Akte', 'dokumen_lainnya'], true));
 @endphp
 
@@ -166,8 +165,12 @@
                             <option value="proses" @selected(old('mcu_status', $profile?->mcu_status) === 'proses')>Proses</option>
                             <option value="sudah" @selected(old('mcu_status', $profile?->mcu_status) === 'sudah')>Sudah</option>
                         </x-form.select>
-                        <x-form.input name="mcu_count" label="Jumlah Medical Check-Up" icon="fa-solid fa-hashtag" type="number" min="1" max="99" :value="old('mcu_count', $profile?->mcu_count)" data-mcu-extra />
-                        <x-form.input name="mcu_last_date" label="Tanggal Medical Check-Up Terakhir" icon="fa-solid fa-calendar-check" type="date" :value="old('mcu_last_date', $profile?->mcu_last_date?->format('Y-m-d'))" data-mcu-extra />
+                        <div data-mcu-extra-wrapper>
+                            <x-form.input name="mcu_count" label="Jumlah Medical Check-Up" icon="fa-solid fa-hashtag" type="number" min="1" max="99" :value="old('mcu_count', $profile?->mcu_count)" data-mcu-extra />
+                        </div>
+                        <div data-mcu-extra-wrapper>
+                            <x-form.input name="mcu_last_date" label="Tanggal Medical Check-Up Terakhir" icon="fa-solid fa-calendar-check" type="date" :value="old('mcu_last_date', $profile?->mcu_last_date?->format('Y-m-d'))" data-mcu-extra />
+                        </div>
                     </div>
                 </section>
 
@@ -251,17 +254,17 @@
                                             @if (! $isAdmin)<button type="button" class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-xs font-bold text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-100" data-remove-repeat><i class="fa-solid fa-trash-can"></i> Hapus</button>@endif
                                         </div>
                                         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                                            <label class="space-y-1.5 text-xs font-bold text-slate-600">Jenis
-                                                <select name="achievements[{{ $index }}][type]" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option value="">Pilih jenis</option><option value="akademik" @selected(($achievement['type'] ?? null) === 'akademik')>Akademik</option><option value="non_akademik" @selected(($achievement['type'] ?? null) === 'non_akademik')>Non akademik</option></select>
+                                            <label class="space-y-1.5 text-sm font-semibold text-slate-700">Jenis
+                                                <select name="achievements[{{ $index }}][type]" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"><option value="">Pilih jenis</option><option value="akademik" @selected(($achievement['type'] ?? null) === 'akademik')>Akademik</option><option value="non_akademik" @selected(($achievement['type'] ?? null) === 'non_akademik')>Non akademik</option></select>
                                             </label>
-                                            <label class="space-y-1.5 text-xs font-bold text-slate-600 sm:col-span-2 xl:col-span-1">Nama prestasi
-                                                <input name="achievements[{{ $index }}][name]" value="{{ $achievement['name'] ?? '' }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Contoh: Juara 1 Olimpiade">
+                                            <label class="space-y-1.5 text-sm font-semibold text-slate-700 sm:col-span-2 xl:col-span-1">Nama prestasi
+                                                <input name="achievements[{{ $index }}][name]" value="{{ $achievement['name'] ?? '' }}" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10" placeholder="Contoh: Juara 1 Olimpiade">
                                             </label>
-                                            <label class="space-y-1.5 text-xs font-bold text-slate-600">Tingkat
-                                                <select name="achievements[{{ $index }}][level]" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option value="">Pilih tingkat</option>@foreach (['kab_kota'=>'Kab/Kota','provinsi'=>'Provinsi','nasional'=>'Nasional','internasional'=>'Internasional'] as $value => $label)<option value="{{ $value }}" @selected(($achievement['level'] ?? null) === $value)>{{ $label }}</option>@endforeach</select>
+                                            <label class="space-y-1.5 text-sm font-semibold text-slate-700">Tingkat
+                                                <select name="achievements[{{ $index }}][level]" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"><option value="">Pilih tingkat</option>@foreach (['kab_kota'=>'Kab/Kota','provinsi'=>'Provinsi','nasional'=>'Nasional','internasional'=>'Internasional'] as $value => $label)<option value="{{ $value }}" @selected(($achievement['level'] ?? null) === $value)>{{ $label }}</option>@endforeach</select>
                                             </label>
-                                            <label class="space-y-1.5 text-xs font-bold text-slate-600">Tahun
-                                                <input name="achievements[{{ $index }}][year]" value="{{ $achievement['year'] ?? '' }}" type="number" min="2000" max="{{ now()->year + 1 }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="{{ now()->year }}">
+                                            <label class="space-y-1.5 text-sm font-semibold text-slate-700">Tahun
+                                                <input name="achievements[{{ $index }}][year]" value="{{ $achievement['year'] ?? '' }}" type="number" min="2000" max="{{ now()->year + 1 }}" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10" placeholder="{{ now()->year }}">
                                             </label>
                                         </div>
                                         @if (! $isAdmin)
@@ -305,17 +308,17 @@
                                                 @if (! $isAdmin)<button type="button" class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-xs font-bold text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-100" data-remove-repeat><i class="fa-solid fa-trash-can"></i> Hapus</button>@endif
                                             </div>
                                             <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Nama organisasi/ekskul
-                                                    <input name="organizations[{{ $index }}][name]" value="{{ $organization['name'] ?? '' }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Contoh: OSIS" data-organization-detail>
+                                                <label class="space-y-1.5 text-sm font-semibold text-slate-700">Nama organisasi/ekskul
+                                                    <input name="organizations[{{ $index }}][name]" value="{{ $organization['name'] ?? '' }}" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10" placeholder="Contoh: OSIS" data-organization-detail>
                                                 </label>
-                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Jabatan/peran
-                                                    <input name="organizations[{{ $index }}][position]" value="{{ $organization['position'] ?? '' }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Contoh: Ketua" data-organization-detail>
+                                                <label class="space-y-1.5 text-sm font-semibold text-slate-700">Jabatan/peran
+                                                    <input name="organizations[{{ $index }}][position]" value="{{ $organization['position'] ?? '' }}" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10" placeholder="Contoh: Ketua" data-organization-detail>
                                                 </label>
-                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Tingkat
-                                                    <select name="organizations[{{ $index }}][level]" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" data-organization-detail><option value="">Pilih tingkat</option>@foreach (['sekolah'=>'Sekolah','kab_kota'=>'Kab/Kota','provinsi'=>'Provinsi','nasional'=>'Nasional','internasional'=>'Internasional'] as $value => $label)<option value="{{ $value }}" @selected(($organization['level'] ?? null) === $value)>{{ $label }}</option>@endforeach</select>
+                                                <label class="space-y-1.5 text-sm font-semibold text-slate-700">Tingkat
+                                                    <select name="organizations[{{ $index }}][level]" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10" data-organization-detail><option value="">Pilih tingkat</option>@foreach (['sekolah'=>'Sekolah','kab_kota'=>'Kab/Kota','provinsi'=>'Provinsi','nasional'=>'Nasional','internasional'=>'Internasional'] as $value => $label)<option value="{{ $value }}" @selected(($organization['level'] ?? null) === $value)>{{ $label }}</option>@endforeach</select>
                                                 </label>
-                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Tahun
-                                                    <input name="organizations[{{ $index }}][year]" value="{{ $organization['year'] ?? '' }}" type="number" min="2000" max="{{ now()->year + 1 }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="{{ now()->year }}" data-organization-detail>
+                                                <label class="space-y-1.5 text-sm font-semibold text-slate-700">Tahun
+                                                    <input name="organizations[{{ $index }}][year]" value="{{ $organization['year'] ?? '' }}" type="number" min="2000" max="{{ now()->year + 1 }}" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10" placeholder="{{ now()->year }}" data-organization-detail>
                                                 </label>
                                             </div>
                                         </div>
@@ -340,7 +343,7 @@
 
                         <div class="grid gap-3 md:grid-cols-3">
                             @foreach (['ijazah_smp' => 'Ijazah SMP', 'akte' => 'Akte', 'kartu_keluarga' => 'Kartu Keluarga'] as $type => $label)
-                                @php($document = ($personalDocuments[$label] ?? collect())->last())
+                                @php($document = $student->documents->filter(fn ($document) => in_array($document->document_type, $personalDocumentLabels[$label], true))->last())
                                 <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
@@ -350,7 +353,7 @@
                                         <i class="fa-solid {{ $document ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }} mt-1"></i>
                                     </div>
                                     @if (! $isAdmin)
-                                        <input type="file" name="{{ $type }}" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" class="mt-3 block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800" data-progress-required data-progress-section="documents">
+                                        <input type="file" name="{{ $type }}" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" data-personal-document-file data-progress-initial="{{ $document ? '1' : '' }}" class="mt-3 block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800" data-progress-required data-progress-section="documents">
                                         <p class="mt-2 text-xs text-slate-400">Dokumen ikut tersimpan saat klik Simpan Biodata.</p>
                                     @endif
                                     @if ($document)
@@ -421,12 +424,16 @@
                 });
 
                 const mcuStatus = document.querySelector('[name="mcu_status"]');
-                const mcuExtras = document.querySelectorAll('[data-mcu-extra]');
+                const mcuExtraWrappers = document.querySelectorAll('[data-mcu-extra-wrapper]');
                 const toggleMcu = function () {
-                    const required = mcuStatus?.value === 'sudah';
-                    mcuExtras.forEach(function (input) {
-                        input.closest('div')?.classList.toggle('hidden', !required);
-                        if (!required) input.value = '';
+                    const showExtras = mcuStatus?.value === 'proses' || mcuStatus?.value === 'sudah';
+                    mcuExtraWrappers.forEach(function (wrapper) {
+                        wrapper.classList.toggle('hidden', !showExtras);
+                        if (!showExtras) {
+                            wrapper.querySelectorAll('input').forEach(function (input) {
+                                input.value = '';
+                            });
+                        }
                     });
                 };
                 if (mcuStatus) {
@@ -437,6 +444,7 @@
 
                 const biodataForm = document.querySelector('[data-biodata-progress-form]');
                 const maxFileSize = 2 * 1024 * 1024;
+                const maxPersonalDocumentSize = 12 * 1024 * 1024;
                 const validateFileSize = function (input) {
                     const oversized = Array.from(input.files || []).find(function (file) {
                         return file.size > maxFileSize;
@@ -445,13 +453,25 @@
                     input.setCustomValidity(message);
                     return !oversized;
                 };
+                const validatePersonalDocumentSize = function () {
+                    const inputs = Array.from(document.querySelectorAll('[data-personal-document-file]'));
+                    const total = inputs.reduce(function (sum, input) {
+                        return sum + Array.from(input.files || []).reduce(function (fileSum, file) {
+                            return fileSum + file.size;
+                        }, 0);
+                    }, 0);
+                    const message = total > maxPersonalDocumentSize ? 'Total ukuran ijazah, akte, dan kartu keluarga maksimal 12 MB.' : '';
+                    inputs.forEach(function (input) { input.setCustomValidity(message); });
+                    return !message;
+                };
                 document.addEventListener('change', function (event) {
                     if (!event.target.matches('input[type="file"][data-max-file-size]')) return;
                     validateFileSize(event.target);
+                    if (event.target.matches('[data-personal-document-file]')) validatePersonalDocumentSize();
                     event.target.reportValidity();
                 });
                 biodataForm?.addEventListener('submit', function (event) {
-                    const valid = Array.from(biodataForm.querySelectorAll('input[type="file"][data-max-file-size]')).every(validateFileSize);
+                    const valid = Array.from(biodataForm.querySelectorAll('input[type="file"][data-max-file-size]')).every(validateFileSize) && validatePersonalDocumentSize();
                     if (!valid) {
                         event.preventDefault();
                         biodataForm.querySelector('input[type="file"]:invalid')?.reportValidity();

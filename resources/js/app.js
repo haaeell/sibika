@@ -175,6 +175,9 @@ window.initBiodataProgress = function (scope = document) {
             if ($field.is('[data-organization-name]') && $('[data-organization-status]').val() === 'tidak') {
                 return '-';
             }
+            if ($field.is(':file') && String($field.attr('data-progress-initial') || '').trim() !== '' && $field.data('progressInitialActive') !== false) {
+                return $field.attr('data-progress-initial');
+            }
             const value = $field.val();
 
             if (String(value ?? '').trim() !== '') {
