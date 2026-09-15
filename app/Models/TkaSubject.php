@@ -10,7 +10,7 @@ class TkaSubject extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name', 'is_active'];
+    protected $fillable = ['name', 'is_active'];
 
     protected function casts(): array
     {

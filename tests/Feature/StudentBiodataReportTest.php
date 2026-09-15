@@ -44,7 +44,7 @@ class StudentBiodataReportTest extends TestCase
     {
         $complete = Student::create(['nis' => 'R-001', 'name' => 'Siswa Lengkap']);
         $complete->profile()->create($this->completeProfile());
-        $tka = TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true]);
+        $tka = TkaSubject::create(['name' => 'Matematika TKA', 'is_active' => true]);
         $complete->tkaSelections()->create(['tka_subject_id' => $tka->id]);
         foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
             $complete->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
@@ -71,7 +71,7 @@ class StudentBiodataReportTest extends TestCase
     {
         $complete = Student::create(['nis' => 'R-003', 'name' => 'MCU Selesai']);
         $complete->profile()->create($this->completeProfile());
-        $complete->tkaSelections()->create(['tka_subject_id' => TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true])->id]);
+        $complete->tkaSelections()->create(['tka_subject_id' => TkaSubject::create(['name' => 'Matematika TKA', 'is_active' => true])->id]);
         foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
             $complete->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
         }

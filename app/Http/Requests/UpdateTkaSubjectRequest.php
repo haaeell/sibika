@@ -15,7 +15,6 @@ class UpdateTkaSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'max:30', Rule::unique('tka_subjects', 'code')->ignore($this->tka_subject)],
             'name' => ['required', 'string', 'max:100', Rule::unique('tka_subjects', 'name')->ignore($this->tka_subject)],
             'is_active' => ['nullable', 'boolean'],
         ];
@@ -24,8 +23,6 @@ class UpdateTkaSubjectRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'code.required' => 'Kode mapel TKA wajib diisi.',
-            'code.unique' => 'Kode mapel TKA sudah digunakan.',
             'name.required' => 'Nama mapel TKA wajib diisi.',
             'name.unique' => 'Nama mapel TKA sudah digunakan.',
         ];

@@ -24,10 +24,8 @@ class TkaSubjectController extends Controller
 
         return DataTables::eloquent(TkaSubject::query()
             ->when($activeValues, fn ($query) => $query->whereIn('is_active', array_map('intval', $activeValues)))
-            ->withCount('studentSelections')
             ->latest())
             ->addIndexColumn()
-            ->addColumn('students', fn (TkaSubject $subject) => $subject->student_selections_count)
             ->editColumn('is_active', fn (TkaSubject $subject) => $this->statusBadge($subject->is_active))
             ->addColumn('action', fn (TkaSubject $subject) => view('bk.tka-subjects._actions', ['tkaSubject' => $subject])->render())
             ->rawColumns(['is_active', 'action'])

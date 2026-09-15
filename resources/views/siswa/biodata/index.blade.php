@@ -241,7 +241,7 @@
                                         @if (! $isAdmin)<button type="button" class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-xs font-bold text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-100" data-remove-repeat><i class="fa-solid fa-trash-can"></i> Hapus</button>@endif
                                     </div>
                                     <label class="space-y-1.5 text-sm font-semibold text-slate-700">Mapel TKA
-                                        <select name="tka_subjects[]" data-tka-select class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"><option value="">Pilih mapel TKA</option>@foreach (($tkaSubjects ?? collect()) as $tkaSubject)<option value="{{ $tkaSubject->id }}" @selected((int) $selectedTkaId === (int) $tkaSubject->id)>{{ $tkaSubject->name }} ({{ $tkaSubject->code }})</option>@endforeach</select>
+                                        <select name="tka_subjects[]" data-tka-select class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"><option value="">Pilih mapel TKA</option>@foreach (($tkaSubjects ?? collect()) as $tkaSubject)<option value="{{ $tkaSubject->id }}" @selected((int) $selectedTkaId === (int) $tkaSubject->id)>{{ $tkaSubject->name }}</option>@endforeach</select>
                                     </label>
                                 </div>
                             @endforeach

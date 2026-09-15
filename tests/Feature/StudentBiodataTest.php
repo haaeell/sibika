@@ -140,7 +140,7 @@ class StudentBiodataTest extends TestCase
             'self_improvement_notes' => 'Meningkatkan disiplin',
             'mcu_status' => 'belum',
         ]);
-        $tka = TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true]);
+        $tka = TkaSubject::create(['name' => 'Matematika TKA', 'is_active' => true]);
         $student->tkaSelections()->create(['tka_subject_id' => $tka->id]);
         foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
             $student->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
@@ -348,8 +348,8 @@ class StudentBiodataTest extends TestCase
     {
         $user = $this->studentUser();
         $student = Student::create(['nis' => 'S-018', 'name' => 'Siswa TKA', 'user_id' => $user->id]);
-        $first = TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true]);
-        $second = TkaSubject::create(['code' => 'TKA-BIN', 'name' => 'Bahasa Indonesia TKA', 'is_active' => true]);
+        $first = TkaSubject::create(['name' => 'Matematika TKA', 'is_active' => true]);
+        $second = TkaSubject::create(['name' => 'Bahasa Indonesia TKA', 'is_active' => true]);
 
         $this->actingAs($user)
             ->put(route('siswa.biodata.update'), [
@@ -370,7 +370,7 @@ class StudentBiodataTest extends TestCase
     {
         $user = $this->studentUser();
         Student::create(['nis' => 'S-019', 'name' => 'Siswa TKA Ganda', 'user_id' => $user->id]);
-        $subject = TkaSubject::create(['code' => 'TKA-ENG', 'name' => 'Bahasa Inggris TKA', 'is_active' => true]);
+        $subject = TkaSubject::create(['name' => 'Bahasa Inggris TKA', 'is_active' => true]);
 
         $this->actingAs($user)
             ->put(route('siswa.biodata.update'), [
@@ -384,7 +384,7 @@ class StudentBiodataTest extends TestCase
     {
         $user = $this->studentUser();
         Student::create(['nis' => 'S-020', 'name' => 'Siswa TKA Nonaktif', 'user_id' => $user->id]);
-        $subject = TkaSubject::create(['code' => 'TKA-LAMA', 'name' => 'Mapel Lama TKA', 'is_active' => false]);
+        $subject = TkaSubject::create(['name' => 'Mapel Lama TKA', 'is_active' => false]);
 
         $this->actingAs($user)
             ->put(route('siswa.biodata.update'), [
@@ -398,8 +398,8 @@ class StudentBiodataTest extends TestCase
     {
         $user = $this->studentUser();
         $student = Student::create(['nis' => 'S-021', 'name' => 'Siswa Ganti TKA', 'user_id' => $user->id]);
-        $old = TkaSubject::create(['code' => 'TKA-OLD', 'name' => 'Mapel Lama Dipilih', 'is_active' => true]);
-        $new = TkaSubject::create(['code' => 'TKA-NEW', 'name' => 'Mapel Baru Dipilih', 'is_active' => true]);
+        $old = TkaSubject::create(['name' => 'Mapel Lama Dipilih', 'is_active' => true]);
+        $new = TkaSubject::create(['name' => 'Mapel Baru Dipilih', 'is_active' => true]);
         $student->tkaSelections()->create(['tka_subject_id' => $old->id]);
 
         $this->actingAs($user)
@@ -417,7 +417,7 @@ class StudentBiodataTest extends TestCase
     {
         $user = $this->studentUser();
         $student = Student::create(['nis' => 'S-022', 'name' => 'Siswa TKA Bertahan', 'user_id' => $user->id]);
-        $subject = TkaSubject::create(['code' => 'TKA-KEEP', 'name' => 'Mapel Bertahan', 'is_active' => true]);
+        $subject = TkaSubject::create(['name' => 'Mapel Bertahan', 'is_active' => true]);
         $student->tkaSelections()->create(['tka_subject_id' => $subject->id]);
         $payload = $this->validBiodataPayload();
         unset($payload['tka_subjects']);
@@ -465,7 +465,7 @@ class StudentBiodataTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole(Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']));
         $student = Student::create(['nis' => 'S-024', 'name' => 'Siswa BK TKA']);
-        $subject = TkaSubject::create(['code' => 'TKA-BK', 'name' => 'Mapel BK TKA', 'is_active' => true]);
+        $subject = TkaSubject::create(['name' => 'Mapel BK TKA', 'is_active' => true]);
 
         $this->actingAs($user)
             ->put(route('bk.students.biodata.update', $student), ['tka_subjects' => [$subject->id]])
@@ -640,8 +640,8 @@ class StudentBiodataTest extends TestCase
     private function validBiodataPayload(): array
     {
         $tka = TkaSubject::firstOrCreate(
-            ['code' => 'TKA-MAT'],
-            ['name' => 'Matematika TKA', 'is_active' => true]
+            ['name' => 'Matematika TKA'],
+            ['is_active' => true]
         );
 
         return [
