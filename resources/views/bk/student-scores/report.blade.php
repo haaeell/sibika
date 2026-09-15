@@ -2,7 +2,6 @@
     <x-page-header title="Laporan Nilai Siswa" description="Analisis rata-rata, ranking, ketuntasan, dan sebaran nilai seluruh siswa.">
         <x-slot:actions>
             <x-button id="score-report-export-btn" variant="secondary"><i class="fa-solid fa-file-excel"></i> Export Excel</x-button>
-            <x-button type="button" data-export-all-charts variant="secondary" title="Unduh semua grafik (PDF)"><i class="fa-solid fa-file-pdf"></i> Grafik PDF</x-button>
         </x-slot:actions>
     </x-page-header>
 
@@ -220,5 +219,4 @@
             });
         </script>
     @endpush
-    @include('bk.reports._chart-download')
 @endcomponent
