@@ -80,17 +80,15 @@ class StudentBiodataTest extends TestCase
                 ...$this->universityChoices(),
                 'university_major_choice_1' => 'Teknik Informatika',
                 ...$this->parentFields(),
-                'school_achievements' => '-',
                 'organization_status' => 'ya',
-                'organization_name' => 'OSIS',
+                'organizations' => [['name' => 'OSIS', 'position' => 'Ketua', 'level' => 'sekolah', 'year' => 2026]],
                 'self_improvement_notes' => 'Perlu tingkatkan disiplin',
                 'mcu_status' => 'belum',
                 'photo' => UploadedFile::fake()->image('foto.jpg'),
                 'ijazah_smp' => UploadedFile::fake()->create('ijazah.pdf', 200, 'application/pdf'),
                 'akte' => UploadedFile::fake()->create('akte.pdf', 200, 'application/pdf'),
                 'kartu_keluarga' => UploadedFile::fake()->create('kk.pdf', 200, 'application/pdf'),
-                'document_type' => 'Juara Test',
-                'certificates' => [UploadedFile::fake()->create('sertifikat.pdf', 200, 'application/pdf')],
+                'achievements' => [['type' => 'akademik', 'name' => 'Juara Test', 'level' => 'kab_kota', 'year' => 2026, 'certificate' => UploadedFile::fake()->create('sertifikat.pdf', 200, 'application/pdf')]],
             ])
             ->assertRedirect(route('siswa.biodata.index'));
 
@@ -98,7 +96,9 @@ class StudentBiodataTest extends TestCase
         $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'university_choice_1_id' => $this->universityChoices()['university_choice_1_id']]);
         $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'university_major_choice_1' => 'Teknik Informatika']);
         $this->assertDatabaseHas('student_documents', ['student_id' => $student->id, 'document_type' => 'Ijazah SMP', 'original_name' => 'ijazah.pdf']);
-        $this->assertDatabaseHas('student_documents', ['student_id' => $student->id, 'document_type' => 'Juara Test', 'original_name' => 'sertifikat.pdf']);
+        $this->assertDatabaseHas('student_achievements', ['student_id' => $student->id, 'name' => 'Juara Test']);
+        $this->assertDatabaseHas('student_organizations', ['student_id' => $student->id, 'name' => 'OSIS']);
+        $this->assertDatabaseHas('student_documents', ['student_id' => $student->id, 'document_type' => 'Sertifikat Prestasi', 'original_name' => 'sertifikat.pdf']);
     }
 
     public function test_progress_service_reports_empty_biodata_as_zero(): void
@@ -129,9 +129,7 @@ class StudentBiodataTest extends TestCase
             'medical_history' => '-',
             ...$this->universityChoices(),
             ...$this->parentFields(),
-            'school_achievements' => '-',
             'organization_status' => 'tidak',
-            'organization_name' => '-',
             'self_improvement_notes' => 'Meningkatkan disiplin',
             'mcu_status' => 'belum',
         ]);
@@ -142,24 +140,30 @@ class StudentBiodataTest extends TestCase
         $progress = app(StudentProgressService::class)->calculate($student->fresh());
 
         $this->assertSame(100, $progress['percentage']);
-        $this->assertSame(30, $progress['completed']);
-        $this->assertSame(30, $progress['total']);
+        $this->assertSame(29, $progress['completed']);
+        $this->assertSame(29, $progress['total']);
     }
 
-    public function test_all_biodata_fields_are_required(): void
+    public function test_student_can_save_partial_biodata(): void
     {
         $user = $this->studentUser();
-        Student::create(['nis' => 'S-007', 'name' => 'Siswa Wajib', 'user_id' => $user->id]);
+        $student = Student::create(['nis' => 'S-007', 'name' => 'Siswa Draft', 'user_id' => $user->id]);
 
         $this->actingAs($user)
-            ->put(route('siswa.biodata.update'), [])
-            ->assertSessionHasErrors([
-                'gender', 'birth_place', 'birth_date', 'phone', 'province', 'city', 'district', 'village',
-                'postal_code', 'address', 'height_cm', 'weight_kg', 'medical_history', 'university_choice_1_id',
-                'university_choice_2_id', 'university_choice_3_id', 'parent_father_name', 'parent_father_occupation',
-                'parent_mother_name', 'parent_mother_occupation', 'parent_phone', 'parent_address', 'school_achievements',
-                'organization_status', 'self_improvement_notes', 'mcu_status', 'ijazah_smp', 'akte', 'kartu_keluarga',
-            ]);
+            ->put(route('siswa.biodata.update'), [
+                'phone' => '08123456789',
+                'mcu_status' => 'sudah',
+            ])
+            ->assertRedirect(route('siswa.biodata.index'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('student_profiles', [
+            'student_id' => $student->id,
+            'phone' => '08123456789',
+            'mcu_status' => 'sudah',
+            'mcu_count' => null,
+            'mcu_last_date' => null,
+        ]);
     }
 
     public function test_university_choices_must_be_unique(): void
@@ -187,26 +191,32 @@ class StudentBiodataTest extends TestCase
                 'university_choice_2_id' => $choices['university_choice_1_id'],
                 'university_choice_3_id' => $choices['university_choice_3_id'],
                 ...$this->parentFields(),
-                'school_achievements' => '-',
                 'organization_status' => 'tidak',
-                'organization_name' => '-',
                 'self_improvement_notes' => 'Meningkatkan disiplin',
                 'mcu_status' => 'belum',
             ])
             ->assertSessionHasErrors('university_choice_1_id');
     }
 
-    public function test_mcu_done_requires_count_and_last_date(): void
+    public function test_mcu_done_can_be_saved_without_count_and_last_date(): void
     {
         $user = $this->studentUser();
-        Student::create(['nis' => 'S-012', 'name' => 'Siswa MCU', 'user_id' => $user->id]);
+        $student = Student::create(['nis' => 'S-012', 'name' => 'Siswa MCU', 'user_id' => $user->id]);
 
         $this->actingAs($user)
             ->put(route('siswa.biodata.update'), [
                 ...$this->validBiodataPayload(),
                 'mcu_status' => 'sudah',
             ])
-            ->assertSessionHasErrors(['mcu_count', 'mcu_last_date']);
+            ->assertRedirect(route('siswa.biodata.index'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('student_profiles', [
+            'student_id' => $student->id,
+            'mcu_status' => 'sudah',
+            'mcu_count' => null,
+            'mcu_last_date' => null,
+        ]);
     }
 
     public function test_government_school_choice_clears_major(): void
@@ -346,9 +356,7 @@ class StudentBiodataTest extends TestCase
                 'medical_history' => '-',
                 ...$this->universityChoices(),
                 ...$this->parentFields(),
-                'school_achievements' => '-',
                 'organization_status' => 'tidak',
-                'organization_name' => '-',
                 'self_improvement_notes' => 'Meningkatkan disiplin',
                 'mcu_status' => 'sudah',
                 'mcu_count' => 2,
@@ -409,9 +417,7 @@ class StudentBiodataTest extends TestCase
             'mcu_status' => 'belum',
             ...$this->universityChoices(),
             ...$this->parentFields(),
-            'school_achievements' => '-',
             'organization_status' => 'tidak',
-            'organization_name' => '-',
             'self_improvement_notes' => 'Meningkatkan disiplin',
             'ijazah_smp' => UploadedFile::fake()->create('ijazah.pdf', 200, 'application/pdf'),
             'akte' => UploadedFile::fake()->create('akte.pdf', 200, 'application/pdf'),

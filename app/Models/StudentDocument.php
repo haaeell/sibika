@@ -10,7 +10,7 @@ class StudentDocument extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_id', 'document_type', 'file_path', 'original_name', 'mime_type', 'file_size', 'uploaded_by'];
+    protected $fillable = ['student_id', 'achievement_id', 'document_type', 'file_path', 'original_name', 'mime_type', 'file_size', 'uploaded_by'];
 
     public function student(): BelongsTo
     {
@@ -20,5 +20,10 @@ class StudentDocument extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function achievement(): BelongsTo
+    {
+        return $this->belongsTo(StudentAchievement::class, 'achievement_id');
     }
 }

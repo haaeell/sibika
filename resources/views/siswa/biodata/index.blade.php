@@ -71,7 +71,7 @@
                         @if (! $isAdmin)
                             <div class="mt-5 w-full rounded-xl border border-dashed border-slate-300 bg-white p-3 text-left">
                                 <label for="profile-photo" class="mb-2 block text-sm font-semibold text-slate-700">Foto Profil <span class="font-normal text-slate-400">(maks. 2 MB)</span></label>
-                                <input id="profile-photo" type="file" name="photo" form="biodata-form" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800">
+                                <input id="profile-photo" type="file" name="photo" form="biodata-form" accept="image/jpeg,image/png,image/webp" data-max-file-size="2097152" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800">
                                 <p class="mt-2 text-xs text-slate-400">Foto ikut tersimpan saat klik Simpan Biodata.</p>
                             </div>
                         @endif
@@ -81,6 +81,22 @@
             <form id="biodata-form" action="{{ $biodataUpdateRoute }}" method="POST" enctype="multipart/form-data" class="space-y-0" data-biodata-progress-form>
                 @csrf
                 @method('PUT')
+
+                @if ($errors->any())
+                    <div class="mx-5 mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 sm:mx-6">
+                        <div class="flex gap-3">
+                            <i class="fa-solid fa-circle-exclamation mt-0.5 text-rose-600"></i>
+                            <div>
+                                <p class="font-bold text-rose-800">Ada data yang belum bisa disimpan.</p>
+                                <ul class="mt-2 list-disc space-y-1 pl-5">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <section class="px-5 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -97,14 +113,14 @@
                         <div class="sm:col-span-2">
                             <x-form.input name="name" label="Nama Lengkap" icon="fa-solid fa-user-graduate" :value="$student->name" readonly />
                         </div>
-                        <x-form.select name="gender" label="Jenis Kelamin" icon="fa-solid fa-venus-mars" data-progress-required data-progress-section="personal" required>
+                        <x-form.select name="gender" label="Jenis Kelamin" icon="fa-solid fa-venus-mars" data-progress-required data-progress-section="personal">
                             <option value="">Pilih jenis kelamin</option>
                             <option value="male" @selected(old('gender', $profile?->gender) === 'male')>Laki-laki</option>
                             <option value="female" @selected(old('gender', $profile?->gender) === 'female')>Perempuan</option>
                         </x-form.select>
-                        <x-form.input name="birth_place" label="Tempat Lahir" icon="fa-solid fa-location-dot" :value="old('birth_place', $profile?->birth_place)" data-progress-required data-progress-section="personal" required />
-                        <x-form.input name="birth_date" label="Tanggal Lahir" icon="fa-solid fa-cake-candles" type="date" :value="old('birth_date', $profile?->birth_date?->format('Y-m-d'))" data-progress-required data-progress-section="personal" required />
-                        <x-form.input name="phone" label="No WA Aktif" icon="fa-solid fa-phone" type="tel" inputmode="numeric" :value="old('phone', $profile?->phone)" placeholder="08xxxxxxxxxx" data-progress-required data-progress-section="personal" required />
+                        <x-form.input name="birth_place" label="Tempat Lahir" icon="fa-solid fa-location-dot" :value="old('birth_place', $profile?->birth_place)" data-progress-required data-progress-section="personal" />
+                        <x-form.input name="birth_date" label="Tanggal Lahir" icon="fa-solid fa-cake-candles" type="date" :value="old('birth_date', $profile?->birth_date?->format('Y-m-d'))" data-progress-required data-progress-section="personal" />
+                        <x-form.input name="phone" label="No WA Aktif" icon="fa-solid fa-phone" type="tel" inputmode="numeric" :value="old('phone', $profile?->phone)" placeholder="08xxxxxxxxxx" data-progress-required data-progress-section="personal" />
                     </div>
                 </section>
 
@@ -114,21 +130,21 @@
                         <div><h2 class="text-base font-bold text-slate-900">Alamat</h2><p class="text-sm leading-5 text-slate-500">Alamat domisili lengkap saat ini.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                        <x-form.select name="province" label="Provinsi" icon="fa-solid fa-map" class="select2" data-region-select="province" :data-initial="old('province', $profile?->province)" data-placeholder="Pilih provinsi" data-progress-required data-progress-section="address" required>
+                        <x-form.select name="province" label="Provinsi" icon="fa-solid fa-map" class="select2" data-region-select="province" :data-initial="old('province', $profile?->province)" data-placeholder="Pilih provinsi" data-progress-required data-progress-section="address">
                             <option value="">Memuat provinsi...</option>
                         </x-form.select>
-                        <x-form.select name="city" label="Kota / Kabupaten" icon="fa-solid fa-city" class="select2" data-region-select="city" :data-initial="old('city', $profile?->city)" data-placeholder="Pilih kabupaten/kota" data-progress-required data-progress-section="address" disabled required>
+                        <x-form.select name="city" label="Kota / Kabupaten" icon="fa-solid fa-city" class="select2" data-region-select="city" :data-initial="old('city', $profile?->city)" data-placeholder="Pilih kabupaten/kota" data-progress-required data-progress-section="address" disabled>
                             <option value="">Pilih kabupaten/kota</option>
                         </x-form.select>
-                        <x-form.select name="district" label="Kecamatan" icon="fa-solid fa-map-location-dot" class="select2" data-region-select="district" :data-initial="old('district', $profile?->district)" data-placeholder="Pilih kecamatan" data-progress-required data-progress-section="address" disabled required>
+                        <x-form.select name="district" label="Kecamatan" icon="fa-solid fa-map-location-dot" class="select2" data-region-select="district" :data-initial="old('district', $profile?->district)" data-placeholder="Pilih kecamatan" data-progress-required data-progress-section="address" disabled>
                             <option value="">Pilih kecamatan</option>
                         </x-form.select>
-                        <x-form.select name="village" label="Kelurahan / Desa" icon="fa-solid fa-house-chimney" class="select2" data-region-select="village" :data-initial="old('village', $profile?->village)" data-placeholder="Pilih kelurahan/desa" data-progress-required data-progress-section="address" disabled required>
+                        <x-form.select name="village" label="Kelurahan / Desa" icon="fa-solid fa-house-chimney" class="select2" data-region-select="village" :data-initial="old('village', $profile?->village)" data-placeholder="Pilih kelurahan/desa" data-progress-required data-progress-section="address" disabled>
                             <option value="">Pilih kelurahan/desa</option>
                         </x-form.select>
-                        <x-form.input name="postal_code" label="Kode Pos" icon="fa-solid fa-envelopes-bulk" inputmode="numeric" :value="old('postal_code', $profile?->postal_code)" placeholder="40135" data-progress-required data-progress-section="address" required />
+                        <x-form.input name="postal_code" label="Kode Pos" icon="fa-solid fa-envelopes-bulk" inputmode="numeric" :value="old('postal_code', $profile?->postal_code)" placeholder="40135" data-progress-required data-progress-section="address" />
                         <div class="sm:col-span-2">
-                            <x-form.textarea name="address" label="Alamat Rumah" icon="fa-solid fa-location-crosshairs" :value="old('address', $profile?->address)" placeholder="Jalan, RT/RW, No. Rumah, detail alamat" data-progress-required data-progress-section="address" required rows="3" />
+                            <x-form.textarea name="address" label="Alamat Rumah" icon="fa-solid fa-location-crosshairs" :value="old('address', $profile?->address)" placeholder="Jalan, RT/RW, No. Rumah, detail alamat" data-progress-required data-progress-section="address" rows="3" />
                         </div>
                     </div>
                 </section>
@@ -139,12 +155,12 @@
                         <div><h2 class="text-base font-bold text-slate-900">Data Fisik & Kesehatan</h2><p class="text-sm leading-5 text-slate-500">Tinggi, berat dan riwayat kesehatan.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-2">
-                        <x-form.input name="height_cm" label="Tinggi Badan (cm)" icon="fa-solid fa-ruler-vertical" type="number" inputmode="numeric" min="100" max="250" :value="old('height_cm', $profile?->height_cm)" placeholder="170" data-progress-required data-progress-section="physical" required />
-                        <x-form.input name="weight_kg" label="Berat Badan (kg)" icon="fa-solid fa-weight-scale" type="number" inputmode="numeric" min="20" max="200" :value="old('weight_kg', $profile?->weight_kg)" placeholder="60" data-progress-required data-progress-section="physical" required />
+                        <x-form.input name="height_cm" label="Tinggi Badan (cm)" icon="fa-solid fa-ruler-vertical" type="number" inputmode="numeric" min="100" max="250" :value="old('height_cm', $profile?->height_cm)" placeholder="170" data-progress-required data-progress-section="physical" />
+                        <x-form.input name="weight_kg" label="Berat Badan (kg)" icon="fa-solid fa-weight-scale" type="number" inputmode="numeric" min="20" max="200" :value="old('weight_kg', $profile?->weight_kg)" placeholder="60" data-progress-required data-progress-section="physical" />
                     </div>
                     <div class="mt-4 grid gap-4 grid-cols-1">
-                        <x-form.textarea name="medical_history" label="Apakah Ada Riwayat Kesehatan/Penyakit" icon="fa-solid fa-notes-medical" :value="old('medical_history', $profile?->medical_history)" placeholder="Jika ada silahkan isi dan jika tidak ada cukup tuliskan (-)" data-progress-required data-progress-section="physical" required rows="3" />
-                        <x-form.select name="mcu_status" label="Status Medical Check-Up (MCU) Mandiri" icon="fa-solid fa-file-medical" data-progress-required data-progress-section="physical" required>
+                        <x-form.textarea name="medical_history" label="Apakah Ada Riwayat Kesehatan/Penyakit" icon="fa-solid fa-notes-medical" :value="old('medical_history', $profile?->medical_history)" placeholder="Jika ada silahkan isi dan jika tidak ada cukup tuliskan (-)" data-progress-required data-progress-section="physical" rows="3" />
+                        <x-form.select name="mcu_status" label="Status Medical Check-Up (MCU) Mandiri" icon="fa-solid fa-file-medical" data-progress-required data-progress-section="physical">
                             <option value="">Pilih status MCU</option>
                             <option value="belum" @selected(old('mcu_status', $profile?->mcu_status) === 'belum')>Belum</option>
                             <option value="proses" @selected(old('mcu_status', $profile?->mcu_status) === 'proses')>Proses</option>
@@ -161,13 +177,13 @@
                         <div><h2 class="text-base font-bold text-slate-900">Biodata Orang Tua</h2><p class="text-sm leading-5 text-slate-500">Data kontak dan pekerjaan orang tua.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                        <x-form.input name="parent_father_name" label="Nama Ayah" icon="fa-solid fa-person" :value="old('parent_father_name', $profile?->parent_father_name)" data-progress-required data-progress-section="parents" required />
-                        <x-form.input name="parent_father_occupation" label="Pekerjaan Ayah" icon="fa-solid fa-briefcase" :value="old('parent_father_occupation', $profile?->parent_father_occupation)" data-progress-required data-progress-section="parents" required />
-                        <x-form.input name="parent_mother_name" label="Nama Ibu" icon="fa-solid fa-person-dress" :value="old('parent_mother_name', $profile?->parent_mother_name)" data-progress-required data-progress-section="parents" required />
-                        <x-form.input name="parent_mother_occupation" label="Pekerjaan Ibu" icon="fa-solid fa-briefcase" :value="old('parent_mother_occupation', $profile?->parent_mother_occupation)" data-progress-required data-progress-section="parents" required />
-                        <x-form.input name="parent_phone" label="Nomor Orang Tua" icon="fa-solid fa-phone" type="tel" :value="old('parent_phone', $profile?->parent_phone)" data-progress-required data-progress-section="parents" required />
+                        <x-form.input name="parent_father_name" label="Nama Ayah" icon="fa-solid fa-person" :value="old('parent_father_name', $profile?->parent_father_name)" data-progress-required data-progress-section="parents" />
+                        <x-form.input name="parent_father_occupation" label="Pekerjaan Ayah" icon="fa-solid fa-briefcase" :value="old('parent_father_occupation', $profile?->parent_father_occupation)" data-progress-required data-progress-section="parents" />
+                        <x-form.input name="parent_mother_name" label="Nama Ibu" icon="fa-solid fa-person-dress" :value="old('parent_mother_name', $profile?->parent_mother_name)" data-progress-required data-progress-section="parents" />
+                        <x-form.input name="parent_mother_occupation" label="Pekerjaan Ibu" icon="fa-solid fa-briefcase" :value="old('parent_mother_occupation', $profile?->parent_mother_occupation)" data-progress-required data-progress-section="parents" />
+                        <x-form.input name="parent_phone" label="Nomor Orang Tua" icon="fa-solid fa-phone" type="tel" :value="old('parent_phone', $profile?->parent_phone)" data-progress-required data-progress-section="parents" />
                         <div class="sm:col-span-2">
-                            <x-form.textarea name="parent_address" label="Alamat Orang Tua" icon="fa-solid fa-map-location-dot" :value="old('parent_address', $profile?->parent_address)" data-progress-required data-progress-section="parents" required rows="3" />
+                            <x-form.textarea name="parent_address" label="Alamat Orang Tua" icon="fa-solid fa-map-location-dot" :value="old('parent_address', $profile?->parent_address)" data-progress-required data-progress-section="parents" rows="3" />
                         </div>
                     </div>
                 </section>
@@ -182,7 +198,7 @@
                             @php($field = 'university_choice_'.$choice.'_id')
                             @php($majorField = 'university_major_choice_'.$choice)
                             <div class="space-y-3">
-                                <x-form.select :name="$field" :label="$label" icon="fa-solid fa-building-columns" class="select2" data-placeholder="Pilih kampus" data-progress-required data-progress-section="campus_choice" required>
+                                <x-form.select :name="$field" :label="$label" icon="fa-solid fa-building-columns" class="select2" data-placeholder="Pilih kampus" data-progress-required data-progress-section="campus_choice">
                                     <option value="">Pilih kampus</option>
                                     @foreach (['negeri' => 'Perguruan Tinggi Negeri', 'swasta' => 'Perguruan Tinggi Swasta', 'kedinasan' => 'Perguruan Tinggi Kedinasan', 'lainnya' => 'Lainnya'] as $type => $typeLabel)
                                         @if (($universities[$type] ?? collect())->isNotEmpty())
@@ -208,19 +224,106 @@
                         <div><h2 class="text-base font-bold text-slate-900">Aktivitas & Evaluasi Diri</h2><p class="text-sm leading-5 text-slate-500">Prestasi, organisasi dan pengembangan diri.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1">
-                        <x-form.textarea name="school_achievements" label="Apakah kamu memiliki prestasi selama sekolah di SMA Plus Astha Hannas?" icon="fa-solid fa-trophy" :value="old('school_achievements', $profile?->school_achievements)" placeholder="Tuliskan prestasi atau (-) jika tidak ada" data-progress-required data-progress-section="school_activity" required rows="3" />
-                        <div class="rounded-xl border border-slate-200 p-4" data-organization-group>
-                            <x-form.select name="organization_status" label="Apakah kamu mengikuti organisasi di SMA Plus Astha Hannas?" icon="fa-solid fa-people-group" data-progress-required data-progress-section="school_activity" data-organization-status required>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                <div class="flex gap-3">
+                                    <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-medal"></i></span>
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h3 class="text-sm font-bold text-slate-900">Prestasi Akademik atau Non Akademik</h3>
+                                            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Opsional</span>
+                                        </div>
+                                        <p class="mt-1 text-xs leading-5 text-slate-500">Isi satu baris untuk setiap prestasi. Sertifikat PDF, JPG, atau PNG maksimal 2MB.</p>
+                                    </div>
+                                </div>
+                                @if (! $isAdmin)
+                                    <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-achievement><i class="fa-solid fa-plus"></i> Tambah Prestasi</button>
+                                @endif
+                            </div>
+                            <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2.5 text-xs leading-5 text-blue-900">
+                                <span class="font-bold">Tips:</span> Contoh nama prestasi: Juara 1 Olimpiade Matematika, Finalis Lomba Desain Poster, atau Peserta LKS.
+                            </div>
+                            <div class="mt-4 space-y-3" data-achievement-list>
+                                @foreach (old('achievements', $student->achievements->map(fn ($item) => $item->only(['type', 'name', 'level', 'year']))->all() ?: [[]]) as $index => $achievement)
+                                    <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4" data-repeat-item>
+                                        <div class="mb-3 flex items-center justify-between gap-3">
+                                            <p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500"><span class="flex size-6 items-center justify-center rounded-full bg-white text-blue-900 ring-1 ring-slate-200" data-repeat-counter>{{ $loop->iteration }}</span> Data prestasi</p>
+                                            @if (! $isAdmin)<button type="button" class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-xs font-bold text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-100" data-remove-repeat><i class="fa-solid fa-trash-can"></i> Hapus</button>@endif
+                                        </div>
+                                        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                                            <label class="space-y-1.5 text-xs font-bold text-slate-600">Jenis
+                                                <select name="achievements[{{ $index }}][type]" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option value="">Pilih jenis</option><option value="akademik" @selected(($achievement['type'] ?? null) === 'akademik')>Akademik</option><option value="non_akademik" @selected(($achievement['type'] ?? null) === 'non_akademik')>Non akademik</option></select>
+                                            </label>
+                                            <label class="space-y-1.5 text-xs font-bold text-slate-600 sm:col-span-2 xl:col-span-1">Nama prestasi
+                                                <input name="achievements[{{ $index }}][name]" value="{{ $achievement['name'] ?? '' }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Contoh: Juara 1 Olimpiade">
+                                            </label>
+                                            <label class="space-y-1.5 text-xs font-bold text-slate-600">Tingkat
+                                                <select name="achievements[{{ $index }}][level]" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option value="">Pilih tingkat</option>@foreach (['kab_kota'=>'Kab/Kota','provinsi'=>'Provinsi','nasional'=>'Nasional','internasional'=>'Internasional'] as $value => $label)<option value="{{ $value }}" @selected(($achievement['level'] ?? null) === $value)>{{ $label }}</option>@endforeach</select>
+                                            </label>
+                                            <label class="space-y-1.5 text-xs font-bold text-slate-600">Tahun
+                                                <input name="achievements[{{ $index }}][year]" value="{{ $achievement['year'] ?? '' }}" type="number" min="2000" max="{{ now()->year + 1 }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="{{ now()->year }}">
+                                            </label>
+                                        </div>
+                                        @if (! $isAdmin)
+                                            <label class="mt-3 block rounded-xl border border-dashed border-slate-300 bg-white p-3 text-xs font-semibold text-slate-600">
+                                                <span class="mb-2 flex items-center gap-2"><i class="fa-solid fa-paperclip text-slate-400"></i> Sertifikat pendukung <span class="font-medium text-slate-400">(opsional, max 2MB)</span></span>
+                                                <input name="achievements[{{ $index }}][certificate]" type="file" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800">
+                                            </label>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-organization-group>
+                            <div class="mb-4 flex gap-3">
+                                <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700"><i class="fa-solid fa-people-group"></i></span>
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-900">Organisasi dan Ekskul di Sekolah</h3>
+                                    <p class="mt-1 text-xs leading-5 text-slate-500">Pilih status terlebih dahulu. Jika memilih Ya, lengkapi minimal satu organisasi atau ekskul.</p>
+                                </div>
+                            </div>
+                            <x-form.select name="organization_status" label="Apakah kamu mengikuti organisasi atau ekskul di sekolah?" icon="fa-solid fa-circle-question" data-progress-required data-progress-section="school_activity" data-organization-status>
                                 <option value="">Pilih jawaban</option>
                                 <option value="tidak" @selected(old('organization_status', $profile?->organization_status) === 'tidak')>Tidak</option>
                                 <option value="ya" @selected(old('organization_status', $profile?->organization_status) === 'ya')>Ya</option>
                             </x-form.select>
                             <div class="mt-4" data-organization-name-wrapper>
-                                <x-form.input name="organization_name" label="Jika ya, sebutkan nama organisasinya apa" icon="fa-solid fa-users" :value="old('organization_name', $profile?->organization_name)" placeholder="Contoh: Paskibra, OSIS, Pramuka" data-progress-required data-progress-section="school_activity" data-organization-name />
-                                <p class="mt-1.5 text-xs text-slate-500">Wajib diisi jika memilih Ya.</p>
+                                <div class="flex flex-col gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-xs font-bold uppercase tracking-wide text-emerald-700">Detail kegiatan</p>
+                                        <p class="mt-1 text-xs leading-5 text-emerald-900">Tuliskan nama organisasi/ekskul, peran, tingkat, dan tahun aktif.</p>
+                                    </div>
+                                    @if (! $isAdmin)
+                                        <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-organization><i class="fa-solid fa-plus"></i> Tambah</button>
+                                    @endif
+                                </div>
+                                <div class="mt-3 space-y-3" data-organization-list>
+                                    @foreach (old('organizations', $student->organizations->map(fn ($item) => $item->only(['name', 'position', 'level', 'year']))->all() ?: [[]]) as $index => $organization)
+                                        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4" data-repeat-item>
+                                            <div class="mb-3 flex items-center justify-between gap-3">
+                                                <p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500"><span class="flex size-6 items-center justify-center rounded-full bg-white text-blue-900 ring-1 ring-slate-200" data-repeat-counter>{{ $loop->iteration }}</span> Data organisasi</p>
+                                                @if (! $isAdmin)<button type="button" class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-xs font-bold text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-100" data-remove-repeat><i class="fa-solid fa-trash-can"></i> Hapus</button>@endif
+                                            </div>
+                                            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Nama organisasi/ekskul
+                                                    <input name="organizations[{{ $index }}][name]" value="{{ $organization['name'] ?? '' }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Contoh: OSIS" data-organization-detail>
+                                                </label>
+                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Jabatan/peran
+                                                    <input name="organizations[{{ $index }}][position]" value="{{ $organization['position'] ?? '' }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Contoh: Ketua" data-organization-detail>
+                                                </label>
+                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Tingkat
+                                                    <select name="organizations[{{ $index }}][level]" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" data-organization-detail><option value="">Pilih tingkat</option>@foreach (['sekolah'=>'Sekolah','kab_kota'=>'Kab/Kota','provinsi'=>'Provinsi','nasional'=>'Nasional','internasional'=>'Internasional'] as $value => $label)<option value="{{ $value }}" @selected(($organization['level'] ?? null) === $value)>{{ $label }}</option>@endforeach</select>
+                                                </label>
+                                                <label class="space-y-1.5 text-xs font-bold text-slate-600">Tahun
+                                                    <input name="organizations[{{ $index }}][year]" value="{{ $organization['year'] ?? '' }}" type="number" min="2000" max="{{ now()->year + 1 }}" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="{{ now()->year }}" data-organization-detail>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                        <x-form.textarea name="self_improvement_notes" label="Hal yang Perlu Ditingkatkan (Evaluasi Diri)" icon="fa-solid fa-chart-line" :value="old('self_improvement_notes', $profile?->self_improvement_notes)" placeholder="Tuliskan hal yang ingin kamu tingkatkan" data-progress-required data-progress-section="school_activity" required rows="3" />
+                        <x-form.textarea name="self_improvement_notes" label="Hal yang Perlu Ditingkatkan (Evaluasi Diri)" icon="fa-solid fa-chart-line" :value="old('self_improvement_notes', $profile?->self_improvement_notes)" placeholder="Tuliskan hal yang ingin kamu tingkatkan" data-progress-required data-progress-section="school_activity" rows="3" />
                     </div>
 
                     <div class="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -231,7 +334,7 @@
                                     <h3 class="text-sm font-bold text-slate-900">Dokumen Pribadi</h3>
                                     <span class="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600">Opsional</span>
                                 </div>
-                                <p class="text-xs leading-4 text-slate-500">Upload ijazah, akte, dan kartu keluarga. PDF/JPG/PNG max 5MB.</p>
+                                <p class="text-xs leading-4 text-slate-500">Upload ijazah, akte, dan kartu keluarga. PDF/JPG/PNG maksimal 2MB per file.</p>
                             </div>
                         </div>
 
@@ -247,7 +350,7 @@
                                         <i class="fa-solid {{ $document ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }} mt-1"></i>
                                     </div>
                                     @if (! $isAdmin)
-                                        <input type="file" name="{{ $type }}" accept="application/pdf,image/jpeg,image/png" class="mt-3 block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800" {{ $document ? '' : 'required' }} data-progress-required data-progress-section="documents">
+                                        <input type="file" name="{{ $type }}" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" class="mt-3 block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800" data-progress-required data-progress-section="documents">
                                         <p class="mt-2 text-xs text-slate-400">Dokumen ikut tersimpan saat klik Simpan Biodata.</p>
                                     @endif
                                     @if ($document)
@@ -262,41 +365,19 @@
                     </div>
 
                     <div class="mt-8 rounded-2xl border border-dashed border-amber-200 bg-amber-50/40 p-4 sm:p-5">
-                        <div class="mb-4 flex items-center gap-3">
-                            <span class="flex size-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-file-arrow-up"></i></span>
-                            <div>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <h3 class="text-sm font-bold text-slate-900">Sertifikat Prestasi</h3>
-                                    <span class="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600">Opsional</span>
-                                </div>
-                                <p class="text-xs leading-4 text-slate-500">Upload hanya jika kamu memiliki sertifikat. Bisa pilih beberapa file sekaligus.</p>
-                            </div>
-                        </div>
-
-                        @if (! $isAdmin)
-                        <div class="space-y-3">
-                            <x-form.input name="document_type" label="Nama/Jenis Sertifikat" icon="fa-solid fa-award" placeholder="Contoh: Juara 1 OSN Kabupaten 2024" maxlength="100" form="certificate-upload-form" />
-                            <div class="rounded-2xl border-2 border-dashed border-amber-300 bg-white p-5 text-center">
-                                <i class="fa-solid fa-files text-2xl text-amber-600"></i>
-                                <label class="mt-2 block text-sm font-extrabold text-slate-800">Pilih satu atau lebih file sertifikat</label>
-                                <p class="mt-1 text-xs font-semibold text-slate-500">Tahan Ctrl/Command atau Shift untuk memilih banyak file. PDF, JPG, PNG max 5 MB per file.</p>
-                                <input type="file" name="certificates[]" accept="application/pdf,image/jpeg,image/png" class="mt-4 block w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-800" multiple>
-                            </div>
-                            <p class="text-xs text-slate-500">Sertifikat ikut tersimpan saat klik Simpan Biodata.</p>
-                        </div>
-                        @endif
-
-                        <div class="mt-5 space-y-2 border-t border-slate-200 pt-4">
-                            <p class="text-xs font-bold uppercase tracking-wide text-slate-400">Daftar Sertifikat</p>
-                            @forelse ($certificates as $document)
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-400">Daftar Sertifikat Prestasi</p>
+                        <div class="mt-3 space-y-2">
+                            @forelse ($student->achievements as $achievement)
+                                @foreach ($achievement->documents as $document)
                                 <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3">
                                     <div class="min-w-0 flex-1">
-                                        <p class="truncate text-sm font-bold leading-4 text-slate-800">{{ $document->document_type }}</p>
+                                        <p class="truncate text-sm font-bold leading-4 text-slate-800">{{ $achievement->name }}</p>
                                         <a href="{{ $isAdmin ? route('bk.students.biodata.documents.download', [$student, $document]) : route('siswa.biodata.documents.download', $document) }}" class="mt-0.5 block truncate text-xs font-medium text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>
                                         <p class="text-xs text-slate-400">{{ number_format($document->file_size/1024, 0) }} KB · {{ $document->created_at->format('d M Y') }}</p>
                                     </div>
                                     <button type="submit" form="certificate-delete-{{ $document->id }}" class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100" aria-label="Hapus sertifikat {{ $document->document_type }}"><i class="fa-solid fa-trash text-sm"></i></button>
                                 </div>
+                                @endforeach
                             @empty
                                 <div class="rounded-xl border border-dashed border-slate-200 bg-white p-6 text-center">
                                     <div class="mx-auto flex size-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400"><i class="fa-solid fa-file-circle-xmark"></i></div>
@@ -344,7 +425,6 @@
                 const toggleMcu = function () {
                     const required = mcuStatus?.value === 'sudah';
                     mcuExtras.forEach(function (input) {
-                        input.required = required;
                         input.closest('div')?.classList.toggle('hidden', !required);
                         if (!required) input.value = '';
                     });
@@ -355,26 +435,71 @@
                     toggleMcu();
                 }
 
+                const biodataForm = document.querySelector('[data-biodata-progress-form]');
+                const maxFileSize = 2 * 1024 * 1024;
+                const validateFileSize = function (input) {
+                    const oversized = Array.from(input.files || []).find(function (file) {
+                        return file.size > maxFileSize;
+                    });
+                    const message = oversized ? 'Ukuran file "' + oversized.name + '" melebihi 2 MB.' : '';
+                    input.setCustomValidity(message);
+                    return !oversized;
+                };
+                document.addEventListener('change', function (event) {
+                    if (!event.target.matches('input[type="file"][data-max-file-size]')) return;
+                    validateFileSize(event.target);
+                    event.target.reportValidity();
+                });
+                biodataForm?.addEventListener('submit', function (event) {
+                    const valid = Array.from(biodataForm.querySelectorAll('input[type="file"][data-max-file-size]')).every(validateFileSize);
+                    if (!valid) {
+                        event.preventDefault();
+                        biodataForm.querySelector('input[type="file"]:invalid')?.reportValidity();
+                    }
+                });
+
                 const statusEl = document.querySelector('[data-organization-status]');
                 const nameWrapper = document.querySelector('[data-organization-name-wrapper]');
-                const nameEl = document.querySelector('[data-organization-name]');
-                if (!statusEl || !nameWrapper || !nameEl) return;
+                if (!statusEl || !nameWrapper) return;
                 const toggle = function () {
                     const isYa = statusEl.value === 'ya';
                     nameWrapper.classList.toggle('hidden', !isYa);
-                    nameEl.required = isYa;
-                    if (isYa) {
-                        if (nameEl.value === '-') nameEl.value = '';
-                        nameEl.removeAttribute('readonly');
-                    } else {
-                        nameEl.value = '-';
-                        nameEl.setAttribute('readonly', 'readonly');
-                    }
-                    nameEl.dispatchEvent(new Event('change', { bubbles: true }));
-                    if (window.$) window.$('[data-organization-status]').trigger('change');
+                    document.querySelectorAll('[data-organization-detail]').forEach(function (input) { if (!isYa) input.value = ''; });
+                };
+                const refreshRepeatCounters = function (list) {
+                    list.querySelectorAll('[data-repeat-item]').forEach(function (item, index) {
+                        const counter = item.querySelector('[data-repeat-counter]');
+                        if (counter) counter.textContent = index + 1;
+                    });
                 };
                 statusEl.addEventListener('change', toggle);
                 toggle();
+
+                const cloneItem = function (list) {
+                    const item = list.querySelector('[data-repeat-item]');
+                    if (!item) return;
+                    const clone = item.cloneNode(true);
+                    const index = list.querySelectorAll('[data-repeat-item]').length;
+                    clone.querySelectorAll('input, select').forEach(function (input) {
+                        input.name = input.name.replace(/\[\d+\]/, '[' + index + ']');
+                        input.value = '';
+                        input.required = false;
+                    });
+                    list.appendChild(clone);
+                    refreshRepeatCounters(list);
+                };
+                document.querySelector('[data-add-achievement]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-achievement-list]')); });
+                document.querySelector('[data-add-organization]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-organization-list]')); toggle(); });
+                document.addEventListener('click', function (event) {
+                    const removeButton = event.target.closest('[data-remove-repeat]');
+                    if (!removeButton) return;
+                    const item = removeButton.closest('[data-repeat-item]');
+                    const list = item?.parentElement;
+                    if (list && list.querySelectorAll('[data-repeat-item]').length > 1) {
+                        item.remove();
+                        refreshRepeatCounters(list);
+                    }
+                });
             });
         </script>
     @endpush

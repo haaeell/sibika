@@ -16,7 +16,7 @@ class StudentProfile extends Model
         'height_cm', 'weight_kg', 'medical_history',
         'university_choice_1_id', 'university_major_choice_1', 'university_choice_2_id', 'university_major_choice_2', 'university_choice_3_id', 'university_major_choice_3',
         'parent_father_name', 'parent_father_occupation', 'parent_mother_name', 'parent_mother_occupation', 'parent_phone', 'parent_address',
-        'school_achievements', 'organization_status', 'organization_name',
+        'organization_status',
         'self_improvement_notes', 'mcu_status', 'mcu_count', 'mcu_last_date',
     ];
 

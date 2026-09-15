@@ -80,8 +80,10 @@
             ['id' => 'mcu-chart', 'title' => 'Status MCU Mandiri', 'description' => 'Status pelaksanaan medical check-up siswa.'],
             ['id' => 'health-chart', 'title' => 'Riwayat Kesehatan', 'description' => 'Siswa yang memerlukan perhatian berdasarkan isian kesehatan.'],
             ['id' => 'achievement-chart', 'title' => 'Prestasi Sekolah', 'description' => 'Perbandingan siswa yang memiliki dan tidak memiliki prestasi.'],
+            ['id' => 'achievement-type-chart', 'title' => 'Jenis Prestasi', 'description' => 'Akademik dan non akademik.'],
+            ['id' => 'achievement-level-chart', 'title' => 'Tingkat Prestasi', 'description' => 'Kab/kota, provinsi, nasional, internasional.'],
             ['id' => 'organization-chart', 'title' => 'Keikutsertaan Organisasi', 'description' => 'Jawaban Ya / Tidak mengikuti organisasi.'],
-            ['id' => 'organization-names-chart', 'title' => 'Nama Organisasi Terpopuler', 'description' => 'Delapan organisasi yang paling banyak diikuti.'],
+            ['id' => 'organization-level-chart', 'title' => 'Tingkat Organisasi/Ekskul', 'description' => 'Tingkat organisasi atau ekskul siswa.'],
             ['id' => 'height-chart', 'title' => 'Distribusi Tinggi Badan', 'description' => 'Pengelompokan tinggi badan siswa.'],
             ['id' => 'weight-chart', 'title' => 'Distribusi Berat Badan', 'description' => 'Pengelompokan berat badan siswa.'],
         ] as $chart)
@@ -231,8 +233,10 @@
                 renderChart('mcu-chart', charts.mcu);
                 renderChart('health-chart', charts.health);
                 renderChart('achievement-chart', charts.achievement);
+                renderChart('achievement-type-chart', charts.achievement_type, 'bar');
+                renderChart('achievement-level-chart', charts.achievement_level, 'bar');
                 renderChart('organization-chart', charts.organization);
-                renderChart('organization-names-chart', charts.organization_names, 'bar', { horizontal: true });
+                renderChart('organization-level-chart', charts.organization_level, 'bar');
                 renderChart('height-chart', charts.height, 'bar');
                 renderChart('weight-chart', charts.weight, 'bar');
                 renderChart('province-chart', charts.province, 'bar', { horizontal: true });

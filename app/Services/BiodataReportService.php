@@ -12,7 +12,7 @@ class BiodataReportService
     public function generate(array $filters): array
     {
         $students = Student::query()
-            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'schoolClass', 'cohort', 'documents'])
+            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'schoolClass', 'cohort', 'documents', 'achievements.documents', 'organizations'])
             ->when($filters['class_id'] ?? null, fn ($query, $value) => $query->where('class_id', $value))
             ->when($filters['cohort_id'] ?? null, fn ($query, $value) => $query->where('cohort_id', $value))
             ->when($filters['status'] ?? null, fn ($query, $value) => $query->where('status', $value))
@@ -76,13 +76,15 @@ class BiodataReportService
                 $students->filter(fn (Student $student) => blank($student->profile?->mcu_status))->count(),
             ]),
             'health' => $this->chart(['Ada riwayat', 'Tidak ada / -'], [$withMedicalHistory, $total - $withMedicalHistory]),
-            'achievement' => $this->presenceChart($students, 'school_achievements'),
+            'achievement' => $this->chart(['Ada', 'Tidak ada'], [$students->filter(fn (Student $student) => $student->achievements->isNotEmpty())->count(), $students->filter(fn (Student $student) => $student->achievements->isEmpty())->count()]),
+            'achievement_type' => $this->topRelatedValues($students, 'achievements', 'type'),
+            'achievement_level' => $this->topRelatedValues($students, 'achievements', 'level'),
             'organization' => $this->chart(['Ya', 'Tidak', 'Belum diisi'], [
                 $students->where('profile.organization_status', 'ya')->count(),
                 $students->where('profile.organization_status', 'tidak')->count(),
                 $students->filter(fn (Student $student) => blank($student->profile?->organization_status))->count(),
             ]),
-            'organization_names' => $this->topTextValues($students, 'organization_name'),
+            'organization_level' => $this->topRelatedValues($students, 'organizations', 'level'),
             'province' => $this->chart($provinces->keys()->all(), $provinces->values()->all()),
             'city' => $this->chart($cities->keys()->all(), $cities->values()->all()),
             'campus_choice_1' => $this->chart($campusChoice1->keys()->all(), $campusChoice1->values()->all()),
@@ -163,6 +165,18 @@ class BiodataReportService
             ->sortByDesc('count')
             ->take(8)
             ->values();
+    }
+
+    private function topRelatedValues(Collection $students, string $relation, string $field): array
+    {
+        $values = $students->flatMap(fn (Student $student) => $student->{$relation}->pluck($field))
+            ->filter()
+            ->map(fn (string $value) => str_replace('_', ' ', $value))
+            ->countBy()
+            ->sortDesc()
+            ->take(8);
+
+        return $this->chart($values->keys()->all(), $values->values()->all());
     }
 
     private function presenceChart(Collection $students, string $field): array

@@ -44,6 +44,16 @@ class Student extends Model
         return $this->hasMany(StudentDocument::class);
     }
 
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(StudentAchievement::class);
+    }
+
+    public function organizations(): HasMany
+    {
+        return $this->hasMany(StudentOrganization::class);
+    }
+
     public function scores(): HasMany
     {
         return $this->hasMany(StudentScore::class);

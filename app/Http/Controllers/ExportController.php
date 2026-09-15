@@ -166,12 +166,12 @@ class ExportController extends Controller
             'Tinggi Badan (cm)', 'Berat Badan (kg)', 'Riwayat Kesehatan/Penyakit', 'Status MCU Mandiri',
             'Jumlah MCU', 'Tanggal MCU Terakhir', 'Nama Ayah', 'Pekerjaan Ayah', 'Nama Ibu', 'Pekerjaan Ibu', 'Nomor Orang Tua', 'Alamat Orang Tua',
             'Pilihan 1 (Kampus)', 'Jurusan Pilihan 1', 'Pilihan 2 (Kampus)', 'Jurusan Pilihan 2', 'Pilihan 3 (Kampus)', 'Jurusan Pilihan 3',
-            'Prestasi SMA Plus Astha Hannas', 'Mengikuti Organisasi', 'Nama Organisasi', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
+            'Prestasi Akademik/Non Akademik', 'Organisasi/Ekskul', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
             'Progress Biodata', 'Ijazah SMP', 'Akte', 'Kartu Keluarga', 'Sertifikat Prestasi',
         ];
 
         $rows = Student::query()
-            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'documents'])
+            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'documents', 'achievements.documents', 'organizations'])
             ->orderBy('name')
             ->get()
             ->map(function (Student $student): array {
@@ -213,15 +213,14 @@ class ExportController extends Controller
                     $profile?->university_major_choice_2 ?? '-',
                     $profile?->universityChoice3?->name ?? '-',
                     $profile?->university_major_choice_3 ?? '-',
-                    $profile?->school_achievements ?? '-',
-                    $profile?->organization_status ? ucfirst($profile->organization_status) : '-',
-                    $profile?->organization_status === 'ya' ? ($profile?->organization_name ?? '-') : '-',
+                    $student->achievements->map(fn ($a) => ucfirst(str_replace('_', ' ', $a->type)).' - '.$a->name.' - '.strtoupper(str_replace('_', '/', $a->level)).' - '.$a->year)->join('; ') ?: 'Tidak ada',
+                    $student->organizations->map(fn ($o) => $o->name.' - '.$o->position.' - '.strtoupper(str_replace('_', '/', $o->level)).' - '.$o->year)->join('; ') ?: ($profile?->organization_status === 'tidak' ? 'Tidak ada' : '-'),
                     $profile?->self_improvement_notes ?? '-',
                     $this->progressService->calculate($student)['percentage'].'%',
                     $student->documents->firstWhere('document_type', 'Ijazah SMP')?->original_name ?? '-',
                     $student->documents->firstWhere('document_type', 'Akte')?->original_name ?? '-',
                     $student->documents->firstWhere('document_type', 'Kartu Keluarga')?->original_name ?? '-',
-                    $student->documents->reject(fn ($d) => in_array($d->document_type, ['kip', 'kartu_keluarga', 'Kartu Keluarga', 'Ijazah SMP', 'Ijazah', 'Akte', 'dokumen_lainnya'], true))->map(fn ($d) => $d->document_type.': '.$d->original_name)->join('; ') ?: '-',
+                    $student->achievements->flatMap->documents->map(fn ($d) => $d->original_name)->join('; ') ?: '-',
                 ];
             });
 

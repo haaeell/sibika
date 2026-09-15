@@ -49,7 +49,7 @@ class StudentBiodataAdminController extends Controller
 
     public function show(Student $student): View
     {
-        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'schoolClass.academicYear', 'cohort']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'schoolClass.academicYear', 'cohort']);
 
         return view('bk.students.biodata', [
             'student' => $student,
@@ -61,7 +61,7 @@ class StudentBiodataAdminController extends Controller
 
     public function edit(Student $student): View
     {
-        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'schoolClass.academicYear', 'cohort', 'user']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'schoolClass.academicYear', 'cohort', 'user']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
@@ -78,7 +78,7 @@ class StudentBiodataAdminController extends Controller
     public function update(UpdateOwnBiodataRequest $request, Student $student): RedirectResponse
     {
         $data = $request->validated();
-        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['document_type'], $data['certificates']);
+        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['achievements'], $data['organizations']);
         app(StudentBiodataController::class)->clearMajorsForGovernmentSchools($data);
 
         $student->profile()->updateOrCreate([], $data);

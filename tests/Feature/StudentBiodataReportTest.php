@@ -55,7 +55,7 @@ class StudentBiodataReportTest extends TestCase
         $this->assertSame(1, $report['summary']['complete']);
         $this->assertSame(1, $report['summary']['incomplete']);
         $this->assertSame(54, $report['summary']['average_progress']);
-        $this->assertSame(28, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
+        $this->assertSame(27, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
         $this->assertSame(['Jawa Barat'], $report['charts']['province']['labels']);
         $this->assertSame([1], $report['charts']['province']['values']);
         $this->assertSame(['Bandung'], $report['charts']['city']['labels']);
@@ -133,9 +133,7 @@ class StudentBiodataReportTest extends TestCase
             'parent_mother_occupation' => 'Guru',
             'parent_phone' => '081111111111',
             'parent_address' => 'Alamat orang tua',
-            'school_achievements' => '-',
-            'organization_status' => 'ya',
-            'organization_name' => 'OSIS',
+            'organization_status' => 'tidak',
             'self_improvement_notes' => 'Meningkatkan disiplin',
             'mcu_status' => 'sudah',
         ];

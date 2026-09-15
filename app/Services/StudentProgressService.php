@@ -8,7 +8,7 @@ class StudentProgressService
 {
     public function calculate(Student $student): array
     {
-        $student->loadMissing(['profile', 'documents']);
+        $student->loadMissing(['profile', 'documents', 'organizations']);
         $profile = $student->profile;
 
         $requiredFields = $this->requiredFields($student);
@@ -32,7 +32,7 @@ class StudentProgressService
                 $profile?->university_choice_1_id, $profile?->university_choice_2_id, $profile?->university_choice_3_id,
             ]),
             'school_activity' => $this->filled([
-                $profile?->school_achievements, $profile?->organization_status, $this->organizationNameValue($profile), $profile?->self_improvement_notes,
+                $profile?->organization_status, $this->organizationValue($student), $profile?->self_improvement_notes,
             ]),
             'documents' => $this->requiredDocumentsFilled($student),
         ];
@@ -73,9 +73,8 @@ class StudentProgressService
             'Pilihan kampus 1' => $profile?->university_choice_1_id,
             'Pilihan kampus 2' => $profile?->university_choice_2_id,
             'Pilihan kampus 3' => $profile?->university_choice_3_id,
-            'Prestasi sekolah' => $profile?->school_achievements,
             'Ikut organisasi' => $profile?->organization_status,
-            'Nama organisasi' => $this->organizationNameValue($profile),
+            'Organisasi / ekskul' => $this->organizationValue($student),
             'Evaluasi diri' => $profile?->self_improvement_notes,
             'Ijazah SMP' => $student->documents->firstWhere('document_type', 'Ijazah SMP')?->id,
             'Akte' => $student->documents->firstWhere('document_type', 'Akte')?->id,
@@ -89,13 +88,13 @@ class StudentProgressService
             ->every(fn (string $type) => $student->documents->contains('document_type', $type));
     }
 
-    private function organizationNameValue($profile): ?string
+    private function organizationValue(Student $student): ?string
     {
-        if ($profile?->organization_status === 'tidak') {
+        if ($student->profile?->organization_status === 'tidak') {
             return '-';
         }
 
-        return $profile?->organization_name;
+        return $student->organizations->isNotEmpty() ? 'ada' : null;
     }
 
     private function filled(array $values): bool

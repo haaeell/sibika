@@ -79,9 +79,7 @@
                         'Jurusan Pilihan 3' => $profile?->university_major_choice_3,
                     ],
                     'Aktivitas & Evaluasi Diri' => [
-                        'Prestasi di SMA Plus Astha Hannas' => $profile?->school_achievements,
                         'Mengikuti Organisasi' => $profile?->organization_status ? ucfirst($profile->organization_status) : null,
-                        'Nama Organisasi' => $profile?->organization_status === 'ya' ? ($profile?->organization_name ?? '-') : '-',
                         'Hal yang Perlu Ditingkatkan' => $profile?->self_improvement_notes,
                     ],
                 ];
@@ -122,6 +120,28 @@
                             @endif
                         </div>
                     @endforeach
+                </div>
+            </section>
+
+            <section class="border-b border-slate-100 py-6 last:border-b-0">
+                <div class="mb-4 flex items-center gap-3"><span class="flex size-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-trophy text-sm"></i></span><h3 class="text-base font-bold text-slate-900">Prestasi Akademik atau Non Akademik</h3></div>
+                <div class="space-y-2">
+                    @forelse ($student->achievements as $achievement)
+                        <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3 text-sm font-semibold text-slate-700">{{ ucfirst(str_replace('_', ' ', $achievement->type)) }} - {{ $achievement->name }} - {{ strtoupper(str_replace('_', '/', $achievement->level)) }} - {{ $achievement->year }}</div>
+                    @empty
+                        <p class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-400">Tidak ada prestasi.</p>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="border-b border-slate-100 py-6 last:border-b-0">
+                <div class="mb-4 flex items-center gap-3"><span class="flex size-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i class="fa-solid fa-people-group text-sm"></i></span><h3 class="text-base font-bold text-slate-900">Organisasi dan Ekskul di Sekolah</h3></div>
+                <div class="space-y-2">
+                    @forelse ($student->organizations as $organization)
+                        <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3 text-sm font-semibold text-slate-700">{{ $organization->name }} - {{ $organization->position }} - {{ strtoupper(str_replace('_', '/', $organization->level)) }} - {{ $organization->year }}</div>
+                    @empty
+                        <p class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-400">Tidak mengikuti organisasi/ekskul.</p>
+                    @endforelse
                 </div>
             </section>
 

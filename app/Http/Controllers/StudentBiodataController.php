@@ -18,7 +18,7 @@ class StudentBiodataController extends Controller
 
     public function index(Request $request): View
     {
-        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents']);
+        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
@@ -33,11 +33,15 @@ class StudentBiodataController extends Controller
     {
         $student = $this->studentFor($request);
         $data = $request->validated();
-        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['document_type'], $data['certificates']);
+        $achievements = $data['achievements'] ?? [];
+        $organizations = $data['organizations'] ?? [];
+        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['achievements'], $data['organizations']);
         $this->clearMajorsForGovernmentSchools($data);
 
         $profile = $student->profile()->updateOrCreate([], $data);
         $this->storeSubmittedFiles($request, $student, $profile);
+        $this->syncAchievements($request, $student, $achievements);
+        $this->syncOrganizations($student, $organizations);
 
         return redirect()->route('siswa.biodata.index')->with('success', 'Biodata berhasil diperbarui.');
     }
@@ -76,7 +80,9 @@ class StudentBiodataController extends Controller
         $validated = $request->validate([
             'document_type' => ['required', 'string', 'max:100'],
             'documents' => ['required', 'array', 'min:1'],
-            'documents.*' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'documents.*' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+        ], [
+            'documents.*.max' => 'Ukuran dokumen maksimal 2 MB.',
         ]);
 
         $labels = ['ijazah' => 'Ijazah SMP', 'ijazah_smp' => 'Ijazah SMP', 'akte' => 'Akte', 'kartu_keluarga' => 'Kartu Keluarga'];
@@ -161,14 +167,71 @@ class StudentBiodataController extends Controller
             }
         }
 
-        foreach ((array) $request->file('certificates', []) as $file) {
-            $student->documents()->create([
-                'document_type' => $request->input('document_type'),
-                'file_path' => $file->store('student-documents/'.$student->id, 'local'),
-                'original_name' => $file->getClientOriginalName(),
-                'mime_type' => $file->getMimeType(),
-                'file_size' => $file->getSize(),
-                'uploaded_by' => $request->user()->id,
+    }
+
+    private function syncAchievements(Request $request, Student $student, array $achievements): void
+    {
+        $student->achievements()->with('documents')->get()->each(function ($achievement): void {
+            $achievement->documents->each(function (StudentDocument $document): void {
+                Storage::disk('local')->delete($document->file_path);
+                $document->delete();
+            });
+            $achievement->delete();
+        });
+
+        foreach ($achievements as $index => $achievementData) {
+            $hasCertificate = $request->hasFile("achievements.$index.certificate");
+            $hasDetail = collect($achievementData)->except('certificate')->filter(fn ($value) => filled($value))->isNotEmpty();
+
+            if (! $hasDetail && ! $hasCertificate) {
+                continue;
+            }
+
+            $achievement = $student->achievements()->create([
+                'type' => $achievementData['type'] ?? null,
+                'name' => $achievementData['name'] ?? null,
+                'level' => $achievementData['level'] ?? null,
+                'year' => $achievementData['year'] ?? null,
+            ]);
+
+            if ($hasCertificate) {
+                $file = $request->file("achievements.$index.certificate");
+                $student->documents()->create([
+                    'achievement_id' => $achievement->id,
+                    'document_type' => 'Sertifikat Prestasi',
+                    'file_path' => $file->store('student-documents/'.$student->id, 'local'),
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'uploaded_by' => $request->user()->id,
+                ]);
+            }
+        }
+    }
+
+    private function syncOrganizations(Student $student, array $organizations): void
+    {
+        if ($student->profile?->organization_status === 'tidak') {
+            $student->organizations()->delete();
+            return;
+        }
+
+        if ($student->profile?->organization_status !== 'ya') {
+            return;
+        }
+
+        $student->organizations()->delete();
+
+        foreach ($organizations as $organizationData) {
+            if (collect($organizationData)->filter(fn ($value) => filled($value))->isEmpty()) {
+                continue;
+            }
+
+            $student->organizations()->create([
+                'name' => $organizationData['name'] ?? null,
+                'position' => $organizationData['position'] ?? null,
+                'level' => $organizationData['level'] ?? null,
+                'year' => $organizationData['year'] ?? null,
             ]);
         }
     }
