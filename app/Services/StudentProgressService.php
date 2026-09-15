@@ -24,18 +24,17 @@ class StudentProgressService
             'physical' => $this->filled([
                 $profile?->height_cm, $profile?->weight_kg, $profile?->medical_history, $profile?->mcu_status,
             ]),
+            'parents' => $this->filled([
+                $profile?->parent_father_name, $profile?->parent_father_occupation, $profile?->parent_mother_name,
+                $profile?->parent_mother_occupation, $profile?->parent_phone, $profile?->parent_address,
+            ]),
             'campus_choice' => $this->filled([
                 $profile?->university_choice_1_id, $profile?->university_choice_2_id, $profile?->university_choice_3_id,
-            ]),
-            'career_preparation' => $this->filled([
-                $profile?->grade_11_preparation, $profile?->career_concern,
             ]),
             'school_activity' => $this->filled([
                 $profile?->school_achievements, $profile?->organization_status, $this->organizationNameValue($profile), $profile?->self_improvement_notes,
             ]),
-            'documents' => $student->documents
-                ->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'dokumen_lainnya'], true))
-                ->isNotEmpty(),
+            'documents' => $this->requiredDocumentsFilled($student),
         ];
 
         $completed = collect($requiredFields)->filter(fn ($value) => filled($value))->count();
@@ -65,16 +64,29 @@ class StudentProgressService
             'Berat badan' => $profile?->weight_kg,
             'Riwayat kesehatan' => $profile?->medical_history,
             'Status MCU' => $profile?->mcu_status,
+            'Nama ayah' => $profile?->parent_father_name,
+            'Pekerjaan ayah' => $profile?->parent_father_occupation,
+            'Nama ibu' => $profile?->parent_mother_name,
+            'Pekerjaan ibu' => $profile?->parent_mother_occupation,
+            'Nomor orang tua' => $profile?->parent_phone,
+            'Alamat orang tua' => $profile?->parent_address,
             'Pilihan kampus 1' => $profile?->university_choice_1_id,
             'Pilihan kampus 2' => $profile?->university_choice_2_id,
             'Pilihan kampus 3' => $profile?->university_choice_3_id,
-            'Persiapan kelas 11' => $profile?->grade_11_preparation,
-            'Kekhawatiran karir' => $profile?->career_concern,
             'Prestasi sekolah' => $profile?->school_achievements,
             'Ikut organisasi' => $profile?->organization_status,
             'Nama organisasi' => $this->organizationNameValue($profile),
             'Evaluasi diri' => $profile?->self_improvement_notes,
+            'Ijazah SMP' => $student->documents->firstWhere('document_type', 'Ijazah SMP')?->id,
+            'Akte' => $student->documents->firstWhere('document_type', 'Akte')?->id,
+            'Kartu Keluarga' => $student->documents->firstWhere('document_type', 'Kartu Keluarga')?->id,
         ];
+    }
+
+    private function requiredDocumentsFilled(Student $student): bool
+    {
+        return collect(['Ijazah SMP', 'Akte', 'Kartu Keluarga'])
+            ->every(fn (string $type) => $student->documents->contains('document_type', $type));
     }
 
     private function organizationNameValue($profile): ?string

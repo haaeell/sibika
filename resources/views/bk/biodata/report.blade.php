@@ -112,6 +112,18 @@
         </x-card>
     </div>
 
+    <div class="grid gap-6 lg:grid-cols-3">
+        <x-card title="Jurusan Pilihan Pertama" description="Delapan jurusan pilihan pertama yang paling banyak diminati.">
+            <div class="h-72"><canvas id="major-choice-1-chart"></canvas></div>
+        </x-card>
+        <x-card title="Jurusan Pilihan Kedua" description="Delapan jurusan pilihan kedua yang paling banyak diminati.">
+            <div class="h-72"><canvas id="major-choice-2-chart"></canvas></div>
+        </x-card>
+        <x-card title="Jurusan Pilihan Ketiga" description="Delapan jurusan pilihan ketiga yang paling banyak diminati.">
+            <div class="h-72"><canvas id="major-choice-3-chart"></canvas></div>
+        </x-card>
+    </div>
+
     <x-card title="Sorotan untuk BK" description="Ringkasan cepat yang perlu diperhatikan berdasarkan filter aktif.">
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             @foreach ([
@@ -142,6 +154,7 @@
                         <th>Progress</th>
                         <th>Data Wajib Belum Diisi</th>
                         <th>MCU</th>
+                        <th>Biodata Orang Tua</th>
                         <th>Riwayat Kesehatan</th>
                         <th>Pilihan Kampus</th>
                         <th>Sertifikat</th>
@@ -158,9 +171,10 @@
                             <td>{{ $student->cohort?->name ?? '-' }}</td>
                             <td data-order="{{ $row['progress'] }}"><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $row['progress'] === 100 ? 'bg-emerald-50 text-emerald-700' : ($row['progress'] >= 50 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700') }}">{{ $row['progress'] }}%</span></td>
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5 text-slate-600">{{ $row['missing']->isEmpty() ? 'Lengkap' : $row['missing']->join(', ') }}</span></td>
-                            <td>{{ ['sudah' => 'Sudah', 'proses' => 'Proses', 'belum' => 'Belum'][$student->profile?->mcu_status] ?? '-' }}</td>
+                            <td>{{ ['sudah' => 'Sudah', 'proses' => 'Proses', 'belum' => 'Belum'][$student->profile?->mcu_status] ?? '-' }}{{ $student->profile?->mcu_status === 'sudah' ? ' - '.$student->profile?->mcu_count.' kali, terakhir '.$student->profile?->mcu_last_date?->format('d M Y') : '' }}</td>
+                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5">Ayah: {{ $student->profile?->parent_father_name ?? '-' }} ({{ $student->profile?->parent_father_occupation ?? '-' }})<br>Ibu: {{ $student->profile?->parent_mother_name ?? '-' }} ({{ $student->profile?->parent_mother_occupation ?? '-' }})<br>Telp: {{ $student->profile?->parent_phone ?? '-' }}</span></td>
                             <td><span class="block max-w-xs truncate" title="{{ $student->profile?->medical_history }}">{{ $student->profile?->medical_history ?? '-' }}</span></td>
-                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5">1. {{ $student->profile?->universityChoice1?->name ?? '-' }}<br>2. {{ $student->profile?->universityChoice2?->name ?? '-' }}<br>3. {{ $student->profile?->universityChoice3?->name ?? '-' }}</span></td>
+                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5">1. {{ ($student->profile?->universityChoice1?->name ?? '-').($student->profile?->university_major_choice_1 ? ' - '.$student->profile->university_major_choice_1 : '') }}<br>2. {{ ($student->profile?->universityChoice2?->name ?? '-').($student->profile?->university_major_choice_2 ? ' - '.$student->profile->university_major_choice_2 : '') }}<br>3. {{ ($student->profile?->universityChoice3?->name ?? '-').($student->profile?->university_major_choice_3 ? ' - '.$student->profile->university_major_choice_3 : '') }}</span></td>
                             <td>{{ $row['certificate_count'] }}</td>
                             <td><a href="{{ route('bk.students.biodata.show', $student) }}" class="btn-icon" aria-label="Lihat biodata {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>
@@ -195,7 +209,12 @@
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
-                                tooltip: { callbacks: { label: (context) => `${context.label}: ${context.raw}${options.percentage ? '%' : ' siswa'}` } },
+                                tooltip: { callbacks: { label: (context) => {
+                                    if (options.percentage) return `${context.label}: ${context.raw}%`;
+                                    const total = context.dataset.data.reduce((sum, value) => sum + Number(value || 0), 0);
+                                    const percent = total ? Math.round((Number(context.raw || 0) / total) * 100) : 0;
+                                    return `${context.label}: ${context.raw} siswa (${percent}%)`;
+                                } } },
                             },
                             scales: type === 'bar' ? {
                                 x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { precision: 0 } },
@@ -221,11 +240,14 @@
                 renderChart('campus-choice-1-chart', charts.campus_choice_1, 'bar', { horizontal: true });
                 renderChart('campus-choice-2-chart', charts.campus_choice_2, 'bar', { horizontal: true });
                 renderChart('campus-choice-3-chart', charts.campus_choice_3, 'bar', { horizontal: true });
+                renderChart('major-choice-1-chart', charts.major_choice_1, 'bar', { horizontal: true });
+                renderChart('major-choice-2-chart', charts.major_choice_2, 'bar', { horizontal: true });
+                renderChart('major-choice-3-chart', charts.major_choice_3, 'bar', { horizontal: true });
 
                 window.initDataTable('#biodata-report-table', {
                     pageLength: 25,
                     order: [[4, 'asc'], [1, 'asc']],
-                    columnDefs: [{ orderable: false, targets: [5, 7, 8, 10] }],
+                    columnDefs: [{ orderable: false, targets: [5, 7, 8, 9, 11] }],
                 });
             });
         </script>

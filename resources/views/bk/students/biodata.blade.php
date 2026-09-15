@@ -60,16 +60,23 @@
                         'Tinggi Badan' => $profile?->height_cm ? $profile->height_cm.' cm' : null,
                         'Berat Badan' => $profile?->weight_kg ? $profile->weight_kg.' kg' : null,
                         'Riwayat Kesehatan/Penyakit' => $profile?->medical_history,
-                        'Status MCU Mandiri' => $mcuLabels[$profile?->mcu_status] ?? $profile?->mcu_status,
+                        'Status MCU Mandiri' => trim(($mcuLabels[$profile?->mcu_status] ?? $profile?->mcu_status ?? '').($profile?->mcu_status === 'sudah' ? ' - '.$profile?->mcu_count.' kali, terakhir '.$profile?->mcu_last_date?->format('d M Y') : '')),
+                    ],
+                    'Biodata Orang Tua' => [
+                        'Nama Ayah' => $profile?->parent_father_name,
+                        'Pekerjaan Ayah' => $profile?->parent_father_occupation,
+                        'Nama Ibu' => $profile?->parent_mother_name,
+                        'Pekerjaan Ibu' => $profile?->parent_mother_occupation,
+                        'Nomor Orang Tua' => $profile?->parent_phone,
+                        'Alamat Orang Tua' => $profile?->parent_address,
                     ],
                     'Pilihan Kampus' => [
                         'Pilihan 1 (Kampus)' => $profile?->universityChoice1?->name,
+                        'Jurusan Pilihan 1' => $profile?->university_major_choice_1,
                         'Pilihan 2 (Kampus)' => $profile?->universityChoice2?->name,
+                        'Jurusan Pilihan 2' => $profile?->university_major_choice_2,
                         'Pilihan 3 (Kampus)' => $profile?->universityChoice3?->name,
-                    ],
-                    'Persiapan & Karir' => [
-                        'Persiapan di Kelas 11' => $profile?->grade_11_preparation,
-                        'Kekhawatiran Karir' => $profile?->career_concern,
+                        'Jurusan Pilihan 3' => $profile?->university_major_choice_3,
                     ],
                     'Aktivitas & Evaluasi Diri' => [
                         'Prestasi di SMA Plus Astha Hannas' => $profile?->school_achievements,
@@ -98,6 +105,26 @@
                 </section>
             @endforeach
 
+            <section class="border-b border-slate-100 py-6 last:border-b-0">
+                <div class="mb-4 flex items-center gap-3">
+                    <span class="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><i class="fa-solid fa-folder-open text-sm"></i></span>
+                    <h3 class="text-base font-bold text-slate-900">Dokumen Pribadi</h3>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                    @foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type)
+                        @php($document = $student->documents->where('document_type', $type)->last())
+                        <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                            <p class="text-sm font-bold text-slate-900">{{ $type }}</p>
+                            @if ($document)
+                                <a href="{{ route('bk.students.biodata.documents.download', [$student, $document]) }}" class="mt-1 block truncate text-xs font-medium text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>
+                            @else
+                                <p class="mt-1 text-xs font-semibold italic text-slate-400">Belum diupload</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
         </x-card>
 
         <aside class="space-y-6">
@@ -112,8 +139,8 @@
                 </div>
                 <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-blue-800 transition-all" style="width: {{ $progress['percentage'] }}%"></div></div>
                 <div class="mt-5 space-y-2.5">
-                    @php $progressIcons = ['personal'=>'fa-user','address'=>'fa-location-dot','physical'=>'fa-heart-pulse','campus_choice'=>'fa-graduation-cap','career_preparation'=>'fa-bullseye','school_activity'=>'fa-trophy','documents'=>'fa-award']; @endphp
-                    @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'campus_choice' => 'Pilihan Kampus', 'career_preparation' => 'Persiapan Karir', 'school_activity' => 'Aktivitas & Evaluasi', 'documents' => 'Sertifikat Prestasi'] as $key => $label)
+                    @php $progressIcons = ['personal'=>'fa-user','address'=>'fa-location-dot','physical'=>'fa-heart-pulse','parents'=>'fa-people-roof','campus_choice'=>'fa-graduation-cap','school_activity'=>'fa-trophy','documents'=>'fa-folder-open']; @endphp
+                    @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'parents' => 'Biodata Orang Tua', 'campus_choice' => 'Pilihan Kampus', 'school_activity' => 'Aktivitas & Evaluasi', 'documents' => 'Dokumen Wajib'] as $key => $label)
                         <div class="flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-2 text-sm"><span class="flex items-center gap-2 font-semibold text-slate-600"><i class="fa-solid {{ $progressIcons[$key] }} text-xs text-slate-400"></i> {{ $label }}</span><i class="fa-solid {{ $progress['sections'][$key] ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }}"></i></div>
                     @endforeach
                 </div>
@@ -123,7 +150,7 @@
                     <span class="flex size-9 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-award"></i></span>
                     <div><h3 class="text-sm font-bold text-slate-900">Sertifikat Prestasi</h3><p class="text-xs text-slate-500">Sertifikat yang diunggah siswa.</p></div>
                 </div>
-                @forelse ($student->documents as $document)
+                @forelse ($student->documents->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'Kartu Keluarga', 'Ijazah SMP', 'Ijazah', 'Akte', 'dokumen_lainnya'], true)) as $document)
                     <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white p-3 last:mb-0">
                         <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700"><i class="fa-solid fa-file-lines text-sm"></i></div>
                         <div class="min-w-0 flex-1">

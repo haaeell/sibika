@@ -33,8 +33,11 @@ class StudentBiodataController extends Controller
     {
         $student = $this->studentFor($request);
         $data = $request->validated();
+        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['document_type'], $data['certificates']);
+        $this->clearMajorsForGovernmentSchools($data);
 
-        $student->profile()->updateOrCreate([], $data);
+        $profile = $student->profile()->updateOrCreate([], $data);
+        $this->storeSubmittedFiles($request, $student, $profile);
 
         return redirect()->route('siswa.biodata.index')->with('success', 'Biodata berhasil diperbarui.');
     }
@@ -76,9 +79,12 @@ class StudentBiodataController extends Controller
             'documents.*' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 
+        $labels = ['ijazah' => 'Ijazah SMP', 'ijazah_smp' => 'Ijazah SMP', 'akte' => 'Akte', 'kartu_keluarga' => 'Kartu Keluarga'];
+        $documentType = $labels[$validated['document_type']] ?? $validated['document_type'];
+
         foreach ($validated['documents'] as $file) {
             $student->documents()->create([
-                'document_type' => $validated['document_type'],
+                'document_type' => $documentType,
                 'file_path' => $file->store('student-documents/'.$student->id, 'local'),
                 'original_name' => $file->getClientOriginalName(),
                 'mime_type' => $file->getMimeType(),
@@ -87,7 +93,7 @@ class StudentBiodataController extends Controller
             ]);
         }
 
-        return back()->with('success', count($validated['documents']).' sertifikat prestasi berhasil diunggah.');
+        return back()->with('success', count($validated['documents']).' dokumen berhasil diunggah.');
     }
 
     public function destroyDocument(Request $request, StudentDocument $document): RedirectResponse
@@ -111,5 +117,59 @@ class StudentBiodataController extends Controller
     private function studentFor(Request $request): Student
     {
         return Student::where('user_id', $request->user()->id)->firstOrFail();
+    }
+
+    public function clearMajorsForGovernmentSchools(array &$data): void
+    {
+        $universities = University::whereIn('id', array_filter([
+            $data['university_choice_1_id'] ?? null,
+            $data['university_choice_2_id'] ?? null,
+            $data['university_choice_3_id'] ?? null,
+        ]))->pluck('type', 'id');
+
+        foreach ([1, 2, 3] as $choice) {
+            if (($universities[$data['university_choice_'.$choice.'_id'] ?? null] ?? null) === 'kedinasan') {
+                $data['university_major_choice_'.$choice] = null;
+            }
+        }
+    }
+
+    protected function storeSubmittedFiles(Request $request, Student $student, $profile): void
+    {
+        if ($request->hasFile('photo')) {
+            if ($profile->photo_path) {
+                Storage::disk('local')->delete($profile->photo_path);
+            }
+            $profile->update(['photo_path' => $request->file('photo')->store('student-photos', 'local')]);
+        }
+
+        foreach (['ijazah_smp' => 'Ijazah SMP', 'akte' => 'Akte', 'kartu_keluarga' => 'Kartu Keluarga'] as $field => $label) {
+            if ($request->hasFile($field)) {
+                $student->documents()->where('document_type', $label)->get()->each(function (StudentDocument $document): void {
+                    Storage::disk('local')->delete($document->file_path);
+                    $document->delete();
+                });
+                $file = $request->file($field);
+                $student->documents()->create([
+                    'document_type' => $label,
+                    'file_path' => $file->store('student-documents/'.$student->id, 'local'),
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'uploaded_by' => $request->user()->id,
+                ]);
+            }
+        }
+
+        foreach ((array) $request->file('certificates', []) as $file) {
+            $student->documents()->create([
+                'document_type' => $request->input('document_type'),
+                'file_path' => $file->store('student-documents/'.$student->id, 'local'),
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'uploaded_by' => $request->user()->id,
+            ]);
+        }
     }
 }

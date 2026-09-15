@@ -6,10 +6,10 @@
 <aside {{ $attributes->merge(['class' => 'flex h-full w-64 flex-col border-r border-slate-200 bg-white']) }}>
     <div class="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-5">
         <a href="{{ route('home') }}" class="flex items-center gap-3">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="size-10 object-contain">
+            <img src="{{ $appSetting->logoUrl() }}" alt="Logo {{ $appSetting->app_name }}" class="size-10 object-contain">
              <span>
-                <span class="block text-sm font-bold text-slate-900">SIBIKA</span>
-                <span class="block text-xs text-slate-500">SMA Plus Astha Hannas</span>
+                <span class="block text-sm font-bold text-slate-900">{{ $appSetting->app_name }}</span>
+                <span class="block text-xs text-slate-500">{{ $appSetting->school_name }}</span>
             </span>
         </a>
         <button type="button" class="js-sidebar-close inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden" aria-label="Tutup menu">

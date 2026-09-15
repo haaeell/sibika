@@ -24,6 +24,7 @@ class LoginSettingController extends Controller
             'school_name' => ['required', 'string', 'max:150'],
             'seo_description' => ['required', 'string', 'max:255'],
             'help_text' => ['required', 'string', 'max:100'],
+            'help_whatsapp_number' => ['nullable', 'string', 'max:30'],
             'hero_title' => ['required', 'string', 'max:150'],
             'hero_description' => ['required', 'string', 'max:1000'],
             'footer_name' => ['required', 'string', 'max:150'],

@@ -10,6 +10,7 @@
                 <x-form.input name="app_name" label="Nama Aplikasi" icon="fa-solid fa-window-maximize" :value="old('app_name', $setting->app_name)" required />
                 <x-form.input name="school_name" label="Nama Sekolah" icon="fa-solid fa-school" :value="old('school_name', $setting->school_name)" required />
                 <x-form.input name="help_text" label="Teks Bantuan" icon="fa-regular fa-circle-question" :value="old('help_text', $setting->help_text)" required />
+                <x-form.input name="help_whatsapp_number" label="Nomor WhatsApp Bantuan" icon="fa-brands fa-whatsapp" :value="old('help_whatsapp_number', $setting->help_whatsapp_number)" placeholder="0882006381163" />
                 <x-form.input name="welcome_title" label="Judul Form" icon="fa-solid fa-heading" :value="old('welcome_title', $setting->welcome_title)" required />
                 <x-form.input name="welcome_subtitle" label="Subjudul Form" icon="fa-solid fa-quote-left" :value="old('welcome_subtitle', $setting->welcome_subtitle)" required />
                 <x-form.input name="hero_title" label="Judul Hero" icon="fa-solid fa-heading" :value="old('hero_title', $setting->hero_title)" required />

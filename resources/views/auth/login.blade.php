@@ -54,7 +54,7 @@
 
         <section class="flex min-h-screen flex-col bg-slate-50 px-5 py-5 sm:px-8 lg:min-h-0 lg:overflow-y-auto lg:px-10 xl:px-16">
             <div class="flex justify-end">
-                <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-800">
+                <a href="{{ $loginSetting->helpWhatsappUrl() ?? '#' }}" @if ($loginSetting->helpWhatsappUrl()) target="_blank" rel="noopener" @endif class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-800">
                     <i class="fa-regular fa-circle-question"></i>
                     {{ $loginSetting->help_text }}
                 </a>

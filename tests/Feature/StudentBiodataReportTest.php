@@ -42,6 +42,9 @@ class StudentBiodataReportTest extends TestCase
     {
         $complete = Student::create(['nis' => 'R-001', 'name' => 'Siswa Lengkap']);
         $complete->profile()->create($this->completeProfile());
+        foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
+            $complete->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
+        }
 
         $incomplete = Student::create(['nis' => 'R-002', 'name' => 'Siswa Belum Lengkap']);
         $incomplete->profile()->create(['gender' => 'female', 'mcu_status' => 'belum']);
@@ -51,8 +54,8 @@ class StudentBiodataReportTest extends TestCase
         $this->assertSame(2, $report['summary']['total']);
         $this->assertSame(1, $report['summary']['complete']);
         $this->assertSame(1, $report['summary']['incomplete']);
-        $this->assertSame(55, $report['summary']['average_progress']);
-        $this->assertSame(21, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
+        $this->assertSame(54, $report['summary']['average_progress']);
+        $this->assertSame(28, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
         $this->assertSame(['Jawa Barat'], $report['charts']['province']['labels']);
         $this->assertSame([1], $report['charts']['province']['values']);
         $this->assertSame(['Bandung'], $report['charts']['city']['labels']);
@@ -63,6 +66,9 @@ class StudentBiodataReportTest extends TestCase
     {
         $complete = Student::create(['nis' => 'R-003', 'name' => 'MCU Selesai']);
         $complete->profile()->create($this->completeProfile());
+        foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
+            $complete->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
+        }
 
         $incomplete = Student::create(['nis' => 'R-004', 'name' => 'MCU Belum']);
         $incomplete->profile()->create(['gender' => 'male', 'mcu_status' => 'belum']);
@@ -74,6 +80,23 @@ class StudentBiodataReportTest extends TestCase
 
         $this->assertSame(1, $report['summary']['total']);
         $this->assertSame('MCU Selesai', $report['rows']->first()['student']->name);
+    }
+
+    public function test_report_groups_major_choices_case_insensitively(): void
+    {
+        Student::create(['nis' => 'R-005', 'name' => 'Siswa A'])->profile()->create([
+            ...$this->completeProfile(),
+            'university_major_choice_1' => 'Teknik Informatika',
+        ]);
+        Student::create(['nis' => 'R-006', 'name' => 'Siswa B'])->profile()->create([
+            ...$this->completeProfile(),
+            'university_major_choice_1' => 'teknik informatika',
+        ]);
+
+        $chart = app(BiodataReportService::class)->generate([])['charts']['major_choice_1'];
+
+        $this->assertSame(['Teknik Informatika'], $chart['labels']);
+        $this->assertSame([2], $chart['values']);
     }
 
     private function completeProfile(): array
@@ -104,8 +127,12 @@ class StudentBiodataReportTest extends TestCase
                 ['name' => 'Universitas Padjadjaran'],
                 ['short_name' => 'Unpad', 'type' => 'negeri', 'is_active' => true]
             )->id,
-            'grade_11_preparation' => 'Belajar rutin',
-            'career_concern' => 'Persaingan masuk kampus',
+            'parent_father_name' => 'Bapak Test',
+            'parent_father_occupation' => 'Wiraswasta',
+            'parent_mother_name' => 'Ibu Test',
+            'parent_mother_occupation' => 'Guru',
+            'parent_phone' => '081111111111',
+            'parent_address' => 'Alamat orang tua',
             'school_achievements' => '-',
             'organization_status' => 'ya',
             'organization_name' => 'OSIS',

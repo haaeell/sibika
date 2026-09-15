@@ -78,6 +78,8 @@ class StudentBiodataAdminController extends Controller
     public function update(UpdateOwnBiodataRequest $request, Student $student): RedirectResponse
     {
         $data = $request->validated();
+        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['document_type'], $data['certificates']);
+        app(StudentBiodataController::class)->clearMajorsForGovernmentSchools($data);
 
         $student->profile()->updateOrCreate([], $data);
 

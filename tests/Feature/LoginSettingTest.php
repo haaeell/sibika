@@ -25,6 +25,7 @@ class LoginSettingTest extends TestCase
             'school_name' => 'Sekolah Baru',
             'seo_description' => 'Deskripsi SEO baru',
             'help_text' => 'Hubungi admin',
+            'help_whatsapp_number' => '0882006381163',
             'hero_title' => 'Judul Hero Baru',
             'hero_description' => 'Deskripsi hero baru',
             'footer_name' => 'Footer Baru',
@@ -47,6 +48,7 @@ class LoginSettingTest extends TestCase
             ->assertOk()
             ->assertSee('Portal Baru')
             ->assertSee('Judul Hero Baru')
-            ->assertSee('Hubungi admin');
+            ->assertSee('Hubungi admin')
+            ->assertSee('https://wa.me/62882006381163', false);
     }
 }

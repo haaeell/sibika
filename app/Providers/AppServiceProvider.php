@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AcademicYear;
+use App\Models\LoginSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
@@ -39,6 +40,10 @@ class AppServiceProvider extends ServiceProvider
                 ?? '2026 / 2027';
 
             $view->with(compact('academicYears', 'activeAcademicYear'));
+        });
+
+        View::composer(['components.layout.sidebar', 'components.layout.header'], function ($view) {
+            $view->with('appSetting', LoginSetting::current());
         });
     }
 }

@@ -75,7 +75,7 @@
             <x-card>
                 <div class="mb-4 flex items-center gap-3"><span class="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i class="fa-solid fa-circle-check"></i></span><div><h3 class="font-bold text-slate-900">Status Bagian</h3><p class="text-sm text-slate-500">Ringkasan progress biodata.</p></div></div>
                 <div class="space-y-2.5">
-                    @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'campus_choice' => 'Pilihan Kampus', 'career_preparation' => 'Persiapan Karir', 'school_activity' => 'Aktivitas'] as $key => $label)
+                    @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'parents' => 'Biodata Orang Tua', 'campus_choice' => 'Pilihan Kampus', 'school_activity' => 'Aktivitas', 'documents' => 'Dokumen'] as $key => $label)
                         <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm"><span class="font-semibold text-slate-600">{{ $label }}</span><i class="fa-solid {{ $progress['sections'][$key] ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }}"></i></div>
                     @endforeach
                 </div>

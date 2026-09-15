@@ -55,6 +55,9 @@ class BiodataReportService
         $campusChoice1 = $this->topUniversityChoices($students, 'universityChoice1');
         $campusChoice2 = $this->topUniversityChoices($students, 'universityChoice2');
         $campusChoice3 = $this->topUniversityChoices($students, 'universityChoice3');
+        $majorChoice1 = $this->topMajorChoices($students, 'university_major_choice_1');
+        $majorChoice2 = $this->topMajorChoices($students, 'university_major_choice_2');
+        $majorChoice3 = $this->topMajorChoices($students, 'university_major_choice_3');
         $provinces = $this->topTextValues($students, 'province');
         $cities = $this->topTextValues($students, 'city');
 
@@ -85,6 +88,9 @@ class BiodataReportService
             'campus_choice_1' => $this->chart($campusChoice1->keys()->all(), $campusChoice1->values()->all()),
             'campus_choice_2' => $this->chart($campusChoice2->keys()->all(), $campusChoice2->values()->all()),
             'campus_choice_3' => $this->chart($campusChoice3->keys()->all(), $campusChoice3->values()->all()),
+            'major_choice_1' => $this->chart($majorChoice1->pluck('label')->all(), $majorChoice1->pluck('count')->all()),
+            'major_choice_2' => $this->chart($majorChoice2->pluck('label')->all(), $majorChoice2->pluck('count')->all()),
+            'major_choice_3' => $this->chart($majorChoice3->pluck('label')->all(), $majorChoice3->pluck('count')->all()),
             'height' => $this->rangeChart($students->pluck('profile.height_cm'), [150, 160, 170, 180], ['< 150 cm', '150-159 cm', '160-169 cm', '170-179 cm', '>= 180 cm']),
             'weight' => $this->rangeChart($students->pluck('profile.weight_kg'), [45, 55, 65, 75], ['< 45 kg', '45-54 kg', '55-64 kg', '65-74 kg', '>= 75 kg']),
         ];
@@ -124,7 +130,7 @@ class BiodataReportService
 
     private function certificates(Student $student): Collection
     {
-        return $student->documents->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'dokumen_lainnya'], true));
+        return $student->documents->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'Kartu Keluarga', 'Ijazah SMP', 'Ijazah', 'Akte', 'dokumen_lainnya'], true));
     }
 
     private function topTextValues(Collection $students, string $field): Collection
@@ -145,6 +151,18 @@ class BiodataReportService
             ->countBy()
             ->sortDesc()
             ->take(8);
+    }
+
+    private function topMajorChoices(Collection $students, string $field): Collection
+    {
+        return $students
+            ->map(fn (Student $student) => trim((string) $student->profile?->{$field}))
+            ->filter(fn (string $value) => $value !== '' && $value !== '-')
+            ->groupBy(fn (string $value) => mb_strtolower($value))
+            ->map(fn (Collection $items) => ['label' => $items->first(), 'count' => $items->count()])
+            ->sortByDesc('count')
+            ->take(8)
+            ->values();
     }
 
     private function presenceChart(Collection $students, string $field): array
