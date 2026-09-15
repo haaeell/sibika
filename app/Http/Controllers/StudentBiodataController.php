@@ -169,7 +169,7 @@ class StudentBiodataController extends Controller
 
     }
 
-    private function syncAchievements(Request $request, Student $student, array $achievements): void
+    public function deleteAchievements(Student $student): void
     {
         $student->achievements()->with('documents')->get()->each(function ($achievement): void {
             $achievement->documents->each(function (StudentDocument $document): void {
@@ -178,6 +178,21 @@ class StudentBiodataController extends Controller
             });
             $achievement->delete();
         });
+    }
+
+    private function syncAchievements(Request $request, Student $student, array $achievements): void
+    {
+        if ($student->profile?->achievement_status === 'tidak') {
+            $this->deleteAchievements($student);
+
+            return;
+        }
+
+        if ($student->profile?->achievement_status !== 'ya') {
+            return;
+        }
+
+        $this->deleteAchievements($student);
 
         foreach ($achievements as $index => $achievementData) {
             $hasCertificate = $request->hasFile("achievements.$index.certificate");

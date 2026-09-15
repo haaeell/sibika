@@ -83,6 +83,10 @@ class StudentBiodataAdminController extends Controller
 
         $student->profile()->updateOrCreate([], $data);
 
+        if (($data['achievement_status'] ?? null) === 'tidak') {
+            app(StudentBiodataController::class)->deleteAchievements($student);
+        }
+
         return redirect()->route('bk.students.biodata.show', $student)->with('success', 'Biodata siswa berhasil diperbarui.');
     }
 

@@ -44,6 +44,7 @@ class UpdateOwnBiodataRequest extends FormRequest
             'parent_phone' => ['nullable', 'string', 'max:30'],
             'parent_address' => ['nullable', 'string', 'max:1000'],
             'organization_status' => ['nullable', 'in:ya,tidak'],
+            'achievement_status' => ['nullable', 'in:ya,tidak'],
             'self_improvement_notes' => ['nullable', 'string', 'max:2000'],
             'achievements' => ['nullable', 'array'],
             'achievements.*.type' => ['nullable', 'in:akademik,non_akademik'],

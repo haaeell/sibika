@@ -24,7 +24,10 @@ class StudentBiodataTest extends TestCase
         $this->actingAs($user)
             ->get(route('siswa.biodata.index'))
             ->assertOk()
-            ->assertSee('Biodata Saya');
+            ->assertSee('Biodata Saya')
+            ->assertSee('Apakah kamu memiliki prestasi akademik atau non akademik?')
+            ->assertSee('Tambah Prestasi Lain')
+            ->assertSee('Tambah Organisasi Lain');
     }
 
     public function test_student_dashboard_shows_active_shortcuts_without_soon_cards(): void
@@ -88,6 +91,7 @@ class StudentBiodataTest extends TestCase
                 'ijazah_smp' => UploadedFile::fake()->create('ijazah.pdf', 200, 'application/pdf'),
                 'akte' => UploadedFile::fake()->create('akte.pdf', 200, 'application/pdf'),
                 'kartu_keluarga' => UploadedFile::fake()->create('kk.pdf', 200, 'application/pdf'),
+                'achievement_status' => 'ya',
                 'achievements' => [['type' => 'akademik', 'name' => 'Juara Test', 'level' => 'kab_kota', 'year' => 2026, 'certificate' => UploadedFile::fake()->create('sertifikat.pdf', 200, 'application/pdf')]],
             ])
             ->assertRedirect(route('siswa.biodata.index'));
@@ -264,6 +268,91 @@ class StudentBiodataTest extends TestCase
             'document_type' => 'Juara Olimpiade Matematika 2026',
             'original_name' => 'piagam-finalis.png',
         ]);
+    }
+
+    public function test_achievement_status_tidak_deletes_existing_achievements_and_certificates(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-014', 'name' => 'Siswa Prestasi Dihapus', 'user_id' => $user->id]);
+        $achievement = $student->achievements()->create(['type' => 'akademik', 'name' => 'Juara Lama', 'level' => 'kab_kota', 'year' => 2025]);
+        Storage::disk('local')->put('student-documents/'.$student->id.'/sertifikat-lama.pdf', 'lama');
+        $student->documents()->create([
+            'achievement_id' => $achievement->id,
+            'document_type' => 'Sertifikat Prestasi',
+            'file_path' => 'student-documents/'.$student->id.'/sertifikat-lama.pdf',
+            'original_name' => 'sertifikat-lama.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 4,
+            'uploaded_by' => $user->id,
+        ]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'achievement_status' => 'tidak',
+            ])
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'achievement_status' => 'tidak']);
+        $this->assertDatabaseMissing('student_achievements', ['student_id' => $student->id, 'name' => 'Juara Lama']);
+        $this->assertDatabaseMissing('student_documents', ['student_id' => $student->id, 'original_name' => 'sertifikat-lama.pdf']);
+        Storage::disk('local')->assertMissing('student-documents/'.$student->id.'/sertifikat-lama.pdf');
+    }
+
+    public function test_achievement_status_ya_saves_achievements(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-015', 'name' => 'Siswa Prestasi Baru', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'achievement_status' => 'ya',
+                'achievements' => [[
+                    'type' => 'non_akademik',
+                    'name' => 'Juara Baru',
+                    'level' => 'provinsi',
+                    'year' => 2026,
+                    'certificate' => UploadedFile::fake()->create('sertifikat-baru.pdf', 200, 'application/pdf'),
+                ]],
+            ])
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'achievement_status' => 'ya']);
+        $this->assertDatabaseHas('student_achievements', ['student_id' => $student->id, 'name' => 'Juara Baru']);
+        $this->assertDatabaseHas('student_documents', ['student_id' => $student->id, 'document_type' => 'Sertifikat Prestasi', 'original_name' => 'sertifikat-baru.pdf']);
+    }
+
+    public function test_missing_achievement_status_preserves_existing_achievements(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-016', 'name' => 'Siswa Prestasi Lama', 'user_id' => $user->id]);
+        $student->achievements()->create(['type' => 'akademik', 'name' => 'Juara Bertahan', 'level' => 'kab_kota', 'year' => 2025]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), $this->validBiodataPayload())
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseHas('student_achievements', ['student_id' => $student->id, 'name' => 'Juara Bertahan']);
+    }
+
+    public function test_bk_achievement_status_tidak_deletes_existing_achievements(): void
+    {
+        Storage::fake('local');
+        $user = User::factory()->create();
+        $user->assignRole(Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']));
+        $student = Student::create(['nis' => 'S-017', 'name' => 'Siswa BK Prestasi']);
+        $student->achievements()->create(['type' => 'akademik', 'name' => 'Juara BK Lama', 'level' => 'kab_kota', 'year' => 2025]);
+
+        $this->actingAs($user)
+            ->put(route('bk.students.biodata.update', $student), ['achievement_status' => 'tidak'])
+            ->assertRedirect(route('bk.students.biodata.show', $student));
+
+        $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'achievement_status' => 'tidak']);
+        $this->assertDatabaseMissing('student_achievements', ['student_id' => $student->id, 'name' => 'Juara BK Lama']);
     }
 
     public function test_student_can_upload_personal_documents_without_counting_as_certificates(): void

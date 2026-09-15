@@ -4,6 +4,7 @@
     $biodataBackRoute = $biodataBackRoute ?? route('siswa.dashboard');
     $personalDocumentLabels = ['Ijazah SMP' => ['Ijazah SMP', 'Ijazah', 'ijazah', 'ijazah_smp'], 'Akte' => ['Akte', 'akte'], 'Kartu Keluarga' => ['Kartu Keluarga', 'kartu_keluarga']];
     $certificates = $student->documents->reject(fn ($document) => in_array($document->document_type, ['kip', 'kartu_keluarga', 'Kartu Keluarga', 'Ijazah SMP', 'Ijazah', 'Akte', 'dokumen_lainnya'], true));
+    $achievementStatus = old('achievement_status', $profile?->achievement_status ?? ($student->achievements->isNotEmpty() ? 'ya' : ''));
 @endphp
 
 @component('layouts.app', ['title' => $isAdmin ? 'Edit Biodata Siswa' : 'Biodata'])
@@ -157,8 +158,10 @@
                         <x-form.input name="height_cm" label="Tinggi Badan (cm)" icon="fa-solid fa-ruler-vertical" type="number" inputmode="numeric" min="100" max="250" :value="old('height_cm', $profile?->height_cm)" placeholder="170" data-progress-required data-progress-section="physical" />
                         <x-form.input name="weight_kg" label="Berat Badan (kg)" icon="fa-solid fa-weight-scale" type="number" inputmode="numeric" min="20" max="200" :value="old('weight_kg', $profile?->weight_kg)" placeholder="60" data-progress-required data-progress-section="physical" />
                     </div>
-                    <div class="mt-4 grid gap-4 grid-cols-1">
+                    <div class="mt-4">
                         <x-form.textarea name="medical_history" label="Apakah Ada Riwayat Kesehatan/Penyakit" icon="fa-solid fa-notes-medical" :value="old('medical_history', $profile?->medical_history)" placeholder="Jika ada silahkan isi dan jika tidak ada cukup tuliskan (-)" data-progress-required data-progress-section="physical" rows="3" />
+                    </div>
+                    <div class="mt-4 grid gap-4 grid-cols-1 lg:grid-cols-3">
                         <x-form.select name="mcu_status" label="Status Medical Check-Up (MCU) Mandiri" icon="fa-solid fa-file-medical" data-progress-required data-progress-section="physical">
                             <option value="">Pilih status MCU</option>
                             <option value="belum" @selected(old('mcu_status', $profile?->mcu_status) === 'belum')>Belum</option>
@@ -227,26 +230,27 @@
                         <div><h2 class="text-base font-bold text-slate-900">Aktivitas & Evaluasi Diri</h2><p class="text-sm leading-5 text-slate-500">Prestasi, organisasi dan pengembangan diri.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1">
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                <div class="flex gap-3">
-                                    <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-medal"></i></span>
-                                    <div>
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <h3 class="text-sm font-bold text-slate-900">Prestasi Akademik atau Non Akademik</h3>
-                                            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Opsional</span>
-                                        </div>
-                                        <p class="mt-1 text-xs leading-5 text-slate-500">Isi satu baris untuk setiap prestasi. Sertifikat PDF, JPG, atau PNG maksimal 2MB.</p>
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-achievement-group>
+                            <div class="mb-4 flex gap-3">
+                                <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-medal"></i></span>
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h3 class="text-sm font-bold text-slate-900">Prestasi Akademik atau Non Akademik</h3>
+                                        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Opsional</span>
                                     </div>
+                                    <p class="mt-1 text-xs leading-5 text-slate-500">Pilih jawaban terlebih dahulu. Jika memilih Ya, lengkapi minimal satu prestasi bila ada.</p>
                                 </div>
-                                @if (! $isAdmin)
-                                    <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-achievement><i class="fa-solid fa-plus"></i> Tambah Prestasi</button>
-                                @endif
                             </div>
-                            <div class="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2.5 text-xs leading-5 text-blue-900">
-                                <span class="font-bold">Tips:</span> Contoh nama prestasi: Juara 1 Olimpiade Matematika, Finalis Lomba Desain Poster, atau Peserta LKS.
-                            </div>
-                            <div class="mt-4 space-y-3" data-achievement-list>
+                            <x-form.select name="achievement_status" label="Apakah kamu memiliki prestasi akademik atau non akademik?" icon="fa-solid fa-circle-question" data-achievement-status>
+                                <option value="">Pilih jawaban</option>
+                                <option value="tidak" @selected($achievementStatus === 'tidak')>Tidak</option>
+                                <option value="ya" @selected($achievementStatus === 'ya')>Ya</option>
+                            </x-form.select>
+                            <div class="mt-4" data-achievement-details-wrapper>
+                                <div class="rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2.5 text-xs leading-5 text-blue-900">
+                                    <span class="font-bold">Tips:</span> Contoh nama prestasi: Juara 1 Olimpiade Matematika, Finalis Lomba Desain Poster, atau Peserta LKS.
+                                </div>
+                                <div class="mt-4 space-y-3" data-achievement-list>
                                 @foreach (old('achievements', $student->achievements->map(fn ($item) => $item->only(['type', 'name', 'level', 'year']))->all() ?: [[]]) as $index => $achievement)
                                     <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4" data-repeat-item>
                                         <div class="mb-3 flex items-center justify-between gap-3">
@@ -276,6 +280,12 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div class="mt-3">
+                                @if (! $isAdmin)
+                                    <button type="button" class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-achievement><i class="fa-solid fa-plus"></i> Tambah Prestasi Lain</button>
+                                @endif
+                            </div>
+                            </div>
                         </div>
                         <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-organization-group>
                             <div class="mb-4 flex gap-3">
@@ -291,14 +301,11 @@
                                 <option value="ya" @selected(old('organization_status', $profile?->organization_status) === 'ya')>Ya</option>
                             </x-form.select>
                             <div class="mt-4" data-organization-name-wrapper>
-                                <div class="flex flex-col gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-3">
                                     <div>
                                         <p class="text-xs font-bold uppercase tracking-wide text-emerald-700">Detail kegiatan</p>
                                         <p class="mt-1 text-xs leading-5 text-emerald-900">Tuliskan nama organisasi/ekskul, peran, tingkat, dan tahun aktif.</p>
                                     </div>
-                                    @if (! $isAdmin)
-                                        <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-organization><i class="fa-solid fa-plus"></i> Tambah</button>
-                                    @endif
                                 </div>
                                 <div class="mt-3 space-y-3" data-organization-list>
                                     @foreach (old('organizations', $student->organizations->map(fn ($item) => $item->only(['name', 'position', 'level', 'year']))->all() ?: [[]]) as $index => $organization)
@@ -323,6 +330,11 @@
                                             </div>
                                         </div>
                                     @endforeach
+                                </div>
+                                <div class="mt-3">
+                                    @if (! $isAdmin)
+                                        <button type="button" class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-organization><i class="fa-solid fa-plus"></i> Tambah Organisasi Lain</button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -478,13 +490,27 @@
                     }
                 });
 
-                const statusEl = document.querySelector('[data-organization-status]');
-                const nameWrapper = document.querySelector('[data-organization-name-wrapper]');
-                if (!statusEl || !nameWrapper) return;
-                const toggle = function () {
-                    const isYa = statusEl.value === 'ya';
-                    nameWrapper.classList.toggle('hidden', !isYa);
-                    document.querySelectorAll('[data-organization-detail]').forEach(function (input) { if (!isYa) input.value = ''; });
+                const organizationStatusEl = document.querySelector('[data-organization-status]');
+                const organizationWrapper = document.querySelector('[data-organization-name-wrapper]');
+                const achievementStatusEl = document.querySelector('[data-achievement-status]');
+                const achievementWrapper = document.querySelector('[data-achievement-details-wrapper]');
+                const clearWrapperFields = function (wrapper) {
+                    wrapper.querySelectorAll('input, select, textarea').forEach(function (field) {
+                        field.value = '';
+                        if (typeof field.setCustomValidity === 'function') field.setCustomValidity('');
+                    });
+                };
+                const toggleOrganizations = function () {
+                    if (!organizationStatusEl || !organizationWrapper) return;
+                    const isYa = organizationStatusEl.value === 'ya';
+                    organizationWrapper.classList.toggle('hidden', !isYa);
+                    if (!isYa) clearWrapperFields(organizationWrapper);
+                };
+                const toggleAchievements = function () {
+                    if (!achievementStatusEl || !achievementWrapper) return;
+                    const isYa = achievementStatusEl.value === 'ya';
+                    achievementWrapper.classList.toggle('hidden', !isYa);
+                    if (!isYa) clearWrapperFields(achievementWrapper);
                 };
                 const refreshRepeatCounters = function (list) {
                     list.querySelectorAll('[data-repeat-item]').forEach(function (item, index) {
@@ -492,8 +518,16 @@
                         if (counter) counter.textContent = index + 1;
                     });
                 };
-                statusEl.addEventListener('change', toggle);
-                toggle();
+                if (organizationStatusEl) {
+                    organizationStatusEl.addEventListener('change', toggleOrganizations);
+                    if (window.$) window.$(organizationStatusEl).on('change', toggleOrganizations);
+                }
+                if (achievementStatusEl) {
+                    achievementStatusEl.addEventListener('change', toggleAchievements);
+                    if (window.$) window.$(achievementStatusEl).on('change', toggleAchievements);
+                }
+                toggleOrganizations();
+                toggleAchievements();
 
                 const cloneItem = function (list) {
                     const item = list.querySelector('[data-repeat-item]');
@@ -509,7 +543,7 @@
                     refreshRepeatCounters(list);
                 };
                 document.querySelector('[data-add-achievement]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-achievement-list]')); });
-                document.querySelector('[data-add-organization]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-organization-list]')); toggle(); });
+                document.querySelector('[data-add-organization]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-organization-list]')); toggleOrganizations(); });
                 document.addEventListener('click', function (event) {
                     const removeButton = event.target.closest('[data-remove-repeat]');
                     if (!removeButton) return;
