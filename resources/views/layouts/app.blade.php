@@ -73,6 +73,7 @@
             'items' => [
                 ['label' => 'Monitoring', 'icon' => 'fa-solid fa-chart-pie', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Laporan', 'icon' => 'fa-solid fa-file-export', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Akun Superadmin', 'icon' => 'fa-solid fa-user-shield', 'url' => route('admin.account.edit'), 'active' => request()->routeIs('admin.account.*')],
                 ['label' => 'Pengaturan Login', 'icon' => 'fa-solid fa-gear', 'url' => route('admin.login-settings.edit'), 'active' => request()->routeIs('admin.login-settings.*')],
             ],
         ],

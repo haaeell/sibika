@@ -26,6 +26,7 @@ class AdminDashboardController extends Controller
                 ['label' => 'Tahun Ajaran', 'value' => AcademicYear::count(), 'route' => route('bk.academic-years.index'), 'icon' => 'fa-calendar-days'],
                 ['label' => 'Mata Pelajaran', 'value' => Subject::count(), 'route' => route('bk.subjects.index'), 'icon' => 'fa-book-open'],
                 ['label' => 'Master Kampus', 'value' => University::count(), 'route' => route('bk.universities.index'), 'icon' => 'fa-building-columns'],
+                ['label' => 'Akun Superadmin', 'value' => 'Edit', 'route' => route('admin.account.edit'), 'icon' => 'fa-user-shield'],
                 ['label' => 'Pengaturan Login', 'value' => 'Edit', 'route' => route('admin.login-settings.edit'), 'icon' => 'fa-gear'],
             ],
             'studentStatuses' => Student::selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status'),
