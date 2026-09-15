@@ -183,7 +183,7 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
+                                legend: { display: type !== 'bar', position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
                                 tooltip: { callbacks: { label: (context) => `${context.label}: ${context.raw}${options.percentage ? '%' : ''}` } },
                             },
                             scales: type === 'bar' ? {
@@ -207,7 +207,7 @@
                 window.initDataTable('#score-report-table', {
                     pageLength: 25,
                     order: [[9, 'desc'], [1, 'asc']],
-                    columnDefs: [{ orderable: false, targets: [12, 13] }],
+                    columnDefs: [{ orderable: false, targets: [12] }],
                 });
 
                 // Export mengikuti filter laporan aktif.

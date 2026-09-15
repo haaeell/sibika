@@ -210,7 +210,7 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
+                                legend: { display: type !== 'bar', position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
                                 tooltip: { callbacks: { label: (context) => {
                                     if (options.percentage) return `${context.label}: ${context.raw}%`;
                                     const total = context.dataset.data.reduce((sum, value) => sum + Number(value || 0), 0);
@@ -251,7 +251,7 @@
                 window.initDataTable('#biodata-report-table', {
                     pageLength: 25,
                     order: [[4, 'asc'], [1, 'asc']],
-                    columnDefs: [{ orderable: false, targets: [5, 7, 8, 9, 11] }],
+                    columnDefs: [{ orderable: false, targets: [6, 7, 8, 10] }],
                 });
             });
         </script>
