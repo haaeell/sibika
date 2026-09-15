@@ -291,7 +291,7 @@
                             <div class="mb-4 flex gap-3">
                                 <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700"><i class="fa-solid fa-people-group"></i></span>
                                 <div>
-                                    <h3 class="text-sm font-bold text-slate-900">Organisasi dan Ekskul di Sekolah</h3>
+                                    <h3 class="text-sm font-bold text-slate-900">Organisasi dan Ekskul di Sekolah   <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Opsional</span></h3>
                                     <p class="mt-1 text-xs leading-5 text-slate-500">Pilih status terlebih dahulu. Jika memilih Ya, lengkapi minimal satu organisasi atau ekskul.</p>
                                 </div>
                             </div>
