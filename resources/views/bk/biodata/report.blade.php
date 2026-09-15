@@ -159,6 +159,7 @@
                         <th>Biodata Orang Tua</th>
                         <th>Riwayat Kesehatan</th>
                         <th>Pilihan Kampus</th>
+                        <th>TKA</th>
                         <th>Sertifikat</th>
                         <th>Aksi</th>
                     </tr>
@@ -177,6 +178,7 @@
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5">Ayah: {{ $student->profile?->parent_father_name ?? '-' }} ({{ $student->profile?->parent_father_occupation ?? '-' }})<br>Ibu: {{ $student->profile?->parent_mother_name ?? '-' }} ({{ $student->profile?->parent_mother_occupation ?? '-' }})<br>Telp: {{ $student->profile?->parent_phone ?? '-' }}</span></td>
                             <td><span class="block max-w-xs truncate" title="{{ $student->profile?->medical_history }}">{{ $student->profile?->medical_history ?? '-' }}</span></td>
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5">1. {{ ($student->profile?->universityChoice1?->name ?? '-').($student->profile?->university_major_choice_1 ? ' - '.$student->profile->university_major_choice_1 : '') }}<br>2. {{ ($student->profile?->universityChoice2?->name ?? '-').($student->profile?->university_major_choice_2 ? ' - '.$student->profile->university_major_choice_2 : '') }}<br>3. {{ ($student->profile?->universityChoice3?->name ?? '-').($student->profile?->university_major_choice_3 ? ' - '.$student->profile->university_major_choice_3 : '') }}</span></td>
+                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5">{{ $row['tka'] }}</span></td>
                             <td>{{ $row['certificate_count'] }}</td>
                             <td><a href="{{ route('bk.students.biodata.show', $student) }}" class="btn-icon" aria-label="Lihat biodata {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>

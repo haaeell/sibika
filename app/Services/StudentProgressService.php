@@ -8,7 +8,7 @@ class StudentProgressService
 {
     public function calculate(Student $student): array
     {
-        $student->loadMissing(['profile', 'documents', 'organizations']);
+        $student->loadMissing(['profile', 'documents', 'organizations', 'tkaSelections.tkaSubject']);
         $profile = $student->profile;
 
         $requiredFields = $this->requiredFields($student);
@@ -31,6 +31,7 @@ class StudentProgressService
             'campus_choice' => $this->filled([
                 $profile?->university_choice_1_id, $profile?->university_choice_2_id, $profile?->university_choice_3_id,
             ]),
+            'tka' => $student->tkaSelections->isNotEmpty(),
             'school_activity' => $this->filled([
                 $profile?->organization_status, $this->organizationValue($student), $profile?->self_improvement_notes,
             ]),
@@ -73,6 +74,7 @@ class StudentProgressService
             'Pilihan kampus 1' => $profile?->university_choice_1_id,
             'Pilihan kampus 2' => $profile?->university_choice_2_id,
             'Pilihan kampus 3' => $profile?->university_choice_3_id,
+            'TKA' => $student->tkaSelections->map(fn ($selection) => $selection->tkaSubject?->name)->filter()->join(', ') ?: null,
             'Ikut organisasi' => $profile?->organization_status,
             'Organisasi / ekskul' => $this->organizationValue($student),
             'Evaluasi diri' => $profile?->self_improvement_notes,

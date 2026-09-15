@@ -39,6 +39,7 @@
                     'Alamat' => ['icon' => 'fa-map-location-dot', 'bg' => 'bg-sky-50', 'fg' => 'text-sky-700'],
                     'Data Fisik & Kesehatan' => ['icon' => 'fa-heart-pulse', 'bg' => 'bg-rose-50', 'fg' => 'text-rose-700'],
                     'Pilihan Kampus' => ['icon' => 'fa-graduation-cap', 'bg' => 'bg-indigo-50', 'fg' => 'text-indigo-700'],
+                    'TKA' => ['icon' => 'fa-list-check', 'bg' => 'bg-violet-50', 'fg' => 'text-violet-700'],
                     'Persiapan & Karir' => ['icon' => 'fa-bullseye', 'bg' => 'bg-amber-50', 'fg' => 'text-amber-700'],
                     'Aktivitas & Evaluasi Diri' => ['icon' => 'fa-trophy', 'bg' => 'bg-emerald-50', 'fg' => 'text-emerald-700'],
                 ];
@@ -78,6 +79,9 @@
                         'Pilihan 3 (Kampus)' => $profile?->universityChoice3?->name,
                         'Jurusan Pilihan 3' => $profile?->university_major_choice_3,
                     ],
+                    'TKA' => [
+                        'Mapel TKA Dipilih' => $student->tkaSelections->map(fn ($selection) => $selection->tkaSubject?->name)->filter()->join(', ') ?: null,
+                    ],
                     'Aktivitas & Evaluasi Diri' => [
                         'Mengikuti Organisasi' => $profile?->organization_status ? ucfirst($profile->organization_status) : null,
                         'Hal yang Perlu Ditingkatkan' => $profile?->self_improvement_notes,
@@ -110,7 +114,7 @@
                 </div>
                 <div class="grid gap-3 sm:grid-cols-3">
                     @foreach (['Ijazah SMP' => ['Ijazah SMP', 'Ijazah', 'ijazah', 'ijazah_smp'], 'Akte' => ['Akte', 'akte'], 'Kartu Keluarga' => ['Kartu Keluarga', 'kartu_keluarga']] as $type => $aliases)
-                        @php($document = $student->documents->filter(fn ($document) => in_array($document->document_type, $aliases, true))->last())
+                        @php $document = $student->documents->filter(fn ($item) => in_array($item->document_type, $aliases, true))->last(); @endphp
                         <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
                             <p class="text-sm font-bold text-slate-900">{{ $type }}</p>
                             @if ($document)
@@ -159,8 +163,8 @@
                 </div>
                 <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-blue-800 transition-all" style="width: {{ $progress['percentage'] }}%"></div></div>
                 <div class="mt-5 space-y-2.5">
-                    @php $progressIcons = ['personal'=>'fa-user','address'=>'fa-location-dot','physical'=>'fa-heart-pulse','parents'=>'fa-people-roof','campus_choice'=>'fa-graduation-cap','school_activity'=>'fa-trophy','documents'=>'fa-folder-open']; @endphp
-                    @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'parents' => 'Biodata Orang Tua', 'campus_choice' => 'Pilihan Kampus', 'school_activity' => 'Aktivitas & Evaluasi', 'documents' => 'Dokumen Wajib'] as $key => $label)
+                    @php $progressIcons = ['personal'=>'fa-user','address'=>'fa-location-dot','physical'=>'fa-heart-pulse','parents'=>'fa-people-roof','campus_choice'=>'fa-graduation-cap','tka'=>'fa-list-check','school_activity'=>'fa-trophy','documents'=>'fa-folder-open']; @endphp
+                    @foreach (['personal' => 'Data pribadi', 'address' => 'Alamat', 'physical' => 'Fisik & Kesehatan', 'parents' => 'Biodata Orang Tua', 'campus_choice' => 'Pilihan Kampus', 'tka' => 'TKA', 'school_activity' => 'Aktivitas & Evaluasi', 'documents' => 'Dokumen Wajib'] as $key => $label)
                         <div class="flex items-center justify-between rounded-lg bg-slate-50 px-2.5 py-2 text-sm"><span class="flex items-center gap-2 font-semibold text-slate-600"><i class="fa-solid {{ $progressIcons[$key] }} text-xs text-slate-400"></i> {{ $label }}</span><i class="fa-solid {{ $progress['sections'][$key] ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }}"></i></div>
                     @endforeach
                 </div>

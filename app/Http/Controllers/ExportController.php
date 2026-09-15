@@ -166,12 +166,13 @@ class ExportController extends Controller
             'Tinggi Badan (cm)', 'Berat Badan (kg)', 'Riwayat Kesehatan/Penyakit', 'Status MCU Mandiri',
             'Jumlah MCU', 'Tanggal MCU Terakhir', 'Nama Ayah', 'Pekerjaan Ayah', 'Nama Ibu', 'Pekerjaan Ibu', 'Nomor Orang Tua', 'Alamat Orang Tua',
             'Pilihan 1 (Kampus)', 'Jurusan Pilihan 1', 'Pilihan 2 (Kampus)', 'Jurusan Pilihan 2', 'Pilihan 3 (Kampus)', 'Jurusan Pilihan 3',
+            'TKA',
             'Prestasi Akademik/Non Akademik', 'Organisasi/Ekskul', 'Hal Perlu Ditingkatkan (Evaluasi Diri)',
             'Progress Biodata', 'Ijazah SMP', 'Akte', 'Kartu Keluarga', 'Sertifikat Prestasi',
         ];
 
         $rows = Student::query()
-            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'documents', 'achievements.documents', 'organizations'])
+            ->with(['schoolClass', 'cohort', 'user', 'profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject'])
             ->orderBy('name')
             ->get()
             ->map(function (Student $student): array {
@@ -213,6 +214,7 @@ class ExportController extends Controller
                     $profile?->university_major_choice_2 ?? '-',
                     $profile?->universityChoice3?->name ?? '-',
                     $profile?->university_major_choice_3 ?? '-',
+                    $student->tkaSelections->map(fn ($selection) => $selection->tkaSubject?->name)->filter()->join('; ') ?: '-',
                     $student->achievements->map(fn ($a) => ucfirst(str_replace('_', ' ', $a->type)).' - '.$a->name.' - '.strtoupper(str_replace('_', '/', $a->level)).' - '.$a->year)->join('; ') ?: 'Tidak ada',
                     $student->organizations->map(fn ($o) => $o->name.' - '.$o->position.' - '.strtoupper(str_replace('_', '/', $o->level)).' - '.$o->year)->join('; ') ?: ($profile?->organization_status === 'tidak' ? 'Tidak ada' : '-'),
                     $profile?->self_improvement_notes ?? '-',

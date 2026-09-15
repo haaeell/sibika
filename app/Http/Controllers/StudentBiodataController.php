@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateOwnBiodataRequest;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\TkaSubject;
 use App\Models\University;
 use App\Services\StudentProgressService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ class StudentBiodataController extends Controller
 
     public function index(Request $request): View
     {
-        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations']);
+        $student = $this->studentFor($request)->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
@@ -26,6 +27,7 @@ class StudentBiodataController extends Controller
             'parents' => $student->parents->keyBy('parent_type'),
             'progress' => $this->progressService->calculate($student),
             'universities' => University::where('is_active', true)->orderBy('type')->orderBy('name')->get()->groupBy('type'),
+            'tkaSubjects' => TkaSubject::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -35,13 +37,15 @@ class StudentBiodataController extends Controller
         $data = $request->validated();
         $achievements = $data['achievements'] ?? [];
         $organizations = $data['organizations'] ?? [];
-        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['achievements'], $data['organizations']);
+        $tkaSubjectIds = $data['tka_subjects'] ?? null;
+        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['achievements'], $data['organizations'], $data['tka_subjects']);
         $this->clearMajorsForGovernmentSchools($data);
 
         $profile = $student->profile()->updateOrCreate([], $data);
         $this->storeSubmittedFiles($request, $student, $profile);
         $this->syncAchievements($request, $student, $achievements);
         $this->syncOrganizations($student, $organizations);
+        $this->syncTkaSubjects($student, $tkaSubjectIds);
 
         return redirect()->route('siswa.biodata.index')->with('success', 'Biodata berhasil diperbarui.');
     }
@@ -249,5 +253,20 @@ class StudentBiodataController extends Controller
                 'year' => $organizationData['year'] ?? null,
             ]);
         }
+    }
+
+    public function syncTkaSubjects(Student $student, ?array $tkaSubjectIds): void
+    {
+        if (is_null($tkaSubjectIds)) {
+            return;
+        }
+
+        $student->tkaSelections()->delete();
+
+        collect($tkaSubjectIds)
+            ->filter(fn ($id) => filled($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->each(fn (int $id) => $student->tkaSelections()->create(['tka_subject_id' => $id]));
     }
 }

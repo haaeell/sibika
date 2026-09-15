@@ -31,7 +31,7 @@
                     <div class="h-full rounded-full bg-blue-800 transition-all duration-500" style="width: {{ $progress['percentage'] }}%" data-progress-bar></div>
                 </div>
                 <div class="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0">
-                            @foreach (['personal' => 'Pribadi', 'address' => 'Alamat', 'physical' => 'Fisik', 'parents' => 'Ortu', 'campus_choice' => 'Kampus', 'school_activity' => 'Aktivitas', 'documents' => 'Dokumen'] as $key => $label)
+                            @foreach (['personal' => 'Pribadi', 'address' => 'Alamat', 'physical' => 'Fisik', 'parents' => 'Ortu', 'campus_choice' => 'Kampus', 'tka' => 'TKA', 'school_activity' => 'Aktivitas', 'documents' => 'Dokumen'] as $key => $label)
                         <div class="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold lg:min-w-0 {{ $progress['sections'][$key] ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-50 text-slate-400' }}" data-progress-section-indicator="{{ $key }}">
                             <i class="fa-solid {{ $progress['sections'][$key] ? 'fa-circle-check text-emerald-500' : 'fa-circle text-slate-300' }} text-xs"></i>
                             <span class="truncate">{{ $label }}</span>
@@ -221,6 +221,36 @@
                                 </div>
                             </div>
                         @endforeach
+                    </div>
+                </section>
+
+                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                    <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
+                        <span class="flex size-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><i class="fa-solid fa-list-check"></i></span>
+                        <div><h2 class="text-base font-bold text-slate-900">Tes Kemampuan Akademik (TKA)</h2><p class="text-sm leading-5 text-slate-500">Pilih satu atau lebih mapel TKA.</p></div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-tka-group>
+                        @php($selectedTkaIds = collect(old('tka_subjects', $student->tkaSelections->pluck('tka_subject_id')->all()))->filter(fn ($value) => filled($value))->values()->all() ?: [null])
+                        @php($filledTkaCount = collect($selectedTkaIds)->filter(fn ($value) => filled($value))->count())
+                        <input type="hidden" data-progress-required data-progress-section="tka" data-tka-progress-flag value="{{ $filledTkaCount > 0 ? '1' : '' }}">
+                        <div class="space-y-3" data-tka-list>
+                            @foreach ($selectedTkaIds as $index => $selectedTkaId)
+                                <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4" data-repeat-item>
+                                    <div class="mb-3 flex items-center justify-between gap-3">
+                                        <p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500"><span class="flex size-6 items-center justify-center rounded-full bg-white text-blue-900 ring-1 ring-slate-200" data-repeat-counter>{{ $loop->iteration }}</span> Mapel TKA</p>
+                                        @if (! $isAdmin)<button type="button" class="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 text-xs font-bold text-rose-600 ring-1 ring-rose-100 transition hover:bg-rose-100" data-remove-repeat><i class="fa-solid fa-trash-can"></i> Hapus</button>@endif
+                                    </div>
+                                    <label class="space-y-1.5 text-sm font-semibold text-slate-700">Mapel TKA
+                                        <select name="tka_subjects[]" data-tka-select class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"><option value="">Pilih mapel TKA</option>@foreach (($tkaSubjects ?? collect()) as $tkaSubject)<option value="{{ $tkaSubject->id }}" @selected((int) $selectedTkaId === (int) $tkaSubject->id)>{{ $tkaSubject->name }} ({{ $tkaSubject->code }})</option>@endforeach</select>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-3">
+                            @if (! $isAdmin)
+                                <button type="button" class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-tka><i class="fa-solid fa-plus"></i> Tambah TKA Lain</button>
+                            @endif
+                        </div>
                     </div>
                 </section>
 
@@ -528,6 +558,18 @@
                 }
                 toggleOrganizations();
                 toggleAchievements();
+                const refreshTkaProgress = function () {
+                    const hasTka = Array.from(document.querySelectorAll('[data-tka-select]')).some(function (select) {
+                        return String(select.value ?? '').trim() !== '';
+                    });
+                    document.querySelectorAll('[data-tka-progress-flag]').forEach(function (flag) {
+                        flag.value = hasTka ? '1' : '';
+                    });
+                };
+                document.addEventListener('change', function (event) {
+                    if (event.target.matches && event.target.matches('[data-tka-select]')) refreshTkaProgress();
+                });
+                refreshTkaProgress();
 
                 const cloneItem = function (list) {
                     const item = list.querySelector('[data-repeat-item]');
@@ -544,6 +586,7 @@
                 };
                 document.querySelector('[data-add-achievement]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-achievement-list]')); });
                 document.querySelector('[data-add-organization]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-organization-list]')); toggleOrganizations(); });
+                document.querySelector('[data-add-tka]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-tka-list]')); refreshTkaProgress(); });
                 document.addEventListener('click', function (event) {
                     const removeButton = event.target.closest('[data-remove-repeat]');
                     if (!removeButton) return;
@@ -552,6 +595,7 @@
                     if (list && list.querySelectorAll('[data-repeat-item]').length > 1) {
                         item.remove();
                         refreshRepeatCounters(list);
+                        if (list.hasAttribute('data-tka-list')) refreshTkaProgress();
                     }
                 });
             });

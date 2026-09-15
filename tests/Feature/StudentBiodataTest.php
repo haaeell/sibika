@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Student;
+use App\Models\TkaSubject;
 use App\Models\University;
 use App\Models\User;
 use App\Services\StudentProgressService;
@@ -26,6 +27,8 @@ class StudentBiodataTest extends TestCase
             ->assertOk()
             ->assertSee('Biodata Saya')
             ->assertSee('Apakah kamu memiliki prestasi akademik atau non akademik?')
+            ->assertSee('Tes Kemampuan Akademik (TKA)')
+            ->assertSee('Tambah TKA Lain')
             ->assertSee('Tambah Prestasi Lain')
             ->assertSee('Tambah Organisasi Lain');
     }
@@ -137,6 +140,8 @@ class StudentBiodataTest extends TestCase
             'self_improvement_notes' => 'Meningkatkan disiplin',
             'mcu_status' => 'belum',
         ]);
+        $tka = TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true]);
+        $student->tkaSelections()->create(['tka_subject_id' => $tka->id]);
         foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
             $student->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
         }
@@ -144,8 +149,8 @@ class StudentBiodataTest extends TestCase
         $progress = app(StudentProgressService::class)->calculate($student->fresh());
 
         $this->assertSame(100, $progress['percentage']);
-        $this->assertSame(29, $progress['completed']);
-        $this->assertSame(29, $progress['total']);
+        $this->assertSame(30, $progress['completed']);
+        $this->assertSame(30, $progress['total']);
     }
 
     public function test_student_can_save_partial_biodata(): void
@@ -339,6 +344,106 @@ class StudentBiodataTest extends TestCase
         $this->assertDatabaseHas('student_achievements', ['student_id' => $student->id, 'name' => 'Juara Bertahan']);
     }
 
+    public function test_student_can_save_multiple_tka_subjects(): void
+    {
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-018', 'name' => 'Siswa TKA', 'user_id' => $user->id]);
+        $first = TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true]);
+        $second = TkaSubject::create(['code' => 'TKA-BIN', 'name' => 'Bahasa Indonesia TKA', 'is_active' => true]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'tka_subjects' => [$first->id, $second->id],
+            ])
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseHas('student_tka_subjects', ['student_id' => $student->id, 'tka_subject_id' => $first->id]);
+        $this->assertDatabaseHas('student_tka_subjects', ['student_id' => $student->id, 'tka_subject_id' => $second->id]);
+
+        $progress = app(StudentProgressService::class)->calculate($student->fresh('tkaSelections'));
+
+        $this->assertTrue($progress['sections']['tka']);
+    }
+
+    public function test_tka_subjects_must_be_unique(): void
+    {
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-019', 'name' => 'Siswa TKA Ganda', 'user_id' => $user->id]);
+        $subject = TkaSubject::create(['code' => 'TKA-ENG', 'name' => 'Bahasa Inggris TKA', 'is_active' => true]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'tka_subjects' => [$subject->id, $subject->id],
+            ])
+            ->assertSessionHasErrors('tka_subjects');
+    }
+
+    public function test_inactive_tka_subjects_are_rejected(): void
+    {
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-020', 'name' => 'Siswa TKA Nonaktif', 'user_id' => $user->id]);
+        $subject = TkaSubject::create(['code' => 'TKA-LAMA', 'name' => 'Mapel Lama TKA', 'is_active' => false]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'tka_subjects' => [$subject->id],
+            ])
+            ->assertSessionHasErrors('tka_subjects.0');
+    }
+
+    public function test_tka_sync_replaces_previous_selections(): void
+    {
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-021', 'name' => 'Siswa Ganti TKA', 'user_id' => $user->id]);
+        $old = TkaSubject::create(['code' => 'TKA-OLD', 'name' => 'Mapel Lama Dipilih', 'is_active' => true]);
+        $new = TkaSubject::create(['code' => 'TKA-NEW', 'name' => 'Mapel Baru Dipilih', 'is_active' => true]);
+        $student->tkaSelections()->create(['tka_subject_id' => $old->id]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'tka_subjects' => [$new->id],
+            ])
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseMissing('student_tka_subjects', ['student_id' => $student->id, 'tka_subject_id' => $old->id]);
+        $this->assertDatabaseHas('student_tka_subjects', ['student_id' => $student->id, 'tka_subject_id' => $new->id]);
+    }
+
+    public function test_missing_tka_subjects_preserves_existing_selections(): void
+    {
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-022', 'name' => 'Siswa TKA Bertahan', 'user_id' => $user->id]);
+        $subject = TkaSubject::create(['code' => 'TKA-KEEP', 'name' => 'Mapel Bertahan', 'is_active' => true]);
+        $student->tkaSelections()->create(['tka_subject_id' => $subject->id]);
+        $payload = $this->validBiodataPayload();
+        unset($payload['tka_subjects']);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), $payload)
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseHas('student_tka_subjects', ['student_id' => $student->id, 'tka_subject_id' => $subject->id]);
+    }
+
+    public function test_tka_is_required_for_complete_progress(): void
+    {
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-023', 'name' => 'Siswa Tanpa TKA', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), array_merge($this->validBiodataPayload(), ['tka_subjects' => []]))
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $progress = app(StudentProgressService::class)->calculate($student->fresh('tkaSelections'));
+
+        $this->assertFalse($progress['sections']['tka']);
+        $this->assertLessThan(100, $progress['percentage']);
+    }
+
     public function test_bk_achievement_status_tidak_deletes_existing_achievements(): void
     {
         Storage::fake('local');
@@ -353,6 +458,25 @@ class StudentBiodataTest extends TestCase
 
         $this->assertDatabaseHas('student_profiles', ['student_id' => $student->id, 'achievement_status' => 'tidak']);
         $this->assertDatabaseMissing('student_achievements', ['student_id' => $student->id, 'name' => 'Juara BK Lama']);
+    }
+
+    public function test_bk_can_sync_student_tka_subjects(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole(Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']));
+        $student = Student::create(['nis' => 'S-024', 'name' => 'Siswa BK TKA']);
+        $subject = TkaSubject::create(['code' => 'TKA-BK', 'name' => 'Mapel BK TKA', 'is_active' => true]);
+
+        $this->actingAs($user)
+            ->put(route('bk.students.biodata.update', $student), ['tka_subjects' => [$subject->id]])
+            ->assertRedirect(route('bk.students.biodata.show', $student));
+
+        $this->assertDatabaseHas('student_tka_subjects', ['student_id' => $student->id, 'tka_subject_id' => $subject->id]);
+
+        $this->actingAs($user)
+            ->get(route('bk.students.biodata.show', $student))
+            ->assertOk()
+            ->assertSee('Mapel BK TKA');
     }
 
     public function test_student_can_upload_personal_documents_without_counting_as_certificates(): void
@@ -515,6 +639,11 @@ class StudentBiodataTest extends TestCase
 
     private function validBiodataPayload(): array
     {
+        $tka = TkaSubject::firstOrCreate(
+            ['code' => 'TKA-MAT'],
+            ['name' => 'Matematika TKA', 'is_active' => true]
+        );
+
         return [
             'gender' => 'male',
             'birth_place' => 'Bandung',
@@ -534,6 +663,7 @@ class StudentBiodataTest extends TestCase
             ...$this->parentFields(),
             'organization_status' => 'tidak',
             'self_improvement_notes' => 'Meningkatkan disiplin',
+            'tka_subjects' => [$tka->id],
             'ijazah_smp' => UploadedFile::fake()->create('ijazah.pdf', 200, 'application/pdf'),
             'akte' => UploadedFile::fake()->create('akte.pdf', 200, 'application/pdf'),
             'kartu_keluarga' => UploadedFile::fake()->create('kk.pdf', 200, 'application/pdf'),

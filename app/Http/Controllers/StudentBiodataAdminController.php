@@ -7,6 +7,7 @@ use App\Models\Cohort;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentDocument;
+use App\Models\TkaSubject;
 use App\Models\University;
 use App\Services\StudentProgressService;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +50,7 @@ class StudentBiodataAdminController extends Controller
 
     public function show(Student $student): View
     {
-        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'schoolClass.academicYear', 'cohort']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject', 'schoolClass.academicYear', 'cohort']);
 
         return view('bk.students.biodata', [
             'student' => $student,
@@ -61,7 +62,7 @@ class StudentBiodataAdminController extends Controller
 
     public function edit(Student $student): View
     {
-        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'schoolClass.academicYear', 'cohort', 'user']);
+        $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject', 'schoolClass.academicYear', 'cohort', 'user']);
 
         return view('siswa.biodata.index', [
             'student' => $student,
@@ -72,16 +73,19 @@ class StudentBiodataAdminController extends Controller
             'biodataUpdateRoute' => route('bk.students.biodata.update', $student),
             'biodataBackRoute' => route('bk.students.biodata.show', $student),
             'universities' => University::where('is_active', true)->orderBy('type')->orderBy('name')->get()->groupBy('type'),
+            'tkaSubjects' => TkaSubject::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
     public function update(UpdateOwnBiodataRequest $request, Student $student): RedirectResponse
     {
         $data = $request->validated();
-        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['achievements'], $data['organizations']);
+        $tkaSubjectIds = $data['tka_subjects'] ?? null;
+        unset($data['photo'], $data['ijazah_smp'], $data['akte'], $data['kartu_keluarga'], $data['achievements'], $data['organizations'], $data['tka_subjects']);
         app(StudentBiodataController::class)->clearMajorsForGovernmentSchools($data);
 
         $student->profile()->updateOrCreate([], $data);
+        app(StudentBiodataController::class)->syncTkaSubjects($student, $tkaSubjectIds);
 
         if (($data['achievement_status'] ?? null) === 'tidak') {
             app(StudentBiodataController::class)->deleteAchievements($student);

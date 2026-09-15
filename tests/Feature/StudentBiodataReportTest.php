@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Student;
+use App\Models\TkaSubject;
 use App\Models\University;
 use App\Models\User;
 use App\Services\BiodataReportService;
@@ -23,8 +24,9 @@ class StudentBiodataReportTest extends TestCase
             $this->actingAs($user)
                 ->get(route('bk.biodata.report'))
                 ->assertOk()
-                ->assertSee('Laporan Biodata Siswa')
-                ->assertSee('Rekap Detail Siswa');
+            ->assertSee('Laporan Biodata Siswa')
+            ->assertSee('Rekap Detail Siswa')
+            ->assertSee('TKA');
         }
     }
 
@@ -42,6 +44,8 @@ class StudentBiodataReportTest extends TestCase
     {
         $complete = Student::create(['nis' => 'R-001', 'name' => 'Siswa Lengkap']);
         $complete->profile()->create($this->completeProfile());
+        $tka = TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true]);
+        $complete->tkaSelections()->create(['tka_subject_id' => $tka->id]);
         foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
             $complete->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
         }
@@ -55,7 +59,8 @@ class StudentBiodataReportTest extends TestCase
         $this->assertSame(1, $report['summary']['complete']);
         $this->assertSame(1, $report['summary']['incomplete']);
         $this->assertSame(54, $report['summary']['average_progress']);
-        $this->assertSame(27, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
+        $this->assertSame(28, $report['rows']->firstWhere('student.id', $incomplete->id)['missing']->count());
+        $this->assertSame('Matematika TKA', $report['rows']->firstWhere('student.id', $complete->id)['tka']);
         $this->assertSame(['Jawa Barat'], $report['charts']['province']['labels']);
         $this->assertSame([1], $report['charts']['province']['values']);
         $this->assertSame(['Bandung'], $report['charts']['city']['labels']);
@@ -66,6 +71,7 @@ class StudentBiodataReportTest extends TestCase
     {
         $complete = Student::create(['nis' => 'R-003', 'name' => 'MCU Selesai']);
         $complete->profile()->create($this->completeProfile());
+        $complete->tkaSelections()->create(['tka_subject_id' => TkaSubject::create(['code' => 'TKA-MAT', 'name' => 'Matematika TKA', 'is_active' => true])->id]);
         foreach (['Ijazah SMP', 'Akte', 'Kartu Keluarga'] as $type) {
             $complete->documents()->create(['document_type' => $type, 'file_path' => $type.'.pdf', 'original_name' => $type.'.pdf', 'mime_type' => 'application/pdf', 'file_size' => 1]);
         }

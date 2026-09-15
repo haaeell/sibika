@@ -18,6 +18,7 @@ use App\Http\Controllers\StudentScoreExportController;
 use App\Http\Controllers\StudentScoreReportController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TkaSubjectController;
 use App\Http\Controllers\UniversityController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +60,8 @@ Route::prefix('bk')
         Route::resource('majors', MajorController::class)->except('show');
         Route::get('subjects/data', [SubjectController::class, 'data'])->name('subjects.data');
         Route::resource('subjects', SubjectController::class)->except('show');
+        Route::get('tka-subjects/data', [TkaSubjectController::class, 'data'])->name('tka-subjects.data');
+        Route::resource('tka-subjects', TkaSubjectController::class)->except('show');
         Route::get('universities/data', [UniversityController::class, 'data'])->name('universities.data');
         Route::resource('universities', UniversityController::class)->except('show');
         Route::get('student-scores/data', [StudentScoreAdminController::class, 'data'])->name('student-scores.data');

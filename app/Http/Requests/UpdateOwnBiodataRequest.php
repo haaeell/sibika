@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class UpdateOwnBiodataRequest extends FormRequest
@@ -57,6 +58,8 @@ class UpdateOwnBiodataRequest extends FormRequest
             'organizations.*.position' => ['nullable', 'string', 'max:100'],
             'organizations.*.level' => ['nullable', 'in:sekolah,kab_kota,provinsi,nasional,internasional'],
             'organizations.*.year' => ['nullable', 'integer', 'min:2000', 'max:'.(now()->year + 1)],
+            'tka_subjects' => ['nullable', 'array'],
+            'tka_subjects.*' => ['nullable', 'integer', Rule::exists('tka_subjects', 'id')->where('is_active', true)],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'ijazah_smp' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'akte' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
@@ -86,14 +89,20 @@ class UpdateOwnBiodataRequest extends FormRequest
             ])->filter();
 
             $duplicates = $choices->duplicates();
-            if ($duplicates->isEmpty()) {
-                return;
+            if ($duplicates->isNotEmpty()) {
+                foreach ($choices as $field => $value) {
+                    if ($duplicates->contains($value)) {
+                        $validator->errors()->add($field, 'Pilihan kampus tidak boleh sama.');
+                    }
+                }
             }
 
-            foreach ($choices as $field => $value) {
-                if ($duplicates->contains($value)) {
-                    $validator->errors()->add($field, 'Pilihan kampus tidak boleh sama.');
-                }
+            $tkaIds = collect((array) $this->input('tka_subjects', []))
+                ->filter(fn ($value) => filled($value))
+                ->map(fn ($value) => (int) $value);
+
+            if ($tkaIds->duplicates()->isNotEmpty()) {
+                $validator->errors()->add('tka_subjects', 'Mapel TKA tidak boleh sama.');
             }
         });
     }

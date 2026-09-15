@@ -54,6 +54,11 @@ class Student extends Model
         return $this->hasMany(StudentOrganization::class);
     }
 
+    public function tkaSelections(): HasMany
+    {
+        return $this->hasMany(StudentTkaSubject::class);
+    }
+
     public function scores(): HasMany
     {
         return $this->hasMany(StudentScore::class);

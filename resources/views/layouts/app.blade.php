@@ -25,6 +25,7 @@
                 ['label' => 'Angkatan', 'icon' => 'fa-solid fa-layer-group', 'url' => route('bk.cohorts.index'), 'active' => request()->routeIs('bk.cohorts.*')],
                 ['label' => 'Jurusan', 'icon' => 'fa-solid fa-code-branch', 'url' => route('bk.majors.index'), 'active' => request()->routeIs('bk.majors.*')],
                 ['label' => 'Mata Pelajaran', 'icon' => 'fa-solid fa-book-open', 'url' => route('bk.subjects.index'), 'active' => request()->routeIs('bk.subjects.*')],
+                ['label' => 'Mapel TKA', 'icon' => 'fa-solid fa-list-check', 'url' => route('bk.tka-subjects.index'), 'active' => request()->routeIs('bk.tka-subjects.*')],
                 ['label' => 'Kampus', 'icon' => 'fa-solid fa-building-columns', 'url' => route('bk.universities.index'), 'active' => request()->routeIs('bk.universities.*')],
                 ['label' => 'Kelas', 'icon' => 'fa-solid fa-school', 'url' => route('bk.school-classes.index'), 'active' => request()->routeIs('bk.school-classes.*')],
                 ['label' => 'Guru', 'icon' => 'fa-solid fa-chalkboard-user', 'url' => route('bk.teachers.index'), 'active' => request()->routeIs('bk.teachers.*')],

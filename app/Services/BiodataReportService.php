@@ -12,7 +12,7 @@ class BiodataReportService
     public function generate(array $filters): array
     {
         $students = Student::query()
-            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'schoolClass', 'cohort', 'documents', 'achievements.documents', 'organizations'])
+            ->with(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'schoolClass', 'cohort', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject'])
             ->when($filters['class_id'] ?? null, fn ($query, $value) => $query->where('class_id', $value))
             ->when($filters['cohort_id'] ?? null, fn ($query, $value) => $query->where('cohort_id', $value))
             ->when($filters['status'] ?? null, fn ($query, $value) => $query->where('status', $value))
@@ -119,6 +119,7 @@ class BiodataReportService
                 'progress' => $student->biodata_progress['percentage'],
                 'missing' => $missing,
                 'certificate_count' => $this->certificates($student)->count(),
+                'tka' => $student->tkaSelections->map(fn ($selection) => $selection->tkaSubject?->name)->filter()->join(', ') ?: '-',
             ];
         });
 
