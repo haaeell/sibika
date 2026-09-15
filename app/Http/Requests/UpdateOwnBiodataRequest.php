@@ -53,6 +53,7 @@ class UpdateOwnBiodataRequest extends FormRequest
             'achievements.*.level' => ['nullable', 'in:kab_kota,provinsi,nasional,internasional'],
             'achievements.*.year' => ['nullable', 'integer', 'min:2000', 'max:'.(now()->year + 1)],
             'achievements.*.certificate' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'achievements.*.certificate_temp' => ['nullable', 'string', 'max:255'],
             'organizations' => ['nullable', 'array'],
             'organizations.*.name' => ['nullable', 'string', 'max:150'],
             'organizations.*.position' => ['nullable', 'string', 'max:100'],

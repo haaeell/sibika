@@ -587,6 +587,173 @@ class StudentBiodataTest extends TestCase
             ->assertJsonValidationErrors('type');
     }
 
+    public function test_student_can_upload_profile_photo_via_ajax(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-033', 'name' => 'Siswa Foto Ajax', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.photo.store'), [
+                'photo' => UploadedFile::fake()->image('foto.jpg'),
+            ])
+            ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonStructure(['photo_url']);
+
+        Storage::disk('local')->assertExists($student->fresh()->profile->photo_path);
+    }
+
+    public function test_ajax_profile_photo_upload_replaces_previous_file(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-034', 'name' => 'Siswa Foto Ganti', 'user_id' => $user->id]);
+        Storage::disk('local')->put('student-photos/foto-lama.jpg', 'lama');
+        $student->profile()->create(['photo_path' => 'student-photos/foto-lama.jpg']);
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.photo.store'), [
+                'photo' => UploadedFile::fake()->image('foto-baru.jpg'),
+            ])
+            ->assertOk();
+
+        Storage::disk('local')->assertMissing('student-photos/foto-lama.jpg');
+        Storage::disk('local')->assertExists($student->fresh()->profile->photo_path);
+    }
+
+    public function test_student_can_upload_temp_certificate_via_ajax(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-035', 'name' => 'Siswa Temp', 'user_id' => $user->id]);
+
+        $response = $this->actingAs($user)
+            ->postJson(route('siswa.biodata.certificates.temp.store'), [
+                'file' => UploadedFile::fake()->create('sertifikat.pdf', 200, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('original_name', 'sertifikat.pdf');
+
+        $tempPath = $response->json('temp_path');
+        $this->assertStringStartsWith('tmp/certificates/'.$user->id.'/', $tempPath);
+        Storage::disk('local')->assertExists($tempPath);
+    }
+
+    public function test_temp_certificate_replaces_previous_temp(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-036', 'name' => 'Siswa Temp Ganti', 'user_id' => $user->id]);
+
+        $first = $this->actingAs($user)
+            ->postJson(route('siswa.biodata.certificates.temp.store'), [
+                'file' => UploadedFile::fake()->create('satu.pdf', 200, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->json('temp_path');
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.certificates.temp.store'), [
+                'file' => UploadedFile::fake()->create('dua.pdf', 200, 'application/pdf'),
+                'old_temp' => $first,
+            ])
+            ->assertOk();
+
+        Storage::disk('local')->assertMissing($first);
+    }
+
+    public function test_temp_certificate_validates_file(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        Student::create(['nis' => 'S-037', 'name' => 'Siswa Temp Validasi', 'user_id' => $user->id]);
+
+        $this->actingAs($user)
+            ->postJson(route('siswa.biodata.certificates.temp.store'), [
+                'file' => UploadedFile::fake()->create('besar.pdf', 3000, 'application/pdf'),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('file');
+    }
+
+    public function test_submit_attaches_temp_certificate_to_achievement(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $student = Student::create(['nis' => 'S-038', 'name' => 'Siswa Temp Lampir', 'user_id' => $user->id]);
+
+        $tempPath = $this->actingAs($user)
+            ->postJson(route('siswa.biodata.certificates.temp.store'), [
+                'file' => UploadedFile::fake()->create('lampiran.pdf', 200, 'application/pdf'),
+            ])
+            ->assertOk()
+            ->json('temp_path');
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'achievement_status' => 'ya',
+                'achievements' => [[
+                    'type' => 'akademik',
+                    'name' => 'Juara Temp',
+                    'level' => 'kab_kota',
+                    'year' => 2026,
+                    'certificate_temp' => $tempPath,
+                ]],
+            ])
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseHas('student_documents', [
+            'student_id' => $student->id,
+            'document_type' => 'Sertifikat Prestasi',
+            'original_name' => 'lampiran.pdf',
+        ]);
+        Storage::disk('local')->assertMissing($tempPath);
+    }
+
+    public function test_submit_ignores_foreign_or_invalid_temp_certificate(): void
+    {
+        Storage::fake('local');
+        $user = $this->studentUser();
+        $other = User::factory()->create();
+        $student = Student::create(['nis' => 'S-039', 'name' => 'Siswa Temp Asing', 'user_id' => $user->id]);
+        Storage::disk('local')->put('tmp/certificates/'.$other->id.'/asing.pdf', 'asing');
+
+        $this->actingAs($user)
+            ->put(route('siswa.biodata.update'), [
+                ...$this->validBiodataPayload(),
+                'achievement_status' => 'ya',
+                'achievements' => [[
+                    'type' => 'akademik',
+                    'name' => 'Juara Asing',
+                    'level' => 'kab_kota',
+                    'year' => 2026,
+                    'certificate_temp' => 'tmp/certificates/'.$other->id.'/asing.pdf',
+                ]],
+            ])
+            ->assertRedirect(route('siswa.biodata.index'));
+
+        $this->assertDatabaseMissing('student_documents', ['student_id' => $student->id, 'document_type' => 'Sertifikat Prestasi']);
+        Storage::disk('local')->assertExists('tmp/certificates/'.$other->id.'/asing.pdf');
+    }
+
+    public function test_cleanup_command_deletes_expired_temp_certificates(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('tmp/certificates/1/lama.pdf', 'lama');
+        Storage::disk('local')->put('tmp/certificates/1/baru.pdf', 'baru');
+
+        $old = time() - (25 * 3600);
+        touch(Storage::disk('local')->path('tmp/certificates/1/lama.pdf'), $old);
+
+        $this->artisan('app:cleanup-temp-certificates')->assertSuccessful();
+
+        Storage::disk('local')->assertMissing('tmp/certificates/1/lama.pdf');
+        Storage::disk('local')->assertExists('tmp/certificates/1/baru.pdf');
+    }
+
     public function test_legacy_personal_document_types_count_as_complete(): void
     {
         Storage::fake('local');

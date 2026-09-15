@@ -48,11 +48,11 @@
             </div>
 
             <section class="border-b border-slate-100 bg-slate-50/60 px-5 py-6 sm:px-6">
-                    <div class="mx-auto flex max-w-md flex-col items-center text-center">
+                    <div class="mx-auto flex max-w-md flex-col items-center text-center" data-profile-photo-block>
                         @if (! $isAdmin && $profile?->photo_path)
-                            <img src="{{ route('siswa.biodata.photo.show', ['v' => md5($profile->photo_path)]) }}" alt="Foto profil {{ $student->name }}" class="size-20 rounded-2xl border-2 border-white object-cover shadow-sm sm:size-24">
+                            <img src="{{ route('siswa.biodata.photo.show', ['v' => md5($profile->photo_path)]) }}" alt="Foto profil {{ $student->name }}" class="size-20 rounded-2xl border-2 border-white object-cover shadow-sm sm:size-24" data-profile-photo-img>
                         @else
-                            <div class="flex size-20 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 shadow-sm sm:size-24">
+                            <div class="flex size-20 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 shadow-sm sm:size-24" data-profile-photo-placeholder>
                                 <i class="fa-solid fa-user-graduate text-2xl"></i>
                             </div>
                         @endif
@@ -71,8 +71,9 @@
                         @if (! $isAdmin)
                             <div class="mt-5 w-full rounded-xl border border-dashed border-slate-300 bg-white p-3 text-left">
                                 <label for="profile-photo" class="mb-2 block text-sm font-semibold text-slate-700">Foto Profil <span class="font-normal text-slate-400">(maks. 2 MB)</span></label>
-                                <input id="profile-photo" type="file" name="photo" form="biodata-form" accept="image/jpeg,image/png,image/webp" data-max-file-size="2097152" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800">
-                                <p class="mt-2 text-xs text-slate-400">Foto ikut tersimpan saat klik Simpan Biodata.</p>
+                                <input id="profile-photo" type="file" name="photo" form="biodata-form" accept="image/jpeg,image/png,image/webp" data-max-file-size="2097152" data-profile-photo-file class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800 disabled:opacity-60">
+                                <p class="mt-2 text-xs text-slate-400">Foto otomatis tersimpan saat file dipilih.</p>
+                                <p class="mt-1 hidden text-xs font-semibold" data-profile-photo-status></p>
                             </div>
                         @endif
                     </div>
@@ -302,9 +303,11 @@
                                             </label>
                                         </div>
                                         @if (! $isAdmin)
-                                            <label class="mt-3 block rounded-xl border border-dashed border-slate-300 bg-white p-3 text-xs font-semibold text-slate-600">
-                                                <span class="mb-2 flex items-center gap-2"><i class="fa-solid fa-paperclip text-slate-400"></i> Sertifikat pendukung <span class="font-medium text-slate-400">(opsional, max 2MB)</span></span>
-                                                <input name="achievements[{{ $index }}][certificate]" type="file" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800">
+                                            <label class="mt-3 block rounded-xl border border-dashed border-slate-300 bg-white p-3 text-xs font-semibold text-slate-600" data-achievement-certificate-block>
+                                                <span class="mb-2 flex items-center gap-2"><i class="fa-solid fa-paperclip text-slate-400"></i> Sertifikat pendukung <span class="font-medium text-slate-400">(opsional, max 2MB, otomatis terunggah)</span></span>
+                                                <input name="achievements[{{ $index }}][certificate]" type="file" accept="application/pdf,image/jpeg,image/png" data-max-file-size="2097152" data-achievement-certificate-file class="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-blue-800 disabled:opacity-60">
+                                                <input type="hidden" name="achievements[{{ $index }}][certificate_temp]" value="{{ $achievement['certificate_temp'] ?? '' }}" data-achievement-certificate-temp>
+                                                <span class="mt-1 text-xs font-semibold {{ filled($achievement['certificate_temp'] ?? null) ? 'text-emerald-600' : 'hidden' }}" data-achievement-certificate-status>{{ filled($achievement['certificate_temp'] ?? null) ? 'File terlampir, ikut tersimpan saat klik Simpan Biodata.' : '' }}</span>
                                             </label>
                                         @endif
                                     </div>
@@ -518,7 +521,10 @@
                     let totalOk = true;
                     if (fileInput.matches('[data-personal-document-file]')) totalOk = validatePersonalDocumentSize();
                     fileInput.reportValidity();
-                    if (sizeOk && totalOk && fileInput.matches('[data-personal-document-file]')) uploadPersonalDocument(fileInput);
+                    if (!sizeOk || !totalOk) return;
+                    if (fileInput.matches('[data-personal-document-file]')) uploadPersonalDocument(fileInput);
+                    if (fileInput.matches('[data-profile-photo-file]')) uploadProfilePhoto(fileInput);
+                    if (fileInput.matches('[data-achievement-certificate-file]')) uploadTempCertificate(fileInput);
                 });
                 biodataForm?.addEventListener('submit', function (event) {
                     const valid = Array.from(biodataForm.querySelectorAll('input[type="file"][data-max-file-size]')).every(validateFileSize) && validatePersonalDocumentSize();
@@ -615,6 +621,97 @@
                     });
                 };
 
+                const profilePhotoUploadUrl = @json(route('siswa.biodata.photo.store'));
+                const tempCertificateUploadUrl = @json(route('siswa.biodata.certificates.temp.store'));
+                const setAjaxUploadStatus = function (statusEl, message, state) {
+                    if (!statusEl) return;
+                    statusEl.textContent = message || '';
+                    statusEl.classList.remove('hidden', 'text-emerald-600', 'text-rose-600', 'text-slate-500');
+                    if (!message) {
+                        statusEl.classList.add('hidden');
+                        return;
+                    }
+                    statusEl.classList.add(state === 'ok' ? 'text-emerald-600' : (state === 'error' ? 'text-rose-600' : 'text-slate-500'));
+                };
+                const postAjaxFile = function (url, formData) {
+                    return fetch(url, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData,
+                    }).then(function (response) {
+                        return response.json().then(function (payload) {
+                            return { ok: response.ok, payload: payload };
+                        }).catch(function () {
+                            return { ok: false, payload: null };
+                        });
+                    });
+                };
+                const uploadProfilePhoto = function (input) {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+                    const block = input.closest('[data-profile-photo-block]');
+                    const statusEl = block?.querySelector('[data-profile-photo-status]');
+                    input.disabled = true;
+                    setAjaxUploadStatus(statusEl, 'Mengunggah foto...', 'progress');
+                    const formData = new FormData();
+                    formData.append('photo', file);
+                    postAjaxFile(profilePhotoUploadUrl, formData).then(function (result) {
+                        input.disabled = false;
+                        if (!result.ok || !result.payload || !result.payload.ok) {
+                            const errors = (result.payload && result.payload.errors) || {};
+                            const message = errors.photo ? errors.photo[0] : ((result.payload && result.payload.message) || 'Upload gagal. Coba lagi.');
+                            input.value = '';
+                            setAjaxUploadStatus(statusEl, message, 'error');
+                            return;
+                        }
+                        input.value = '';
+                        const preview = block.querySelector('[data-profile-photo-img]') || block.querySelector('[data-profile-photo-placeholder]');
+                        if (preview) {
+                            const img = window.document.createElement('img');
+                            img.src = result.payload.photo_url + '&t=' + Date.now();
+                            img.alt = 'Foto profil';
+                            img.className = 'size-20 rounded-2xl border-2 border-white object-cover shadow-sm sm:size-24';
+                            img.setAttribute('data-profile-photo-img', '');
+                            preview.replaceWith(img);
+                        }
+                        setAjaxUploadStatus(statusEl, 'Tersimpan otomatis.', 'ok');
+                    }).catch(function () {
+                        input.disabled = false;
+                        input.value = '';
+                        setAjaxUploadStatus(statusEl, 'Upload gagal karena koneksi. Coba lagi.', 'error');
+                    });
+                };
+                const uploadTempCertificate = function (input) {
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+                    const block = input.closest('[data-achievement-certificate-block]');
+                    const tokenInput = block?.querySelector('[data-achievement-certificate-temp]');
+                    const statusEl = block?.querySelector('[data-achievement-certificate-status]');
+                    input.disabled = true;
+                    setAjaxUploadStatus(statusEl, 'Mengunggah "' + file.name + '"...', 'progress');
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('old_temp', (tokenInput && tokenInput.value) || '');
+                    postAjaxFile(tempCertificateUploadUrl, formData).then(function (result) {
+                        input.disabled = false;
+                        if (!result.ok || !result.payload || !result.payload.ok) {
+                            const errors = (result.payload && result.payload.errors) || {};
+                            const message = errors.file ? errors.file[0] : ((result.payload && result.payload.message) || 'Upload gagal. Coba lagi.');
+                            input.value = '';
+                            setAjaxUploadStatus(statusEl, message, 'error');
+                            return;
+                        }
+                        if (tokenInput) tokenInput.value = result.payload.temp_path;
+                        input.value = '';
+                        input.setCustomValidity('');
+                        setAjaxUploadStatus(statusEl, 'File terlampir, ikut tersimpan saat klik Simpan Biodata.', 'ok');
+                    }).catch(function () {
+                        input.disabled = false;
+                        input.value = '';
+                        setAjaxUploadStatus(statusEl, 'Upload gagal karena koneksi. Coba lagi.', 'error');
+                    });
+                };
+
                 const organizationStatusEl = document.querySelector('[data-organization-status]');
                 const organizationWrapper = document.querySelector('[data-organization-name-wrapper]');
                 const achievementStatusEl = document.querySelector('[data-achievement-status]');
@@ -680,7 +777,16 @@
                     list.appendChild(clone);
                     refreshRepeatCounters(list);
                 };
-                document.querySelector('[data-add-achievement]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-achievement-list]')); });
+                document.querySelector('[data-add-achievement]')?.addEventListener('click', function () {
+                    const achievementList = document.querySelector('[data-achievement-list]');
+                    cloneItem(achievementList);
+                    const newItem = achievementList.querySelector('[data-repeat-item]:last-child');
+                    const newStatus = newItem?.querySelector('[data-achievement-certificate-status]');
+                    if (newStatus) {
+                        newStatus.textContent = '';
+                        newStatus.classList.add('hidden');
+                    }
+                });
                 document.querySelector('[data-add-organization]')?.addEventListener('click', function () { cloneItem(document.querySelector('[data-organization-list]')); toggleOrganizations(); });
                 document.querySelector('[data-add-tka]')?.addEventListener('click', function () {
                     const tkaList = document.querySelector('[data-tka-list]');

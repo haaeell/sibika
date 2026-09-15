@@ -51,11 +51,14 @@ class StudentBiodataController extends Controller
         return redirect()->route('siswa.biodata.index')->with('success', 'Biodata berhasil diperbarui.');
     }
 
-    public function uploadPhoto(Request $request): RedirectResponse
+    public function uploadPhoto(Request $request): RedirectResponse|JsonResponse
     {
         $student = $this->studentFor($request);
         $validated = $request->validate([
             'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ], [
+            'photo.max' => 'Ukuran foto maksimal 2 MB.',
+            'photo.mimes' => 'Foto harus berupa JPG, JPEG, PNG, atau WEBP.',
         ]);
 
         $profile = $student->profile()->firstOrCreate([]);
@@ -63,6 +66,13 @@ class StudentBiodataController extends Controller
             Storage::disk('local')->delete($profile->photo_path);
         }
         $profile->update(['photo_path' => $validated['photo']->store('student-photos', 'local')]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'ok' => true,
+                'photo_url' => route('siswa.biodata.photo.show', ['v' => md5((string) $profile->photo_path)]),
+            ]);
+        }
 
         return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
@@ -145,6 +155,39 @@ class StudentBiodataController extends Controller
                 'original_name' => $document->original_name,
                 'download_url' => route('siswa.biodata.documents.download', $document),
             ],
+        ]);
+    }
+
+    public function uploadTempCertificate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'old_temp' => ['nullable', 'string', 'max:255'],
+        ], [
+            'file.max' => 'Ukuran sertifikat maksimal 2 MB.',
+            'file.mimes' => 'Sertifikat harus berupa PDF, JPG, JPEG, atau PNG.',
+        ]);
+
+        if (filled($validated['old_temp'] ?? null)) {
+            $this->deleteTempCertificate($request->user()->id, $validated['old_temp']);
+        }
+
+        $file = $validated['file'];
+        $tempPath = $file->storeAs(
+            'tmp/certificates/'.$request->user()->id,
+            date('YmdHis').'_'.bin2hex(random_bytes(8)).'.'.$file->getClientOriginalExtension(),
+            'local'
+        );
+        Storage::disk('local')->put($tempPath.'.json', json_encode([
+            'original_name' => $file->getClientOriginalName(),
+            'file_size' => $file->getSize(),
+        ]));
+
+        return response()->json([
+            'ok' => true,
+            'temp_path' => $tempPath,
+            'original_name' => $file->getClientOriginalName(),
+            'file_size' => $file->getSize(),
         ]);
     }
 
@@ -242,9 +285,10 @@ class StudentBiodataController extends Controller
 
         foreach ($achievements as $index => $achievementData) {
             $hasCertificate = $request->hasFile("achievements.$index.certificate");
-            $hasDetail = collect($achievementData)->except('certificate')->filter(fn ($value) => filled($value))->isNotEmpty();
+            $tempCertificate = $this->resolveTempCertificate($request->user()->id, $achievementData['certificate_temp'] ?? null);
+            $hasDetail = collect($achievementData)->except(['certificate', 'certificate_temp'])->filter(fn ($value) => filled($value))->isNotEmpty();
 
-            if (! $hasDetail && ! $hasCertificate) {
+            if (! $hasDetail && ! $hasCertificate && ! $tempCertificate) {
                 continue;
             }
 
@@ -266,8 +310,56 @@ class StudentBiodataController extends Controller
                     'file_size' => $file->getSize(),
                     'uploaded_by' => $request->user()->id,
                 ]);
+            } elseif ($tempCertificate) {
+                $permanentPath = 'student-documents/'.$student->id.'/'.basename($tempCertificate['path']);
+                Storage::disk('local')->move($tempCertificate['path'], $permanentPath);
+                Storage::disk('local')->delete($tempCertificate['path'].'.json');
+                $student->documents()->create([
+                    'achievement_id' => $achievement->id,
+                    'document_type' => 'Sertifikat Prestasi',
+                    'file_path' => $permanentPath,
+                    'original_name' => $tempCertificate['original_name'],
+                    'mime_type' => Storage::disk('local')->mimeType($permanentPath),
+                    'file_size' => Storage::disk('local')->size($permanentPath),
+                    'uploaded_by' => $request->user()->id,
+                ]);
             }
         }
+    }
+
+    private function resolveTempCertificate(int $userId, mixed $value): ?array
+    {
+        if (! is_string($value) || $value === '' || str_contains($value, '..')) {
+            return null;
+        }
+
+        if (! str_starts_with($value, 'tmp/certificates/'.$userId.'/')) {
+            return null;
+        }
+
+        if (! Storage::disk('local')->exists($value)) {
+            return null;
+        }
+
+        $originalName = basename($value);
+        if (Storage::disk('local')->exists($value.'.json')) {
+            $meta = json_decode((string) Storage::disk('local')->get($value.'.json'), true);
+            if (is_array($meta) && filled($meta['original_name'] ?? null)) {
+                $originalName = (string) $meta['original_name'];
+            }
+        }
+
+        return ['path' => $value, 'original_name' => $originalName];
+    }
+
+    private function deleteTempCertificate(int $userId, mixed $value): void
+    {
+        $temp = $this->resolveTempCertificate($userId, $value);
+        if (! $temp) {
+            return;
+        }
+
+        Storage::disk('local')->delete([$temp['path'], $temp['path'].'.json']);
     }
 
     private function syncOrganizations(Student $student, array $organizations): void
