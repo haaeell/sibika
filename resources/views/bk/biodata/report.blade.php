@@ -2,6 +2,10 @@
     <x-page-header title="Laporan Biodata Siswa" description="Analisis kelengkapan, kesehatan, rencana kampus, aktivitas, dan prestasi seluruh siswa.">
         <x-slot:actions>
             <x-export-buttons resource="biodata" />
+            <button type="button" data-export-all-charts class="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-60" title="Unduh semua grafik (PDF)">
+                <i class="fa-solid fa-file-pdf"></i>
+                Grafik PDF
+            </button>
         </x-slot:actions>
     </x-page-header>
 
@@ -256,4 +260,5 @@
             });
         </script>
     @endpush
+    @include('bk.reports._chart-download')
 @endcomponent

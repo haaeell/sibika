@@ -7,6 +7,7 @@ use App\Http\Controllers\BkDashboardController;
 use App\Http\Controllers\CohortController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MajorController;
+use App\Http\Controllers\ReportChartExportController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\ScoreEditApprovalController;
 use App\Http\Controllers\ScoreSubjectSettingController;
@@ -44,6 +45,7 @@ Route::prefix('bk')
         Route::get('students/data', [StudentController::class, 'data'])->name('students.data');
         Route::get('biodata/data', [StudentBiodataAdminController::class, 'data'])->name('biodata.data');
         Route::get('biodata/report', [BiodataReportController::class, 'index'])->name('biodata.report');
+        Route::post('reports/charts/export', ReportChartExportController::class)->name('reports.charts.export');
         Route::get('biodata', [StudentBiodataAdminController::class, 'index'])->name('biodata.index');
         Route::get('students/{student}/biodata', [StudentBiodataAdminController::class, 'show'])->name('students.biodata.show');
         Route::get('students/{student}/biodata/edit', [StudentBiodataAdminController::class, 'edit'])->name('students.biodata.edit');
