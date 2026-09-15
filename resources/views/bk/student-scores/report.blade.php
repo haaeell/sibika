@@ -134,7 +134,6 @@
                         <th>Rata-rata</th>
                         <th>Rank Kelas</th>
                         <th>Rank Jurusan</th>
-                        <th>Nilai Belum Diisi</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -152,7 +151,6 @@
                             <td data-order="{{ $row['average'] ?? -1 }}"><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ is_null($row['average']) ? 'bg-slate-100 text-slate-600' : ($row['average'] >= 80 ? 'bg-emerald-50 text-emerald-700' : ($row['average'] >= 70 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700')) }}">{{ is_null($row['average']) ? '-' : number_format($row['average'], 2) }}</span></td>
                             <td>{{ $row['class_rank'] ?? '-' }}</td>
                             <td>{{ $row['major_rank'] ?? '-' }}</td>
-                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5 text-slate-600">{{ empty($row['missing']) ? 'Lengkap' : implode(' | ', $row['missing']) }}</span></td>
                             <td><a href="{{ route('bk.student-scores.show', $student) }}" class="btn-icon" aria-label="Lihat nilai {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>
                     @endforeach

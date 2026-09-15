@@ -154,7 +154,6 @@
                         <th>Kelas</th>
                         <th>Angkatan</th>
                         <th>Progress</th>
-                        <th>Data Wajib Belum Diisi</th>
                         <th>MCU</th>
                         <th>Biodata Orang Tua</th>
                         <th>Riwayat Kesehatan</th>
@@ -173,7 +172,6 @@
                             <td>{{ $student->schoolClass?->name ?? '-' }}</td>
                             <td>{{ $student->cohort?->name ?? '-' }}</td>
                             <td data-order="{{ $row['progress'] }}"><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $row['progress'] === 100 ? 'bg-emerald-50 text-emerald-700' : ($row['progress'] >= 50 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700') }}">{{ $row['progress'] }}%</span></td>
-                            <td><span class="block max-w-xs whitespace-normal text-xs leading-5 text-slate-600">{{ $row['missing']->isEmpty() ? 'Lengkap' : $row['missing']->join(', ') }}</span></td>
                             <td>{{ ['sudah' => 'Sudah', 'proses' => 'Proses', 'belum' => 'Belum'][$student->profile?->mcu_status] ?? '-' }}{{ $student->profile?->mcu_status === 'sudah' ? ' - '.$student->profile?->mcu_count.' kali, terakhir '.$student->profile?->mcu_last_date?->format('d M Y') : '' }}</td>
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5">Ayah: {{ $student->profile?->parent_father_name ?? '-' }} ({{ $student->profile?->parent_father_occupation ?? '-' }})<br>Ibu: {{ $student->profile?->parent_mother_name ?? '-' }} ({{ $student->profile?->parent_mother_occupation ?? '-' }})<br>Telp: {{ $student->profile?->parent_phone ?? '-' }}</span></td>
                             <td><span class="block max-w-xs truncate" title="{{ $student->profile?->medical_history }}">{{ $student->profile?->medical_history ?? '-' }}</span></td>
