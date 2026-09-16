@@ -52,7 +52,7 @@
             </div>
         </section>
 
-        <section class="flex min-h-screen flex-col bg-slate-50 px-5 py-5 sm:px-8 lg:min-h-0 lg:overflow-y-auto lg:px-10 xl:px-16">
+        <section class="flex min-h-screen flex-col bg-white px-4 py-5 sm:bg-slate-50 sm:px-8 lg:min-h-0 lg:overflow-y-auto lg:px-10 xl:px-16">
             <div class="flex justify-end">
                 <a href="{{ $loginSetting->helpWhatsappUrl() ?? '#' }}" @if ($loginSetting->helpWhatsappUrl()) target="_blank" rel="noopener" @endif class="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-blue-800">
                     <i class="fa-regular fa-circle-question"></i>
@@ -60,8 +60,8 @@
                 </a>
             </div>
 
-            <div class="flex flex-1 items-center justify-center py-5">
-                <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white px-6 py-7 shadow-sm sm:px-8 lg:px-10">
+            <div class="flex flex-1 items-center justify-center py-5 sm:py-8">
+                <div class="w-full max-w-lg px-1 py-7 sm:rounded-2xl sm:border sm:border-slate-200 sm:bg-white sm:px-8 sm:shadow-sm lg:px-10">
                     <div class="text-center">
                         <img
                             src="{{ $loginSetting->logoUrl() }}"

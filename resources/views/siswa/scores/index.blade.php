@@ -1,7 +1,11 @@
 @component('layouts.app', ['title' => 'Nilai Semester'])
     <x-page-header title="Nilai Semester" description="Isi nilai semester 1 sampai 5 sesuai mapel umum dan jurusan." />
 
-    <x-card class="-mx-4 overflow-hidden rounded-none border-x-0 p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5">
+    <x-card class="overflow-hidden p-4 sm:rounded-2xl sm:border sm:p-5">
+        <div class="mb-2 flex items-center justify-between text-xs font-bold text-slate-500 sm:hidden">
+            <span data-semester-position>Semester {{ $activeSemester }} dari 5</span>
+            <span><i class="fa-solid fa-arrows-left-right mr-1"></i>Geser untuk semester lain</span>
+        </div>
         <div class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" data-semester-tabs role="tablist" aria-label="Pilih semester">
             @foreach ($semesters as $semester => $data)
                 <button type="button" class="js-semester-tab shrink-0 rounded-xl px-4 py-2 text-sm font-extrabold transition focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 {{ $semester === $activeSemester ? 'bg-blue-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900' }}" data-semester="{{ $semester }}" data-semester-target="student-score-semester-{{ $semester }}" role="tab" aria-selected="{{ $semester === $activeSemester ? 'true' : 'false' }}">
@@ -128,6 +132,7 @@
                     button.closest('[data-semester-tabs]').find('.js-semester-tab').attr('aria-selected', 'false');
                     button.removeClass('bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900').addClass('bg-blue-900 text-white');
                     button.attr('aria-selected', 'true')[0].scrollIntoView({ block: 'nearest', inline: 'center' });
+                    window.$('[data-semester-position]').text('Semester ' + button.data('semester') + ' dari 5');
                     window.$('[data-semester-panel]').addClass('hidden');
                     window.$('#' + target).removeClass('hidden');
                     window.history.replaceState(null, '', '?semester=' + button.data('semester'));

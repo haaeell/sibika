@@ -6,18 +6,25 @@
     $hasTrend = $trendValues->filter(fn ($value) => ! is_null($value))->isNotEmpty();
 @endphp
 
-<x-card title="Tren Rata-rata Semester 1–5" description="Perkembangan rata-rata nilai dari semester 1 sampai 5.">
-    @if (! $hasTrend)
-        <x-empty-state icon="fa-solid fa-chart-line" title="Belum ada rata-rata" description="Grafik tren muncul setelah ada nilai yang diisi." />
-    @else
-        <div class="h-64"><canvas id="{{ $id }}"></canvas></div>
+<details class="-mx-4 border-y border-slate-200 bg-white sm:mx-0 sm:rounded-2xl sm:border" data-average-trend-details>
+    <summary class="cursor-pointer px-4 py-4 sm:px-5">
+        <span class="block text-base font-semibold text-slate-900">Tren Rata-rata Semester 1-5</span>
+        <span class="mt-1 block text-sm text-slate-500">Buka untuk melihat perkembangan nilai.</span>
+    </summary>
+    <div class="border-t border-slate-100 p-4 sm:p-5">
+        @if (! $hasTrend)
+            <x-empty-state icon="fa-solid fa-chart-line" title="Belum ada rata-rata" description="Grafik tren muncul setelah ada nilai yang diisi." />
+        @else
+            <div class="h-64"><canvas id="{{ $id }}"></canvas></div>
         @push('scripts')
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     var canvas = document.getElementById(@json($id));
-                    if (!canvas || canvas.dataset.rendered) return;
-                    canvas.dataset.rendered = '1';
-                    new window.Chart(canvas, {
+                    if (!canvas) return;
+                    var render = function () {
+                        if (canvas.dataset.rendered) return;
+                        canvas.dataset.rendered = '1';
+                        new window.Chart(canvas, {
                         type: 'line',
                         data: {
                             labels: @json($trendLabels),
@@ -44,9 +51,19 @@
                                 legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
                             },
                         },
-                    });
+                        });
+                    };
+                    var details = canvas.closest('details');
+                    if (details) {
+                        details.addEventListener('toggle', function () {
+                            if (details.open) render();
+                        });
+                    } else {
+                        render();
+                    }
                 });
             </script>
         @endpush
-    @endif
-</x-card>
+        @endif
+    </div>
+</details>
