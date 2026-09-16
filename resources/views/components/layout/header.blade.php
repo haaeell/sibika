@@ -37,18 +37,18 @@
                 @endif
             </button>
 
-            <div id="notif-menu" class="absolute right-0 z-50 mt-2 hidden w-[26.25rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" data-notif-menu>
+            <div id="notif-menu" class="fixed inset-x-3 bottom-3 top-20 z-[60] hidden flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl sm:absolute sm:inset-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-[26.25rem] sm:max-w-[calc(100vw-2rem)]" data-notif-menu>
                 <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
                     <p class="shrink-0 text-sm font-extrabold text-slate-900">Notifikasi</p>
                     @if ($headerUnreadCount > 0)
-                        <button type="button" data-notif-read-all class="whitespace-nowrap text-xs font-bold text-blue-800 hover:underline">Tandai semua dibaca</button>
+                        <button type="button" data-notif-read-all class="whitespace-nowrap rounded-lg text-xs font-bold text-blue-800 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">Tandai semua dibaca</button>
                     @endif
                 </div>
-                <div class="max-h-80 overflow-y-auto py-1" data-notif-list>
+                <div class="min-h-0 flex-1 overflow-y-auto py-1 sm:max-h-80" data-notif-list>
                     @forelse ($headerNotifications as $notif)
                         <form action="{{ route('notifications.read', $notif) }}" method="POST" class="block border-b border-slate-50 last:border-0 {{ is_null($notif->read_at) ? 'bg-blue-50/50' : '' }}">
                             @csrf
-                            <button type="submit" class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50">
+                            <button type="submit" class="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-700">
                                 <i class="fa-solid {{ $headerNotifIcons[$notif->type] ?? 'fa-circle-info text-slate-400' }} mt-1 shrink-0"></i>
                                 <span class="min-w-0 flex-1">
                                     <span class="block text-sm font-bold leading-6 text-slate-900">{{ $notif->title }}</span>
@@ -112,14 +112,26 @@
                 event.stopPropagation();
                 var expanded = $toggle.attr('aria-expanded') === 'true';
                 $toggle.attr('aria-expanded', String(!expanded));
-                $menu.toggleClass('hidden', expanded);
+                $menu.toggleClass('hidden', expanded).toggleClass('flex', !expanded);
+                if (!expanded) $menu.find('button').first().trigger('focus');
             });
 
             window.$(document).on('click', function (event) {
                 if (!window.$(event.target).closest('.js-notif-toggle, [data-notif-menu]').length) {
-                    $menu.addClass('hidden');
+                    $menu.addClass('hidden').removeClass('flex');
                     $toggle.attr('aria-expanded', 'false');
                 }
+            });
+
+            window.$(document).on('keydown', function (event) {
+                if (event.key !== 'Escape' || $menu.hasClass('hidden')) return;
+                $menu.addClass('hidden').removeClass('flex');
+                $toggle.attr('aria-expanded', 'false').trigger('focus');
+            });
+
+            window.$('.js-sidebar-layout-toggle').on('click', function () {
+                $menu.addClass('hidden').removeClass('flex');
+                $toggle.attr('aria-expanded', 'false');
             });
 
             window.$('[data-notif-read-all]').on('click', function () {
@@ -132,7 +144,10 @@
                         'X-CSRF-TOKEN': window.$('meta[name="csrf-token"]').attr('content'),
                     },
                 })
-                    .then(function () { window.location.reload(); })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error('Gagal menandai notifikasi.');
+                        window.location.reload();
+                    })
                     .catch(function () {
                         window.setButtonLoading($btn, false);
                         window.handleAjaxError({ responseJSON: { message: 'Gagal menandai notifikasi.' } });
