@@ -24,7 +24,7 @@
             id="{{ $name }}"
             name="{{ $name }}"
             @if ($required) required @endif
-            {{ $attributes->merge(['class' => 'w-full rounded-xl border border-slate-300 bg-white '.($icon ? 'pl-12 pr-3.5' : 'px-3.5').' py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10']) }}
+            {{ $attributes->merge(['class' => 'w-full rounded-xl border border-slate-300 bg-white '.($icon ? 'pl-12 pr-3.5' : 'px-3.5').' py-2.5 text-base text-slate-900 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10 sm:text-sm']) }}
         >
             {{ $slot }}
         </select>

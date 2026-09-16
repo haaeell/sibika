@@ -188,6 +188,17 @@
         scroll-margin-block: 1rem 12rem;
     }
 
+    @media (max-width: 639px) {
+        /* iOS zooms controls below 16px when the virtual keyboard opens. */
+        [data-biodata-progress-form] input,
+        [data-biodata-progress-form] select,
+        [data-biodata-progress-form] textarea,
+        [data-biodata-progress-form] .select2-container .select2-selection__rendered,
+        .select2-container--open .select2-search__field {
+            font-size: 1rem !important;
+        }
+    }
+
     div.dt-container {
         @apply text-sm text-slate-700;
     }

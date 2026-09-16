@@ -64,7 +64,7 @@
                             <input type="hidden" name="semester" value="{{ $semester }}">
                             <div>
                                 <label for="reason-{{ $semester }}" class="mb-1.5 block text-sm font-semibold text-slate-700">Alasan pengajuan edit <span class="text-rose-500">*</span></label>
-                                <textarea id="reason-{{ $semester }}" name="reason" rows="3" required minlength="10" placeholder="Contoh: nilai Matematika salah input, seharusnya 85 bukan 58" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"></textarea>
+                                <textarea id="reason-{{ $semester }}" name="reason" rows="3" required minlength="10" placeholder="Contoh: nilai Matematika salah input, seharusnya 85 bukan 58" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10 sm:text-sm"></textarea>
                                 <x-form.error name="reason" />
                             </div>
                             <x-button type="submit"><i class="fa-solid fa-paper-plane"></i> Ajukan Permintaan Edit</x-button>
