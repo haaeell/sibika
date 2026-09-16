@@ -180,14 +180,16 @@ window.initRegionSelects = function (scope = document) {
     const initialDistrict = district.dataset.initial || '';
     const initialVillage = village.dataset.initial || '';
 
-    loadOptions(province, endpoints.province, 'Pilih provinsi', initialProvince, false).then(async (provinceCode) => {
-        if (!provinceCode) return;
-        const cityCode = await loadOptions(city, endpoints.city(provinceCode), 'Pilih kabupaten/kota', initialCity, false);
-        if (!cityCode) return;
-        const districtCode = await loadOptions(district, endpoints.district(cityCode), 'Pilih kecamatan', initialDistrict, false);
-        if (!districtCode) return;
-        await loadOptions(village, endpoints.village(districtCode), 'Pilih kelurahan/desa', initialVillage, false);
-    });
+    loadOptions(province, endpoints.province, 'Pilih provinsi', initialProvince, false)
+        .then(async (provinceCode) => {
+            if (!provinceCode) return;
+            const cityCode = await loadOptions(city, endpoints.city(provinceCode), 'Pilih kabupaten/kota', initialCity, false);
+            if (!cityCode) return;
+            const districtCode = await loadOptions(district, endpoints.district(cityCode), 'Pilih kecamatan', initialDistrict, false);
+            if (!districtCode) return;
+            await loadOptions(village, endpoints.village(districtCode), 'Pilih kelurahan/desa', initialVillage, false);
+        })
+        .finally(() => $(document).trigger('biodata:regions-ready'));
 };
 
 window.initBiodataProgress = function (scope = document) {
@@ -199,6 +201,8 @@ window.initBiodataProgress = function (scope = document) {
         if (!$fields.length) {
             return;
         }
+
+        let ready = false;
 
         const fieldValue = function (field) {
             const $field = $(field);
@@ -250,18 +254,22 @@ window.initBiodataProgress = function (scope = document) {
         };
 
         $fields.on('input change change.select2', function () {
+            if (!ready) return;
             $(this).data('progressInitialActive', false);
             update();
         });
 
-        $(document).on('change', '[data-organization-status]', update);
+        $(document).on('change', '[data-organization-status]', function () {
+            if (ready) update();
+        });
         $(document).on('change change.select2', '[data-region-select]', function () {
-            setTimeout(update, 50);
+            if (ready) setTimeout(update, 50);
         });
 
-        update();
-        setTimeout(update, 300);
-        setTimeout(update, 1000);
+        $(document).one('biodata:regions-ready', function () {
+            ready = true;
+            update();
+        });
     });
 };
 
@@ -366,8 +374,8 @@ window.setButtonLoading = function (button, loading, text = 'Memproses...') {
 
 $(function () {
     initSelect2();
-    initRegionSelects();
     initBiodataProgress();
+    initRegionSelects();
 
     $('.datepicker').each(function () {
         flatpickr(this, {
