@@ -88,7 +88,7 @@
                                     autocomplete="username"
                                     placeholder="Masukkan email, NIS, atau NISN"
                                     value="{{ old('login') }}"
-                                    class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"
+                                    class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-base font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10 sm:text-sm"
                                 >
                             </div>
                             <x-form.error name="login" />
@@ -106,7 +106,7 @@
                                     type="password"
                                     autocomplete="current-password"
                                     placeholder="Masukkan password"
-                                    class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10"
+                                    class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-base font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10 sm:text-sm"
                                 >
                                 <button type="button" class="js-toggle-password absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-600" aria-label="Tampilkan password">
                                     <i class="fa-regular fa-eye"></i>
