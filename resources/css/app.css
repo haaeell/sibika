@@ -197,6 +197,27 @@
         .select2-container--open .select2-search__field {
             font-size: 1rem !important;
         }
+
+        /* Native iOS date controls need the full field width for their picker. */
+        [data-biodata-progress-form] .relative:has(input[type="date"]) > span {
+            display: none;
+        }
+
+        [data-biodata-progress-form] input[type="date"] {
+            min-width: 0;
+            max-width: 100%;
+            padding-left: 0.875rem;
+            padding-right: 0.5rem;
+        }
+
+        [data-biodata-progress-form] input[type="date"]::-webkit-date-and-time-value {
+            min-width: 0;
+            text-align: left;
+        }
+
+        [data-biodata-progress-form] input[type="date"]::-webkit-calendar-picker-indicator {
+            margin: 0;
+        }
     }
 
     div.dt-container {
