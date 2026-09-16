@@ -1,10 +1,10 @@
 @component('layouts.app', ['title' => 'Nilai Semester'])
     <x-page-header title="Nilai Semester" description="Isi nilai semester 1 sampai 5 sesuai mapel umum dan jurusan." />
 
-    <x-card>
-        <div class="flex flex-wrap gap-2" data-semester-tabs>
+    <x-card class="-mx-4 overflow-hidden rounded-none border-x-0 p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5">
+        <div class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" data-semester-tabs role="tablist" aria-label="Pilih semester">
             @foreach ($semesters as $semester => $data)
-                <button type="button" class="js-semester-tab rounded-xl px-4 py-2 text-sm font-extrabold transition {{ $semester === $activeSemester ? 'bg-blue-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900' }}" data-semester-target="student-score-semester-{{ $semester }}">
+                <button type="button" class="js-semester-tab shrink-0 rounded-xl px-4 py-2 text-sm font-extrabold transition focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 {{ $semester === $activeSemester ? 'bg-blue-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900' }}" data-semester="{{ $semester }}" data-semester-target="student-score-semester-{{ $semester }}" role="tab" aria-selected="{{ $semester === $activeSemester ? 'true' : 'false' }}">
                     Semester {{ $semester }}
                 </button>
             @endforeach
@@ -34,7 +34,7 @@
                 </x-card>
             @endif
 
-            <x-card title="Semester {{ $semester }}" description="{{ $locked ? 'Nilai terkunci. Ajukan permintaan edit ke BK untuk mengubahnya.' : 'Isi nilai lalu simpan. Nilai tersimpan langsung masuk rekap rata-rata.' }}">
+            <x-card class="-mx-4 rounded-none border-x-0 p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5" title="Semester {{ $semester }}" description="{{ $locked ? 'Nilai terkunci. Ajukan permintaan edit ke BK untuk mengubahnya.' : 'Simpan kapan saja. Semester terkunci setelah semua mapel wajib terisi.' }}">
                 @if ($settings->isEmpty())
                     <x-empty-state icon="fa-solid fa-chart-line" title="Setting nilai belum tersedia" description="Hubungi BK untuk mengatur mapel semester ini." />
                 @elseif ($locked)
@@ -77,28 +77,43 @@
                         @endforeach
                     </div>
                 @else
+                    @php
+                        $requiredSettings = $settings->where('is_required', true);
+                        $filledRequired = $requiredSettings->filter(fn ($setting) => filled($scores->get($setting->subject_id)?->score))->count();
+                    @endphp
                     @if ($approval)
                         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
                             <i class="fa-solid fa-lock-open mr-1.5"></i>
-                            Edit diizinkan BK — formulir terkunci lagi otomatis setelah kamu menyimpan.
+                            Edit diizinkan BK. Lengkapi mapel wajib lalu simpan untuk mengunci kembali.
                         </div>
                     @endif
-                    <form action="{{ route('siswa.scores.save') }}" method="POST" class="mt-4 space-y-4">
+                    <form action="{{ route('siswa.scores.save') }}" method="POST" class="mt-4 space-y-4" data-score-form>
                         @csrf
                         <input type="hidden" name="semester" value="{{ $semester }}">
-                        <div class="grid gap-4 md:grid-cols-2">
+                        <div class="rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5 text-sm text-blue-900">
+                            <span class="font-extrabold" data-score-progress>{{ $filledRequired }}/{{ $requiredSettings->count() }}</span> mapel wajib terisi.
+                            <span class="text-blue-700">Simpan draft kapan saja.</span>
+                        </div>
+                        <div class="grid gap-3 md:grid-cols-2">
                             @foreach ($settings as $setting)
                                 @php $score = $scores->get($setting->subject_id); @endphp
-                                <x-form.input name="scores[{{ $setting->subject_id }}]" label="{{ $setting->subject->name }}{{ $setting->is_required ? ' *' : '' }}" icon="fa-solid fa-chart-simple" type="number" min="0" max="100" step="0.01" placeholder="0 - 100" :value="old('scores.'.$setting->subject_id, $score?->score)" />
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                    <x-form.input name="scores[{{ $setting->subject_id }}]" label="{{ $setting->subject->name }}{{ $setting->is_required ? ' *' : '' }}" icon="fa-solid fa-chart-simple" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="0 - 100" :value="old('scores.'.$setting->subject_id, $score?->score)" data-score-input data-score-required="{{ $setting->is_required ? 'true' : 'false' }}" />
+                                </div>
                             @endforeach
                         </div>
                         <x-form.error name="scores" />
-                        <x-button type="submit"><i class="fa-solid fa-save"></i> Simpan Nilai</x-button>
+                        <x-button type="submit" class="h-12 w-full text-base sm:w-auto"><i class="fa-solid fa-save"></i> Simpan Nilai</x-button>
                     </form>
                 @endif
             </x-card>
 
-            <x-scores.semester-line-chart :id="'student-score-chart-'.$semester" :settings="$settings" :scores="$scores" title="Grafik Semester {{ $semester }}" />
+            <details class="mt-4 -mx-4 border-y border-slate-200 bg-white sm:mx-0 sm:rounded-2xl sm:border" data-score-chart-details>
+                <summary class="cursor-pointer px-4 py-4 text-sm font-extrabold text-blue-900">Lihat grafik nilai semester {{ $semester }}</summary>
+                <div class="border-t border-slate-100 p-4">
+                    <x-scores.semester-line-chart :id="'student-score-chart-'.$semester" :settings="$settings" :scores="$scores" title="Grafik Semester {{ $semester }}" />
+                </div>
+            </details>
         </div>
     @endforeach
 
@@ -110,9 +125,19 @@
                     const target = button.data('semester-target');
 
                     button.closest('[data-semester-tabs]').find('.js-semester-tab').removeClass('bg-blue-900 text-white').addClass('bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900');
+                    button.closest('[data-semester-tabs]').find('.js-semester-tab').attr('aria-selected', 'false');
                     button.removeClass('bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-900').addClass('bg-blue-900 text-white');
+                    button.attr('aria-selected', 'true')[0].scrollIntoView({ block: 'nearest', inline: 'center' });
                     window.$('[data-semester-panel]').addClass('hidden');
                     window.$('#' + target).removeClass('hidden');
+                    window.history.replaceState(null, '', '?semester=' + button.data('semester'));
+                });
+
+                window.$(document).on('input', '[data-score-input]', function () {
+                    var form = window.$(this).closest('[data-score-form]');
+                    var required = form.find('[data-score-input][data-score-required="true"]');
+                    var filled = required.filter(function () { return window.$(this).val() !== ''; }).length;
+                    form.find('[data-score-progress]').text(filled + '/' + required.length);
                 });
             });
         </script>

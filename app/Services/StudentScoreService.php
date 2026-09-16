@@ -409,11 +409,28 @@ class StudentScoreService
      */
     public function isSemesterLocked(Student $student, int $semester): bool
     {
-        if (! $this->hasFilledScores($student, $semester)) {
+        if (! $this->hasCompletedRequiredScores($student, $semester)) {
             return false;
         }
 
         return is_null($this->usableApproval($student, $semester));
+    }
+
+    public function hasCompletedRequiredScores(Student $student, int $semester): bool
+    {
+        $requiredSubjectIds = $this->subjectsFor($student, $semester)
+            ->where('is_required', true)
+            ->pluck('subject_id');
+
+        if ($requiredSubjectIds->isEmpty()) {
+            return $this->hasFilledScores($student, $semester);
+        }
+
+        return $student->scores()
+            ->where('semester_number', $semester)
+            ->whereIn('subject_id', $requiredSubjectIds)
+            ->whereNotNull('score')
+            ->count() === $requiredSubjectIds->count();
     }
 
     public function hasFilledScores(Student $student, int $semester): bool

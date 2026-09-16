@@ -77,6 +77,30 @@ class ScoreEditRequestTest extends TestCase
         ])->assertRedirect()->assertSessionHas('error');
     }
 
+    public function test_partial_scores_remain_editable_until_required_subjects_are_complete(): void
+    {
+        [$student, $subject] = $this->seedScore();
+        $secondSubject = Subject::create(['code' => 'ING Seeded', 'name' => 'Bahasa Inggris Uji', 'category' => 'general', 'is_active' => true]);
+        ScoreSubjectSetting::create([
+            'subject_id' => $secondSubject->id, 'major_id' => null, 'semester_number' => 1,
+            'is_required' => true, 'include_in_average' => true, 'is_active' => true,
+        ]);
+
+        $this->actingAs($student->user)->post(route('siswa.scores.save'), [
+            'semester' => 1, 'scores' => [$subject->id => 80],
+        ])->assertRedirect()->assertSessionHas('success');
+
+        $this->actingAs($student->user)->post(route('siswa.scores.save'), [
+            'semester' => 1, 'scores' => [$subject->id => 85, $secondSubject->id => 90],
+        ])->assertRedirect()->assertSessionHas('success');
+
+        $this->actingAs($student->user)->post(route('siswa.scores.save'), [
+            'semester' => 1, 'scores' => [$subject->id => 95, $secondSubject->id => 90],
+        ])->assertRedirect()->assertSessionHas('error');
+
+        $this->assertDatabaseHas('student_scores', ['student_id' => $student->id, 'subject_id' => $subject->id, 'score' => 85]);
+    }
+
     public function test_reject_requires_note_and_notifies_student(): void
     {
         [$student] = $this->seedScore();

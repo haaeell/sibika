@@ -16,9 +16,11 @@
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     var canvas = document.getElementById(@json($id));
-                    if (!canvas || canvas.dataset.rendered) return;
-                    canvas.dataset.rendered = '1';
-                    new window.Chart(canvas, {
+                    if (!canvas) return;
+                    var render = function () {
+                        if (canvas.dataset.rendered) return;
+                        canvas.dataset.rendered = '1';
+                        new window.Chart(canvas, {
                         type: 'line',
                         data: {
                             labels: @json($chartLabels),
@@ -49,13 +51,22 @@
                             maintainAspectRatio: false,
                             scales: {
                                 y: { beginAtZero: false, min: 0, max: 100, grid: { color: '#f1f5f9' } },
-                                x: { grid: { display: false } },
+                                x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45, autoSkip: true, maxTicksLimit: 6 } },
                             },
                             plugins: {
                                 legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
                             },
                         },
-                    });
+                        });
+                    };
+                    var details = canvas.closest('details');
+                    if (details) {
+                        details.addEventListener('toggle', function () {
+                            if (details.open) render();
+                        });
+                    } else {
+                        render();
+                    }
                 });
             </script>
         @endpush

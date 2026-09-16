@@ -72,11 +72,15 @@ class StudentScoreController extends Controller
 
         $this->scoreService->saveDraft($student, $semester, $request->input('scores', []));
 
-        if ($approval) {
+        if ($approval && $this->scoreService->hasCompletedRequiredScores($student, $semester)) {
             $approval->update(['consumed_at' => now()]);
         }
 
-        return redirect()->route('siswa.scores.index', ['semester' => $semester])->with('success', 'Nilai berhasil disimpan.');
+        $message = $this->scoreService->isSemesterLocked($student, $semester)
+            ? 'Nilai lengkap berhasil disimpan dan semester terkunci.'
+            : 'Draft nilai berhasil disimpan. Lengkapi mapel wajib untuk mengunci semester.';
+
+        return redirect()->route('siswa.scores.index', ['semester' => $semester])->with('success', $message);
     }
 
     public function requestEdit(Request $request): RedirectResponse
