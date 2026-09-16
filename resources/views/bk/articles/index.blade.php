@@ -6,13 +6,13 @@
     <x-card>
         <form method="GET" class="mb-5 grid gap-3 md:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]">
             <x-form.input name="search" placeholder="Cari judul artikel..." :value="request('search')" icon="fa-solid fa-magnifying-glass" />
-            <x-form.select name="category">
+            <x-form.select name="category" class="select2">
                 <option value="">Semua kategori</option>
                 @foreach (\App\Models\Article::CATEGORIES as $value => $label)
                     <option value="{{ $value }}" @selected(request('category') === $value)>{{ $label }}</option>
                 @endforeach
             </x-form.select>
-            <x-form.select name="status">
+            <x-form.select name="status" class="select2">
                 <option value="">Semua status</option>
                 <option value="published" @selected(request('status') === 'published')>Published</option>
                 <option value="draft" @selected(request('status') === 'draft')>Draft</option>

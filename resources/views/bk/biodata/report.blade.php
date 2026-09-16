@@ -19,18 +19,18 @@
                     <option value="{{ $cohort->id }}" @selected(($filters['cohort_id'] ?? null) == $cohort->id)>{{ $cohort->name }}</option>
                 @endforeach
             </x-form.select>
-            <x-form.select name="status" label="Status Siswa" icon="fa-solid fa-user-check">
+            <x-form.select name="status" label="Status Siswa" class="select2" icon="fa-solid fa-user-check">
                 <option value="">Semua status</option>
                 <option value="active" @selected(($filters['status'] ?? null) === 'active')>Aktif</option>
                 <option value="graduated" @selected(($filters['status'] ?? null) === 'graduated')>Lulus</option>
                 <option value="inactive" @selected(($filters['status'] ?? null) === 'inactive')>Nonaktif</option>
             </x-form.select>
-            <x-form.select name="completeness" label="Kelengkapan" icon="fa-solid fa-list-check">
+            <x-form.select name="completeness" label="Kelengkapan" class="select2" icon="fa-solid fa-list-check">
                 <option value="">Semua kelengkapan</option>
                 <option value="complete" @selected(($filters['completeness'] ?? null) === 'complete')>Lengkap 100%</option>
                 <option value="incomplete" @selected(($filters['completeness'] ?? null) === 'incomplete')>Belum lengkap</option>
             </x-form.select>
-            <x-form.select name="mcu_status" label="Status MCU" icon="fa-solid fa-file-medical">
+            <x-form.select name="mcu_status" label="Status MCU" class="select2" icon="fa-solid fa-file-medical">
                 <option value="">Semua status MCU</option>
                 <option value="sudah" @selected(($filters['mcu_status'] ?? null) === 'sudah')>Sudah</option>
                 <option value="proses" @selected(($filters['mcu_status'] ?? null) === 'proses')>Proses</option>

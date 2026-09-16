@@ -25,13 +25,13 @@
                     <option value="{{ $major->id }}" @selected(($filters['major_id'] ?? null) == $major->id)>{{ $major->name }}</option>
                 @endforeach
             </x-form.select>
-            <x-form.select name="status" label="Status Siswa" icon="fa-solid fa-user-check">
+            <x-form.select name="status" label="Status Siswa" class="select2" icon="fa-solid fa-user-check">
                 <option value="">Semua status</option>
                 <option value="active" @selected(($filters['status'] ?? null) === 'active')>Aktif</option>
                 <option value="graduated" @selected(($filters['status'] ?? null) === 'graduated')>Lulus</option>
                 <option value="inactive" @selected(($filters['status'] ?? null) === 'inactive')>Nonaktif</option>
             </x-form.select>
-            <x-form.select name="completeness" label="Kelengkapan Nilai" icon="fa-solid fa-list-check">
+            <x-form.select name="completeness" label="Kelengkapan Nilai" class="select2" icon="fa-solid fa-list-check">
                 <option value="">Semua kelengkapan</option>
                 <option value="complete" @selected(($filters['completeness'] ?? null) === 'complete')>Ada rata-rata</option>
                 <option value="incomplete" @selected(($filters['completeness'] ?? null) === 'incomplete')>Belum ada rata-rata</option>

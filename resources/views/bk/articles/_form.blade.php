@@ -28,13 +28,13 @@
     </div>
 
     <aside class="space-y-4">
-        <x-form.select name="category" label="Kategori" icon="fa-solid fa-layer-group" required>
+        <x-form.select name="category" label="Kategori" icon="fa-solid fa-layer-group" class="select2" required>
             @foreach (\App\Models\Article::CATEGORIES as $value => $label)
                 <option value="{{ $value }}" @selected(old('category', $article->category) === $value)>{{ $label }}</option>
             @endforeach
         </x-form.select>
 
-        <x-form.select name="status" label="Status" icon="fa-solid fa-circle-check" required>
+        <x-form.select name="status" label="Status" icon="fa-solid fa-circle-check" class="select2" required>
             <option value="draft" @selected(old('status', $article->status) === 'draft')>Draft</option>
             <option value="published" @selected(old('status', $article->status) === 'published')>Published</option>
         </x-form.select>
