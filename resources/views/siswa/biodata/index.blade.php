@@ -14,8 +14,8 @@
         </x-slot:actions>
     </x-page-header>
 
-    <div class="w-full space-y-6 pb-20 lg:pb-0" data-biodata-progress>
-        <div class="sticky top-0 z-20 -mx-4 lg:mx-0">
+    <div class="w-full space-y-6 overflow-x-hidden" data-biodata-progress>
+        <div class="sticky top-0 z-20 lg:mx-0">
             <div class="border-y border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:rounded-2xl lg:border lg:px-5 lg:py-4">
                 <div class="flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
@@ -41,13 +41,13 @@
             </div>
         </div>
 
-        <x-card class="p-0">
-            <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+        <x-card class="-mx-4 overflow-hidden rounded-none p-0 sm:mx-0 sm:rounded-2xl">
+            <div class="border-b border-slate-100 px-4 py-5 sm:px-6">
                 <h2 class="text-lg font-bold text-slate-900">Form Biodata Siswa</h2>
                 <p class="mt-1 text-sm text-slate-500">Kolom bertanda <span class="font-bold text-rose-500">*</span> wajib diisi. Pastikan data sudah benar sebelum menyimpan.</p>
             </div>
 
-            <section class="border-b border-slate-100 bg-slate-50/60 px-5 py-6 sm:px-6">
+            <section class="border-b border-slate-100 bg-slate-50/60 px-4 py-6 sm:px-6">
                     <div class="mx-auto flex max-w-md flex-col items-center text-center" data-profile-photo-block>
                         @if (! $isAdmin && $profile?->photo_path)
                             <img src="{{ route('siswa.biodata.photo.show', ['v' => md5($profile->photo_path)]) }}" alt="Foto profil {{ $student->name }}" class="size-20 rounded-2xl border-2 border-white object-cover shadow-sm sm:size-24" data-profile-photo-img>
@@ -99,7 +99,7 @@
                     </div>
                 @endif
 
-                <section class="px-5 py-7 sm:px-6 sm:py-8">
+                <section class="px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-800"><i class="fa-solid fa-user"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Data Pribadi</h2><p class="text-sm leading-5 text-slate-500">Identitas utama dan kontak aktif.</p></div>
@@ -155,14 +155,14 @@
                         <span class="flex size-10 items-center justify-center rounded-xl bg-rose-50 text-rose-700"><i class="fa-solid fa-heart-pulse"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Data Fisik & Kesehatan</h2><p class="text-sm leading-5 text-slate-500">Tinggi, berat dan riwayat kesehatan.</p></div>
                     </div>
-                    <div class="grid gap-4 grid-cols-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <x-form.input name="height_cm" label="Tinggi Badan (cm)" icon="fa-solid fa-ruler-vertical" type="number" inputmode="numeric" min="100" max="250" :value="old('height_cm', $profile?->height_cm)" placeholder="170" data-progress-required data-progress-section="physical" />
                         <x-form.input name="weight_kg" label="Berat Badan (kg)" icon="fa-solid fa-weight-scale" type="number" inputmode="numeric" min="20" max="200" :value="old('weight_kg', $profile?->weight_kg)" placeholder="60" data-progress-required data-progress-section="physical" />
                     </div>
                     <div class="mt-4">
                         <x-form.textarea name="medical_history" label="Apakah Ada Riwayat Kesehatan/Penyakit" icon="fa-solid fa-notes-medical" :value="old('medical_history', $profile?->medical_history)" placeholder="Jika ada silahkan isi dan jika tidak ada cukup tuliskan (-)" data-progress-required data-progress-section="physical" rows="3" />
                     </div>
-                    <div class="mt-4 grid gap-4 grid-cols-1 lg:grid-cols-3">
+                    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
                         <x-form.select name="mcu_status" label="Status Medical Check-Up (MCU) Mandiri" icon="fa-solid fa-file-medical" data-progress-required data-progress-section="physical">
                             <option value="">Pilih status MCU</option>
                             <option value="belum" @selected(old('mcu_status', $profile?->mcu_status) === 'belum')>Belum</option>
@@ -442,7 +442,7 @@
                     </div>
                 </section>
 
-                <div class="sticky bottom-0 z-10 border-t border-slate-200 bg-white/95 px-5 py-4 shadow-[0_-8px_20px_-16px_rgba(15,23,42,0.35)] backdrop-blur lg:static lg:flex lg:justify-end lg:bg-slate-50/70 lg:px-6 lg:py-5 lg:shadow-none">
+                <div class="border-t border-slate-200 bg-slate-50/70 px-4 py-5 sm:px-6 lg:flex lg:justify-end">
                     <x-button type="submit" class="h-12 w-full text-base font-bold shadow-lg shadow-blue-900/10 lg:w-auto lg:px-8"><i class="fa-solid fa-save"></i> Simpan Biodata</x-button>
                     <p class="mt-2 text-center text-xs text-slate-400 lg:hidden">Pastikan semua data wajib terisi sebelum menyimpan.</p>
                 </div>
