@@ -125,7 +125,7 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-sky-50 text-sky-800"><i class="fa-solid fa-map-location-dot"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Alamat</h2><p class="text-sm leading-5 text-slate-500">Alamat domisili lengkap saat ini.</p></div>
@@ -150,7 +150,7 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-rose-50 text-rose-700"><i class="fa-solid fa-heart-pulse"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Data Fisik & Kesehatan</h2><p class="text-sm leading-5 text-slate-500">Tinggi, berat dan riwayat kesehatan.</p></div>
@@ -178,7 +178,7 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i class="fa-solid fa-people-roof"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Biodata Orang Tua</h2><p class="text-sm leading-5 text-slate-500">Data kontak dan pekerjaan orang tua.</p></div>
@@ -195,7 +195,7 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700"><i class="fa-solid fa-graduation-cap"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Pilihan Kampus</h2><p class="text-sm leading-5 text-slate-500">Rencana melanjutkan kuliah.</p></div>
@@ -225,12 +225,12 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700"><i class="fa-solid fa-list-check"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Tes Kemampuan Akademik (TKA)</h2><p class="text-sm leading-5 text-slate-500">Pilih satu atau lebih mapel TKA.</p></div>
                     </div>
-                    <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-tka-group>
+                    <div class="-mx-4 rounded-none border-x-0 border-y border-slate-200 bg-white p-0 sm:mx-0 sm:rounded-2xl sm:border sm:p-5" data-tka-group>
                         @php($selectedTkaIds = collect(old('tka_subjects', $student->tkaSelections->pluck('tka_subject_id')->all()))->filter(fn ($value) => filled($value))->values()->all() ?: [null])
                         @php($filledTkaCount = collect($selectedTkaIds)->filter(fn ($value) => filled($value))->count())
                         <input type="hidden" data-progress-required data-progress-section="tka" data-tka-progress-flag value="{{ $filledTkaCount > 0 ? '1' : '' }}">
@@ -247,7 +247,7 @@
                                 </div>
                             @endforeach
                         </div>
-                        <div class="mt-3">
+                        <div class="mt-3 px-3 pb-3 sm:px-0 sm:pb-0">
                             @if (! $isAdmin)
                                 <button type="button" class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 text-xs font-bold text-white transition hover:bg-blue-800" data-add-tka><i class="fa-solid fa-plus"></i> Tambah TKA Lain</button>
                             @endif
@@ -255,13 +255,13 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 px-5 py-7 sm:px-6 sm:py-8">
+                <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i class="fa-solid fa-trophy"></i></span>
                         <div><h2 class="text-base font-bold text-slate-900">Aktivitas & Evaluasi Diri</h2><p class="text-sm leading-5 text-slate-500">Prestasi, organisasi dan pengembangan diri.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1">
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-achievement-group>
+                        <div class="-mx-4 rounded-none border-x-0 border-y border-slate-200 bg-white p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5" data-achievement-group>
                             <div class="mb-4 flex gap-3">
                                 <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><i class="fa-solid fa-medal"></i></span>
                                 <div>
@@ -320,7 +320,7 @@
                             </div>
                             </div>
                         </div>
-                        <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-organization-group>
+                        <div class="-mx-4 rounded-none border-x-0 border-y border-slate-200 bg-white p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5" data-organization-group>
                             <div class="mb-4 flex gap-3">
                                 <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700"><i class="fa-solid fa-people-group"></i></span>
                                 <div>
@@ -374,7 +374,7 @@
                         <x-form.textarea name="self_improvement_notes" label="Hal yang Perlu Ditingkatkan (Evaluasi Diri)" icon="fa-solid fa-chart-line" :value="old('self_improvement_notes', $profile?->self_improvement_notes)" placeholder="Tuliskan hal yang ingin kamu tingkatkan" data-progress-required data-progress-section="school_activity" rows="3" />
                     </div>
 
-                    <div class="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+                    <div class="-mx-4 mt-8 rounded-none border-x-0 border-y border-slate-200 bg-white p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5">
                         <div class="mb-4 flex items-center gap-3">
                             <span class="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-800"><i class="fa-solid fa-folder-open"></i></span>
                             <div>
@@ -417,7 +417,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 rounded-2xl border border-dashed border-amber-200 bg-amber-50/40 p-4 sm:p-5">
+                    <div class="-mx-4 mt-8 rounded-none border-x-0 border-y border-dashed border-amber-200 bg-amber-50/40 p-4 sm:mx-0 sm:rounded-2xl sm:border sm:p-5">
                         <p class="text-xs font-bold uppercase tracking-wide text-slate-400">Daftar Sertifikat Prestasi</p>
                         <div class="mt-3 space-y-2">
                             @forelse ($student->achievements as $achievement)

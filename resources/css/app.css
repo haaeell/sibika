@@ -180,6 +180,14 @@
         @apply overflow-hidden rounded-xl border-slate-200 shadow-xl;
     }
 
+    /* Preserve room above virtual keyboards when mobile browsers focus a field. */
+    [data-biodata-progress-form] input,
+    [data-biodata-progress-form] select,
+    [data-biodata-progress-form] textarea,
+    [data-biodata-progress-form] .select2-container {
+        scroll-margin-block: 1rem 12rem;
+    }
+
     div.dt-container {
         @apply text-sm text-slate-700;
     }
