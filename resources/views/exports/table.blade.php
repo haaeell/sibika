@@ -15,6 +15,9 @@
         td { border-bottom: 1px solid #e2e8f0; padding: 7px 6px; }
         tr:nth-child(even) td { background: #f8fafc; }
         .empty { color: #64748b; padding: 16px 6px; text-align: center; }
+        .biodata-table { font-size: 7px; table-layout: fixed; }
+        .biodata-table th, .biodata-table td { overflow-wrap: break-word; padding: 4px 3px; white-space: pre-line; word-wrap: break-word; }
+        .biodata-table th { font-size: 7px; }
     </style>
 </head>
 <body>
@@ -24,7 +27,7 @@
         <p class="meta">Diekspor pada {{ $generatedAt }}</p>
     </div>
 
-    <table>
+    <table @class(['biodata-table' => $isBiodata ?? false])>
         <thead>
             <tr>
                 @foreach ($headings as $heading)

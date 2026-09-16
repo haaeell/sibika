@@ -23,6 +23,36 @@ window.NProgress = NProgress;
 DataTable.use($);
 window.DataTable = DataTable;
 
+const initImageShimmer = (image) => {
+    image.dataset.imageLoading = 'true';
+    delete image.dataset.imageLoaded;
+
+    const finish = () => {
+        delete image.dataset.imageLoading;
+        image.dataset.imageLoaded = 'true';
+    };
+
+    image.addEventListener('load', finish, { once: true });
+    image.addEventListener('error', finish, { once: true });
+    if (image.complete) finish();
+};
+
+document.querySelectorAll('img').forEach(initImageShimmer);
+new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes') {
+            initImageShimmer(mutation.target);
+            return;
+        }
+
+        mutation.addedNodes.forEach((node) => {
+            if (node.nodeType !== Node.ELEMENT_NODE) return;
+            if (node.matches('img')) initImageShimmer(node);
+            node.querySelectorAll?.('img').forEach(initImageShimmer);
+        });
+    });
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['src'], childList: true, subtree: true });
+
 $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),

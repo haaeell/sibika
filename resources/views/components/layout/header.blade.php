@@ -17,18 +17,18 @@
 @endphp
 
 <header {{ $attributes->merge(['class' => 'flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-6']) }}>
-    <div class="flex items-center gap-3">
+    <div class="flex min-w-0 flex-1 items-center gap-3">
         <button type="button" class="js-sidebar-layout-toggle inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2" aria-label="Buka atau tutup menu" aria-expanded="true">
             <i class="fa-solid fa-bars"></i>
         </button>
 
-        <div>
-            <p class="text-xs font-medium text-slate-500">{{ $appSetting->app_name }}</p>
-            <h1 class="text-base font-bold text-slate-900">{{ $title }}</h1>
+        <div class="min-w-0">
+            <p class="truncate text-xs font-medium text-slate-500">{{ $appSetting->app_name }}</p>
+            <h1 class="truncate text-base font-bold text-slate-900">{{ $title }}</h1>
         </div>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex shrink-0 items-center gap-2">
         <div class="relative">
             <button type="button" class="js-notif-toggle relative inline-flex size-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50" aria-label="Notifikasi" aria-expanded="false" aria-controls="notif-menu">
                 <i class="fa-solid fa-bell"></i>

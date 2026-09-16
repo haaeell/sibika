@@ -31,12 +31,35 @@ class ExportController extends Controller
         $filename = 'export-'.$resource.'-'.now()->format('Ymd-His').'.'.$extension;
 
         if ($format === 'pdf') {
+            if ($resource === 'biodata') {
+                $headings = ['Identitas', 'Akademik', 'Pribadi', 'Alamat', 'Fisik & Kesehatan', 'Orang Tua', 'Pilihan Kampus', 'Aktivitas', 'Evaluasi', 'Dokumen'];
+                $rows = $rows->map(function (array $row): array {
+                    $details = fn (array $items): string => collect($items)
+                        ->map(fn (array $item) => $item[0].': '.$item[1])
+                        ->join("\n");
+
+                    return [
+                        $details([['Nama', $row[2]], ['NIS', $row[0]], ['NISN', $row[1]], ['Status', $row[3]]]),
+                        $details([['Kelas', $row[5]], ['Angkatan', $row[6]]]),
+                        $details([['Gender', $row[7]], ['Lahir', $row[8].', '.$row[9]], ['WA', $row[10]]]),
+                        $details([['Alamat', $row[16]], ['Kelurahan', $row[14]], ['Kecamatan', $row[13]], ['Kota', $row[12]], ['Provinsi', $row[11]], ['Kode Pos', $row[15]]]),
+                        $details([['Tinggi', $row[17].' cm'], ['Berat', $row[18].' kg'], ['Riwayat', $row[19]], ['MCU', $row[20]], ['Jumlah', $row[21]], ['Terakhir', $row[22]]]),
+                        $details([['Ayah', $row[23]], ['Pekerjaan Ayah', $row[24]], ['Ibu', $row[25]], ['Pekerjaan Ibu', $row[26]], ['Kontak', $row[27]], ['Alamat', $row[28]]]),
+                        $details([['1', $row[29].' - '.$row[30]], ['2', $row[31].' - '.$row[32]], ['3', $row[33].' - '.$row[34]]]),
+                        $details([['TKA', $row[35]], ['Prestasi', $row[36]], ['Organisasi', $row[37]]]),
+                        $details([['Catatan', $row[38]], ['Progress', $row[39]]]),
+                        $details([['Ijazah', $row[40]], ['Akte', $row[41]], ['KK', $row[42]], ['Sertifikat', $row[43]]]),
+                    ];
+                });
+            }
+
             return Pdf::loadView('exports.table', [
                 'title' => $this->titleFor($resource),
                 'headings' => $headings,
                 'rows' => $rows,
                 'generatedAt' => now()->format('d M Y H:i'),
-            ])->setPaper('a4', 'landscape')->download($filename);
+                'isBiodata' => $resource === 'biodata',
+            ])->setPaper($resource === 'biodata' ? 'a3' : 'a4', 'landscape')->download($filename);
         }
 
         return ExcelFacade::download(new TableExport($headings, $rows), $filename, Excel::XLSX);
