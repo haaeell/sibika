@@ -99,27 +99,29 @@
         <div class="h-72"><canvas id="subjects-chart"></canvas></div>
     </x-card>
 
-    <x-card title="Sorotan untuk BK" description="Ringkasan cepat yang perlu diperhatikan berdasarkan filter aktif.">
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            @foreach ([
-                ['label' => 'Kelas rata-rata tertinggi', 'value' => $insights['top_class'], 'icon' => 'fa-trophy'],
-                ['label' => 'Kelas rata-rata terendah', 'value' => $insights['lowest_class'], 'icon' => 'fa-arrow-trend-down'],
-                ['label' => 'Belum ada rata-rata', 'value' => $insights['incomplete'].' siswa', 'icon' => 'fa-circle-exclamation'],
-                ['label' => 'Tanpa nilai sama sekali', 'value' => $insights['without_scores'].' siswa', 'icon' => 'fa-file-circle-xmark'],
-                ['label' => 'Mapel rata-rata terendah', 'value' => $insights['lowest_subject'], 'icon' => 'fa-book-open'],
-            ] as $insight)
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <i class="fa-solid {{ $insight['icon'] }} text-blue-800"></i>
-                    <p class="mt-3 text-xs font-semibold text-slate-500">{{ $insight['label'] }}</p>
-                    <p class="mt-1 text-sm font-bold text-slate-900">{{ $insight['value'] }}</p>
-                </div>
-            @endforeach
-        </div>
-    </x-card>
+    @unless ($isMonitoring ?? false)
+        <x-card title="Sorotan untuk BK" description="Ringkasan cepat yang perlu diperhatikan berdasarkan filter aktif.">
+            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                @foreach ([
+                    ['label' => 'Kelas rata-rata tertinggi', 'value' => $insights['top_class'], 'icon' => 'fa-trophy'],
+                    ['label' => 'Kelas rata-rata terendah', 'value' => $insights['lowest_class'], 'icon' => 'fa-arrow-trend-down'],
+                    ['label' => 'Belum ada rata-rata', 'value' => $insights['incomplete'].' siswa', 'icon' => 'fa-circle-exclamation'],
+                    ['label' => 'Tanpa nilai sama sekali', 'value' => $insights['without_scores'].' siswa', 'icon' => 'fa-file-circle-xmark'],
+                    ['label' => 'Mapel rata-rata terendah', 'value' => $insights['lowest_subject'], 'icon' => 'fa-book-open'],
+                ] as $insight)
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <i class="fa-solid {{ $insight['icon'] }} text-blue-800"></i>
+                        <p class="mt-3 text-xs font-semibold text-slate-500">{{ $insight['label'] }}</p>
+                        <p class="mt-1 text-sm font-bold text-slate-900">{{ $insight['value'] }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </x-card>
+    @endunless
 
     <x-card title="Rekap Detail Siswa" description="Urutkan dan cari siswa untuk menentukan prioritas pembinaan.">
         <div class="overflow-x-auto">
-            <table id="score-report-table" class="w-full min-w-[1400px] text-left text-sm">
+            <table id="score-report-table" class="w-full min-w-[{{ ($isMonitoring ?? false) ? '1100px' : '1400px' }}] text-left text-sm">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -132,9 +134,11 @@
                         <th>Smt 4</th>
                         <th>Smt 5</th>
                         <th>Rata-rata</th>
-                        <th>Rank Kelas</th>
-                        <th>Rank Jurusan</th>
-                        <th>Rank Angkatan</th>
+                        @unless ($isMonitoring ?? false)
+                            <th>Rank Kelas</th>
+                            <th>Rank Jurusan</th>
+                            <th>Rank Angkatan</th>
+                        @endunless
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -150,9 +154,11 @@
                                 <td>{{ is_null($row['semesters'][$semester]) ? '-' : number_format($row['semesters'][$semester], 2) }}</td>
                             @endforeach
                             <td data-order="{{ $row['average'] ?? -1 }}"><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ is_null($row['average']) ? 'bg-slate-100 text-slate-600' : ($row['average'] >= 80 ? 'bg-emerald-50 text-emerald-700' : ($row['average'] >= 70 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700')) }}">{{ is_null($row['average']) ? '-' : number_format($row['average'], 2) }}</span></td>
-                            <td>{{ $row['class_rank'] ?? '-' }}</td>
-                            <td>{{ $row['major_rank'] ?? '-' }}</td>
-                            <td>{{ $row['cohort_rank'] ?? '-' }}</td>
+                            @unless ($isMonitoring ?? false)
+                                <td>{{ $row['class_rank'] ?? '-' }}</td>
+                                <td>{{ $row['major_rank'] ?? '-' }}</td>
+                                <td>{{ $row['cohort_rank'] ?? '-' }}</td>
+                            @endunless
                             <td><a href="{{ ($isMonitoring ?? false) ? route('wali-kelas.scores.show', $student) : route('bk.student-scores.show', $student) }}" class="btn-icon" aria-label="Lihat nilai {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>
                     @endforeach
@@ -209,7 +215,7 @@
                 window.initDataTable('#score-report-table', {
                     pageLength: 25,
                     order: [[9, 'desc'], [1, 'asc']],
-                    columnDefs: [{ orderable: false, targets: [13] }],
+                    columnDefs: [{ orderable: false, targets: [{{ ($isMonitoring ?? false) ? 10 : 13 }}] }],
                 });
 
                 // Export mengikuti filter laporan aktif.

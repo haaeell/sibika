@@ -9,7 +9,7 @@ class StudentScoreReportService
 {
     public function __construct(private readonly StudentScoreService $scoreService) {}
 
-    public function generate(array $filters): array
+    public function generate(array $filters, bool $includeRanks = true): array
     {
         $students = $this->scoreService
             ->filteredStudents([
@@ -43,10 +43,9 @@ class StudentScoreReportService
         $averages = $students->map(fn (Student $student) => $student->overall_average)->filter(fn ($value) => ! is_null($value));
         $complete = $averages->count();
 
-        // Ranking in-memory per kelas, jurusan, dan angkatan.
-        $classRanks = $this->denseRanks($students, fn (Student $student) => $student->class_id);
-        $majorRanks = $this->denseRanks($students, fn (Student $student) => $student->schoolClass?->major_id);
-        $cohortRanks = $this->denseRanks($students, fn (Student $student) => $student->cohort_id);
+        $classRanks = $includeRanks ? $this->denseRanks($students, fn (Student $student) => $student->class_id) : [];
+        $majorRanks = $includeRanks ? $this->denseRanks($students, fn (Student $student) => $student->schoolClass?->major_id) : [];
+        $cohortRanks = $includeRanks ? $this->denseRanks($students, fn (Student $student) => $student->cohort_id) : [];
 
         $summary = [
             'total' => $total,

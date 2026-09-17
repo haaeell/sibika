@@ -107,7 +107,7 @@ class WaliKelasMonitoringController extends Controller
         $filters = $request->validate(['academic_year_id' => ['nullable', 'integer', 'exists:academic_years,id'], 'major_id' => ['nullable', 'integer', 'exists:majors,id'], 'status' => ['nullable', 'in:active,graduated,inactive'], 'completeness' => ['nullable', 'in:complete,incomplete']]);
         $filters['class_ids'] = $this->classIds($request);
 
-        return view('bk.student-scores.report', [...$this->scoreReportService->generate($filters), 'filters' => $filters, 'academicYears' => AcademicYear::whereIn('id', $this->classes($request)->pluck('academic_year_id')->filter()->unique())->orderByDesc('is_active')->orderByDesc('start_year')->get(), 'schoolClasses' => $this->classes($request), 'majors' => Major::whereIn('id', $this->classes($request)->pluck('major_id')->filter()->unique())->orderBy('name')->get(), 'isMonitoring' => true]);
+        return view('bk.student-scores.report', [...$this->scoreReportService->generate($filters, false), 'filters' => $filters, 'academicYears' => AcademicYear::whereIn('id', $this->classes($request)->pluck('academic_year_id')->filter()->unique())->orderByDesc('is_active')->orderByDesc('start_year')->get(), 'schoolClasses' => $this->classes($request), 'majors' => Major::whereIn('id', $this->classes($request)->pluck('major_id')->filter()->unique())->orderBy('name')->get(), 'isMonitoring' => true]);
     }
 
     private function classes(Request $request)

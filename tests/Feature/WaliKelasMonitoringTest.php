@@ -30,6 +30,8 @@ class WaliKelasMonitoringTest extends TestCase
             ->assertOk()->assertSee('Biodata')->assertSee('XI WALI')->assertDontSee('XI LAIN')->assertDontSee('Export');
         $this->actingAs($user)->get(route('wali-kelas.scores.index'))
             ->assertOk()->assertSee('Data Nilai')->assertDontSee('Ranking Kelas')->assertDontSee('Ranking Jurusan')->assertDontSee('Ranking Angkatan')->assertDontSee('Export Excel');
+        $this->actingAs($user)->get(route('wali-kelas.scores.report'))
+            ->assertOk()->assertDontSee('Sorotan untuk BK')->assertDontSee('Rank Kelas')->assertDontSee('Rank Jurusan')->assertDontSee('Rank Angkatan');
         $this->actingAs($user)->get(route('wali-kelas.biodata.data'))
             ->assertOk()->assertSee('Siswa Wali')->assertDontSee('Siswa Lain');
         $this->actingAs($user)->get(route('wali-kelas.biodata.show', $ownStudent))->assertOk()->assertDontSee('Edit Biodata');
