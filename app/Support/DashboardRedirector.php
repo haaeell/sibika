@@ -15,8 +15,8 @@ class DashboardRedirector
         return match (true) {
             $user->hasRole('super_admin') => route('admin.dashboard'),
             $user->hasRole('bk') => route('bk.dashboard'),
-            $user->hasRole('guru') => route('guru.dashboard'),
             $user->hasRole('wali_kelas') => route('wali-kelas.dashboard'),
+            $user->hasRole('guru') => route('guru.dashboard'),
             $user->hasRole('siswa') => route('siswa.dashboard'),
             default => route('dashboard'),
         };

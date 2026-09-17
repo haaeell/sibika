@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
-use App\Models\Teacher;
 use App\Models\Subject;
+use App\Models\Teacher;
+use App\Services\TeacherAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ class TeacherController extends Controller
     {
         $statuses = array_filter((array) $request->input('status', []));
         $subjectIds = array_filter((array) $request->input('subject_id', []));
+
         return DataTables::eloquent(Teacher::query()
             ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
             ->when($subjectIds, fn ($query) => $query->whereHas('subjects', fn ($subjectQuery) => $subjectQuery->whereIn('subjects.id', array_map('intval', $subjectIds))))
@@ -43,18 +45,19 @@ class TeacherController extends Controller
     public function create(): View
     {
         return view('bk.teachers.create', [
-            'teacher' => new Teacher(),
+            'teacher' => new Teacher,
             'subjects' => Subject::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
-    public function store(StoreTeacherRequest $request): RedirectResponse
+    public function store(StoreTeacherRequest $request, TeacherAccountService $accounts): RedirectResponse
     {
         $data = $request->validated();
         $subjectIds = $data['subject_ids'] ?? [];
         unset($data['subject_ids']);
         $teacher = Teacher::create($data);
         $teacher->subjects()->sync($subjectIds);
+        $accounts->ensureAccount($teacher);
 
         return redirect()->route('bk.teachers.index')->with('success', 'Guru berhasil ditambahkan.');
     }
@@ -67,13 +70,14 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function update(UpdateTeacherRequest $request, Teacher $teacher): RedirectResponse
+    public function update(UpdateTeacherRequest $request, Teacher $teacher, TeacherAccountService $accounts): RedirectResponse
     {
         $data = $request->validated();
         $subjectIds = $data['subject_ids'] ?? [];
         unset($data['subject_ids']);
         $teacher->update($data);
         $teacher->subjects()->sync($subjectIds);
+        $accounts->ensureAccount($teacher);
 
         return redirect()->route('bk.teachers.index')->with('success', 'Guru berhasil diperbarui.');
     }

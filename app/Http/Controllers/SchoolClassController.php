@@ -8,6 +8,7 @@ use App\Models\AcademicYear;
 use App\Models\Major;
 use App\Models\SchoolClass;
 use App\Models\Teacher;
+use App\Services\TeacherAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class SchoolClassController extends Controller
         $academicYearIds = array_filter((array) $request->input('academic_year_id', []));
         $majorIds = array_filter((array) $request->input('major_id', []));
         $gradeLevels = array_filter((array) $request->input('grade_level', []));
+
         return DataTables::eloquent(SchoolClass::query()
             ->when($academicYearIds, fn ($query) => $query->whereIn('academic_year_id', array_map('intval', $academicYearIds)))
             ->when($majorIds, fn ($query) => $query->whereIn('major_id', array_map('intval', $majorIds)))
@@ -47,16 +49,19 @@ class SchoolClassController extends Controller
     public function create(): View
     {
         return view('bk.school-classes.create', [
-            'schoolClass' => new SchoolClass(),
+            'schoolClass' => new SchoolClass,
             'academicYears' => AcademicYear::orderByDesc('is_active')->orderByDesc('start_year')->get(),
             'majors' => Major::where('is_active', true)->orderBy('name')->get(),
             'teachers' => Teacher::where('status', 'active')->orderBy('name')->get(),
         ]);
     }
 
-    public function store(StoreSchoolClassRequest $request): RedirectResponse
+    public function store(StoreSchoolClassRequest $request, TeacherAccountService $accounts): RedirectResponse
     {
-        SchoolClass::create($request->validated());
+        $schoolClass = SchoolClass::create($request->validated());
+        if ($schoolClass->homeroomTeacher) {
+            $accounts->ensureAccount($schoolClass->homeroomTeacher);
+        }
 
         return redirect()->route('bk.school-classes.index')->with('success', 'Kelas berhasil ditambahkan.');
     }
@@ -71,20 +76,28 @@ class SchoolClassController extends Controller
         ]);
     }
 
-    public function update(UpdateSchoolClassRequest $request, SchoolClass $schoolClass): RedirectResponse
+    public function update(UpdateSchoolClassRequest $request, SchoolClass $schoolClass, TeacherAccountService $accounts): RedirectResponse
     {
+        $previousTeacher = $schoolClass->homeroomTeacher;
         $schoolClass->update($request->validated());
+        foreach (collect([$previousTeacher, $schoolClass->homeroomTeacher])->filter()->unique('id') as $teacher) {
+            $accounts->ensureAccount($teacher);
+        }
 
         return redirect()->route('bk.school-classes.index')->with('success', 'Kelas berhasil diperbarui.');
     }
 
-    public function destroy(SchoolClass $schoolClass): RedirectResponse
+    public function destroy(SchoolClass $schoolClass, TeacherAccountService $accounts): RedirectResponse
     {
         if ($schoolClass->students()->exists()) {
             return back()->with('error', 'Kelas yang masih memiliki siswa tidak dapat dihapus.');
         }
 
+        $teacher = $schoolClass->homeroomTeacher;
         $schoolClass->delete();
+        if ($teacher) {
+            $accounts->ensureAccount($teacher);
+        }
 
         return redirect()->route('bk.school-classes.index')->with('success', 'Kelas berhasil dihapus.');
     }
