@@ -34,6 +34,7 @@ class ArticleTest extends TestCase
         $this->assertSame('published', $article->status);
         $this->assertTrue($article->is_pinned);
         $this->assertStringNotContainsString('<script', $article->content_html);
+        $this->assertStringNotContainsString('alert(1)', $article->content_html);
         $this->assertStringNotContainsString('javascript:', $article->content_html);
         Storage::disk('public')->assertExists($article->cover_image_path);
     }

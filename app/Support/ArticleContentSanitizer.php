@@ -23,10 +23,7 @@ class ArticleContentSanitizer
         $target->appendChild($root);
 
         foreach ($source->documentElement?->childNodes ?? [] as $child) {
-            $clean = $this->sanitizeNode($child, $target);
-            if ($clean) {
-                $root->appendChild($clean);
-            }
+            $this->appendSanitizedNode($child, $root, $target);
         }
 
         $html = '';
@@ -37,27 +34,29 @@ class ArticleContentSanitizer
         return trim($html);
     }
 
-    private function sanitizeNode(DOMNode $node, DOMDocument $target): ?DOMNode
+    private function appendSanitizedNode(DOMNode $node, DOMNode $parent, DOMDocument $target): void
     {
         if ($node instanceof DOMText) {
-            return $target->createTextNode($node->nodeValue ?? '');
+            $parent->appendChild($target->createTextNode($node->nodeValue ?? ''));
+
+            return;
         }
 
         if (! $node instanceof DOMElement) {
-            return null;
+            return;
         }
 
         $tag = strtolower($node->tagName);
+        if (in_array($tag, ['script', 'style'], true)) {
+            return;
+        }
+
         if (! in_array($tag, self::ALLOWED_TAGS, true)) {
-            $fragment = $target->createDocumentFragment();
             foreach ($node->childNodes as $child) {
-                $clean = $this->sanitizeNode($child, $target);
-                if ($clean) {
-                    $fragment->appendChild($clean);
-                }
+                $this->appendSanitizedNode($child, $parent, $target);
             }
 
-            return $fragment;
+            return;
         }
 
         $element = $target->createElement(match ($tag) {
@@ -78,7 +77,7 @@ class ArticleContentSanitizer
         if ($tag === 'img') {
             $src = trim($node->getAttribute('src'));
             if (! $this->safeUrl($src)) {
-                return null;
+                return;
             }
 
             $element->setAttribute('src', $src);
@@ -86,13 +85,10 @@ class ArticleContentSanitizer
         }
 
         foreach ($node->childNodes as $child) {
-            $clean = $this->sanitizeNode($child, $target);
-            if ($clean) {
-                $element->appendChild($clean);
-            }
+            $this->appendSanitizedNode($child, $element, $target);
         }
 
-        return $element;
+        $parent->appendChild($element);
     }
 
     private function safeUrl(string $url): bool
