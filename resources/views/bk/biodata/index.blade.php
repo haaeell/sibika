@@ -16,7 +16,7 @@
                     @endforeach
                 </select>
             </div>
-            <x-export-buttons resource="biodata" />
+            @unless ($isMonitoring ?? false)<x-export-buttons resource="biodata" />@endunless
         </div>
         <div class="overflow-x-auto">
             <table id="biodata-table" class="w-full min-w-[900px] text-left text-sm">
@@ -42,7 +42,7 @@
                 window.initDataTable('#biodata-table', {
                     serverSide: true,
                     ajax: {
-                        url: @json(route('bk.biodata.data')),
+                        url: @json(($isMonitoring ?? false) ? route('wali-kelas.biodata.data') : route('bk.biodata.data')),
                         data: function (params) {
                             params.class_id = window.$('#biodata-class-filter').val();
                             params.cohort_id = window.$('#biodata-cohort-filter').val();

@@ -106,6 +106,18 @@
                 ],
             ],
         ];
+    } elseif (auth()->check() && auth()->user()->hasRole('wali_kelas')) {
+        $navigation = [
+            ['label' => null, 'items' => [['label' => 'Dashboard', 'icon' => 'fa-solid fa-house', 'url' => route('wali-kelas.dashboard'), 'active' => request()->routeIs('wali-kelas.dashboard')]]],
+            ['label' => 'Akademik', 'items' => [
+                ['label' => 'Data Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('wali-kelas.scores.index'), 'active' => request()->routeIs('wali-kelas.scores.index', 'wali-kelas.scores.show', 'wali-kelas.scores.data')],
+                ['label' => 'Laporan Nilai', 'icon' => 'fa-solid fa-chart-pie', 'url' => route('wali-kelas.scores.report'), 'active' => request()->routeIs('wali-kelas.scores.report')],
+            ]],
+            ['label' => 'BK & Karir', 'items' => [
+                ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => route('wali-kelas.biodata.index'), 'active' => request()->routeIs('wali-kelas.biodata.index', 'wali-kelas.biodata.show', 'wali-kelas.biodata.data')],
+                ['label' => 'Laporan Biodata', 'icon' => 'fa-solid fa-chart-pie', 'url' => route('wali-kelas.biodata.report'), 'active' => request()->routeIs('wali-kelas.biodata.report')],
+            ]],
+        ];
     }
 @endphp
 
@@ -159,6 +171,13 @@
     @endif
 
     @includeWhen(auth()->check(), 'components.auth.force-change-password-modal')
+
+    @php($helpSetting = request()->routeIs('siswa.*') ? \App\Models\LoginSetting::current() : null)
+    @if ($helpSetting)
+        <a href="{{ $helpSetting->helpWhatsappUrl() ?? 'https://wa.me/62882006381163' }}" target="_blank" rel="noopener noreferrer" class="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2" aria-label="Hubungi bantuan via WhatsApp">
+            <i class="fa-brands fa-whatsapp text-lg"></i><span>{{ $helpSetting->help_text }}</span>
+        </a>
+    @endif
 
     @stack('scripts')
 </body>

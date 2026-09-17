@@ -1,8 +1,10 @@
 @component('layouts.app', ['title' => 'Biodata Siswa'])
     <x-page-header title="Biodata Siswa" description="Detail data siswa untuk monitoring BK.">
         <x-slot:actions>
+            @unless ($isMonitoring ?? false)
             <x-button :href="route('bk.students.biodata.edit', $student)"><i class="fa-solid fa-pen"></i> Edit Biodata</x-button>
-            <x-button variant="secondary" :href="route('bk.students.index')"><i class="fa-solid fa-arrow-left"></i> Kembali</x-button>
+            @endunless
+            <x-button variant="secondary" :href="($isMonitoring ?? false) ? route('wali-kelas.biodata.index') : route('bk.students.index')"><i class="fa-solid fa-arrow-left"></i> Kembali</x-button>
         </x-slot:actions>
     </x-page-header>
 
@@ -21,7 +23,7 @@
             </div>
 
             <div class="flex flex-col items-center border-b border-slate-100 py-4">
-                @if ($profile?->photo_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($profile->photo_path))
+                @if ($profile?->photo_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($profile->photo_path) && ! ($isMonitoring ?? false))
                     <img src="{{ route('bk.students.biodata.photo.show', $student) }}" alt="Foto profil {{ $student->name }}" class="size-16 rounded-xl border border-white object-cover shadow-sm sm:size-20">
                 @else
                     <div class="flex size-16 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 shadow-sm sm:size-20">
@@ -117,8 +119,10 @@
                         @php $document = $student->documents->filter(fn ($item) => in_array($item->document_type, $aliases, true))->last(); @endphp
                         <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
                             <p class="text-sm font-bold text-slate-900">{{ $type }}</p>
-                            @if ($document)
+                            @if ($document && ! ($isMonitoring ?? false))
                                 <a href="{{ route('bk.students.biodata.documents.download', [$student, $document]) }}" class="mt-1 block truncate text-xs font-medium text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>
+                            @elseif ($document)
+                                <p class="mt-1 text-xs font-semibold text-slate-600">Tersedia</p>
                             @else
                                 <p class="mt-1 text-xs font-semibold italic text-slate-400">Belum diupload</p>
                             @endif
@@ -179,9 +183,9 @@
                         <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700"><i class="fa-solid fa-file-lines text-sm"></i></div>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-xs font-bold leading-tight text-slate-800">{{ $document->document_type }}</p>
-                            <a href="{{ route('bk.students.biodata.documents.download', [$student, $document]) }}" class="block truncate text-xs font-medium text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>
+                            @if (! ($isMonitoring ?? false))<a href="{{ route('bk.students.biodata.documents.download', [$student, $document]) }}" class="block truncate text-xs font-medium text-blue-800 hover:text-blue-900">{{ $document->original_name }}</a>@endif
                         </div>
-                        <form action="{{ route('bk.students.biodata.documents.destroy', [$student, $document]) }}" method="POST">@csrf @method('DELETE')<button class="flex size-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 transition hover:bg-rose-100" aria-label="Hapus sertifikat"><i class="fa-solid fa-trash text-xs"></i></button></form>
+                        @unless ($isMonitoring ?? false)<form action="{{ route('bk.students.biodata.documents.destroy', [$student, $document]) }}" method="POST">@csrf @method('DELETE')<button class="flex size-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 transition hover:bg-rose-100" aria-label="Hapus sertifikat"><i class="fa-solid fa-trash text-xs"></i></button></form>@endunless
                     </div>
                 @empty
                     <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center">

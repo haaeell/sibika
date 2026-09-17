@@ -1,7 +1,7 @@
 @component('layouts.app', ['title' => 'Data Nilai'])
     <x-page-header title="Data Nilai" description="Rekap nilai semester 1 sampai 5 per siswa.">
         <x-slot:actions>
-            <x-button id="score-export-btn" variant="secondary"><i class="fa-solid fa-file-excel"></i> Export Excel</x-button>
+            @unless ($isMonitoring ?? false)<x-button id="score-export-btn" variant="secondary"><i class="fa-solid fa-file-excel"></i> Export Excel</x-button>@endunless
         </x-slot:actions>
     </x-page-header>
 
@@ -45,6 +45,7 @@
                         <th>Rata-rata</th>
                         <th>Ranking Kelas</th>
                         <th>Ranking Jurusan</th>
+                        <th>Ranking Angkatan</th>
                         <th>Semester 1</th>
                         <th>Semester 2</th>
                         <th>Semester 3</th>
@@ -64,7 +65,7 @@
                 window.initDataTable('#student-score-table', {
                     serverSide: true,
                     ajax: {
-                        url: @json(route('bk.student-scores.data')),
+                        url: @json(($isMonitoring ?? false) ? route('wali-kelas.scores.data') : route('bk.student-scores.data')),
                         data: function (params) {
                             params.academic_year_id = window.$('#score-year-filter').val();
                             params.class_id = window.$('#score-class-filter').val();
@@ -80,6 +81,7 @@
                         { data: 'overall_average', name: 'overall_average', orderable: false, searchable: false },
                         { data: 'class_rank', name: 'class_rank', orderable: false, searchable: false },
                         { data: 'major_rank', name: 'major_rank', orderable: false, searchable: false },
+                        { data: 'cohort_rank', name: 'cohort_rank', orderable: false, searchable: false },
                         { data: 'semester_1', name: 'semester_1', orderable: false, searchable: false },
                         { data: 'semester_2', name: 'semester_2', orderable: false, searchable: false },
                         { data: 'semester_3', name: 'semester_3', orderable: false, searchable: false },

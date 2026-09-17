@@ -14,6 +14,7 @@ class BiodataReportService
         $students = Student::query()
             ->with(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'schoolClass', 'cohort', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject'])
             ->when($filters['class_id'] ?? null, fn ($query, $value) => $query->where('class_id', $value))
+            ->when($filters['class_ids'] ?? null, fn ($query, $value) => $query->whereIn('class_id', $value))
             ->when($filters['cohort_id'] ?? null, fn ($query, $value) => $query->where('cohort_id', $value))
             ->when($filters['status'] ?? null, fn ($query, $value) => $query->where('status', $value))
             ->when($filters['mcu_status'] ?? null, fn ($query, $value) => $query->whereHas('profile', fn ($profile) => $profile->where('mcu_status', $value)))

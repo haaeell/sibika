@@ -1,12 +1,12 @@
 @component('layouts.app', ['title' => 'Laporan Biodata'])
     <x-page-header title="Laporan Biodata Siswa" description="Analisis kelengkapan, kesehatan, rencana kampus, aktivitas, dan prestasi seluruh siswa.">
         <x-slot:actions>
-            <x-export-buttons resource="biodata" />
+            @unless ($isMonitoring ?? false)<x-export-buttons resource="biodata" />@endunless
         </x-slot:actions>
     </x-page-header>
 
     <x-card>
-        <form method="GET" action="{{ route('bk.biodata.report') }}" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <form method="GET" action="{{ ($isMonitoring ?? false) ? route('wali-kelas.biodata.report') : route('bk.biodata.report') }}" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <x-form.select name="class_id" label="Kelas" icon="fa-solid fa-school" class="select2" data-placeholder="Semua kelas">
                 <option value="">Semua kelas</option>
                 @foreach ($schoolClasses as $schoolClass)
@@ -37,7 +37,7 @@
                 <option value="belum" @selected(($filters['mcu_status'] ?? null) === 'belum')>Belum</option>
             </x-form.select>
             <div class="flex gap-2 sm:col-span-2 xl:col-span-5 xl:justify-end">
-                <x-button variant="secondary" :href="route('bk.biodata.report')" class="flex-1 sm:flex-none"><i class="fa-solid fa-rotate-left"></i> Reset</x-button>
+                <x-button variant="secondary" :href="($isMonitoring ?? false) ? route('wali-kelas.biodata.report') : route('bk.biodata.report')" class="flex-1 sm:flex-none"><i class="fa-solid fa-rotate-left"></i> Reset</x-button>
                 <x-button type="submit" class="flex-1 sm:flex-none"><i class="fa-solid fa-filter"></i> Terapkan Filter</x-button>
             </div>
         </form>
@@ -178,7 +178,7 @@
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5">1. {{ ($student->profile?->universityChoice1?->name ?? '-').($student->profile?->university_major_choice_1 ? ' - '.$student->profile->university_major_choice_1 : '') }}<br>2. {{ ($student->profile?->universityChoice2?->name ?? '-').($student->profile?->university_major_choice_2 ? ' - '.$student->profile->university_major_choice_2 : '') }}<br>3. {{ ($student->profile?->universityChoice3?->name ?? '-').($student->profile?->university_major_choice_3 ? ' - '.$student->profile->university_major_choice_3 : '') }}</span></td>
                             <td><span class="block max-w-xs whitespace-normal text-xs leading-5">{{ $row['tka'] }}</span></td>
                             <td>{{ $row['certificate_count'] }}</td>
-                            <td><a href="{{ route('bk.students.biodata.show', $student) }}" class="btn-icon" aria-label="Lihat biodata {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
+                            <td><a href="{{ ($isMonitoring ?? false) ? route('wali-kelas.biodata.show', $student) : route('bk.students.biodata.show', $student) }}" class="btn-icon" aria-label="Lihat biodata {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>
                     @endforeach
                 </tbody>

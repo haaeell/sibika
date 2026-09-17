@@ -1,12 +1,12 @@
 @component('layouts.app', ['title' => 'Laporan Nilai'])
     <x-page-header title="Laporan Nilai Siswa" description="Analisis rata-rata, ranking, ketuntasan, dan sebaran nilai seluruh siswa.">
         <x-slot:actions>
-            <x-button id="score-report-export-btn" variant="secondary"><i class="fa-solid fa-file-excel"></i> Export Excel</x-button>
+            @unless ($isMonitoring ?? false)<x-button id="score-report-export-btn" variant="secondary"><i class="fa-solid fa-file-excel"></i> Export Excel</x-button>@endunless
         </x-slot:actions>
     </x-page-header>
 
     <x-card>
-        <form method="GET" action="{{ route('bk.student-scores.report') }}" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <form method="GET" action="{{ ($isMonitoring ?? false) ? route('wali-kelas.scores.report') : route('bk.student-scores.report') }}" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <x-form.select name="academic_year_id" label="Tahun Ajaran" icon="fa-solid fa-calendar-days" class="select2" data-placeholder="Semua tahun ajaran">
                 <option value="">Semua tahun ajaran</option>
                 @foreach ($academicYears as $academicYear)
@@ -37,7 +37,7 @@
                 <option value="incomplete" @selected(($filters['completeness'] ?? null) === 'incomplete')>Belum ada rata-rata</option>
             </x-form.select>
             <div class="flex gap-2 sm:col-span-2 xl:col-span-5 xl:justify-end">
-                <x-button variant="secondary" :href="route('bk.student-scores.report')" class="flex-1 sm:flex-none"><i class="fa-solid fa-rotate-left"></i> Reset</x-button>
+                <x-button variant="secondary" :href="($isMonitoring ?? false) ? route('wali-kelas.scores.report') : route('bk.student-scores.report')" class="flex-1 sm:flex-none"><i class="fa-solid fa-rotate-left"></i> Reset</x-button>
                 <x-button type="submit" class="flex-1 sm:flex-none"><i class="fa-solid fa-filter"></i> Terapkan Filter</x-button>
             </div>
         </form>
@@ -134,6 +134,7 @@
                         <th>Rata-rata</th>
                         <th>Rank Kelas</th>
                         <th>Rank Jurusan</th>
+                        <th>Rank Angkatan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -151,7 +152,8 @@
                             <td data-order="{{ $row['average'] ?? -1 }}"><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ is_null($row['average']) ? 'bg-slate-100 text-slate-600' : ($row['average'] >= 80 ? 'bg-emerald-50 text-emerald-700' : ($row['average'] >= 70 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700')) }}">{{ is_null($row['average']) ? '-' : number_format($row['average'], 2) }}</span></td>
                             <td>{{ $row['class_rank'] ?? '-' }}</td>
                             <td>{{ $row['major_rank'] ?? '-' }}</td>
-                            <td><a href="{{ route('bk.student-scores.show', $student) }}" class="btn-icon" aria-label="Lihat nilai {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
+                            <td>{{ $row['cohort_rank'] ?? '-' }}</td>
+                            <td><a href="{{ ($isMonitoring ?? false) ? route('wali-kelas.scores.show', $student) : route('bk.student-scores.show', $student) }}" class="btn-icon" aria-label="Lihat nilai {{ $student->name }}"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -207,7 +209,7 @@
                 window.initDataTable('#score-report-table', {
                     pageLength: 25,
                     order: [[9, 'desc'], [1, 'asc']],
-                    columnDefs: [{ orderable: false, targets: [12] }],
+                    columnDefs: [{ orderable: false, targets: [13] }],
                 });
 
                 // Export mengikuti filter laporan aktif.

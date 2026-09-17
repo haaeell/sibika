@@ -14,9 +14,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StudentScoreExportController extends Controller
 {
-    public function __construct(private readonly StudentScoreService $scoreService)
-    {
-    }
+    public function __construct(private readonly StudentScoreService $scoreService) {}
 
     public function download(Request $request): BinaryFileResponse
     {
@@ -44,7 +42,7 @@ class StudentScoreExportController extends Controller
     {
         $headings = ['No', 'NIS', 'NISN', 'Nama', 'Kelas', 'Jurusan', 'Status',
             'Rata-rata Smt 1', 'Rata-rata Smt 2', 'Rata-rata Smt 3', 'Rata-rata Smt 4', 'Rata-rata Smt 5',
-            'Rata-rata Keseluruhan', 'Ranking Kelas', 'Ranking Jurusan'];
+            'Rata-rata Keseluruhan', 'Ranking Kelas', 'Ranking Jurusan', 'Ranking Angkatan'];
 
         $rows = $students->values()->map(function (Student $student, int $index) use ($averages, $ranks): array {
             $row = $ranks[$student->id];
@@ -61,6 +59,7 @@ class StudentScoreExportController extends Controller
                 $this->fmt($averages[$student->id]['overall'] ?? null),
                 ($row['class_rank'] ?? '-').'/'.$row['class_total'],
                 ($row['major_rank'] ?? '-').'/'.$row['major_total'],
+                ($row['cohort_rank'] ?? '-').'/'.$row['cohort_total'],
             ];
         });
 

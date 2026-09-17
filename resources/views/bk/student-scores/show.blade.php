@@ -1,10 +1,10 @@
 @component('layouts.app', ['title' => 'Detail Nilai'])
     <x-page-header title="Detail Nilai" description="{{ $student->name }} - {{ $student->nis }}">
-        <x-slot:actions><x-button variant="secondary" :href="route('bk.student-scores.index')"><i class="fa-solid fa-arrow-left"></i> Kembali</x-button></x-slot:actions>
+        <x-slot:actions><x-button variant="secondary" :href="($isMonitoring ?? false) ? route('wali-kelas.scores.index') : route('bk.student-scores.index')"><i class="fa-solid fa-arrow-left"></i> Kembali</x-button></x-slot:actions>
     </x-page-header>
 
     <x-card>
-        <div class="grid gap-4 md:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-4">
             <div><p class="text-xs font-bold uppercase text-slate-400">Siswa</p><p class="mt-1 font-extrabold text-slate-900">{{ $student->name }}</p></div>
             <div><p class="text-xs font-bold uppercase text-slate-400">Kelas</p><p class="mt-1 font-extrabold text-slate-900">{{ $student->schoolClass?->name ?? '-' }}</p></div>
             <div><p class="text-xs font-bold uppercase text-slate-400">Jurusan</p><p class="mt-1 font-extrabold text-slate-900">{{ $student->schoolClass?->major?->name ?? '-' }}</p></div>
@@ -16,6 +16,11 @@
             <p class="text-sm font-bold text-slate-500">Rata-rata Keseluruhan</p>
             <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ is_null($summary['average']) ? '-' : number_format($summary['average'], 2) }}</p>
             <p class="mt-1 text-xs font-semibold text-slate-400">Nilai tersimpan, mapel dihitung</p>
+        </x-card>
+        <x-card>
+            <p class="text-sm font-bold text-slate-500">Ranking Angkatan</p>
+            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['cohort_rank'] ?? '-' }}</p>
+            <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['cohort_total'] }} siswa</p>
         </x-card>
         <x-card>
             <p class="text-sm font-bold text-slate-500">Ranking Kelas</p>

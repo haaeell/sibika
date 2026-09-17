@@ -75,6 +75,7 @@ class ScoreQueryOptimizationTest extends TestCase
             $summary = $solo->overallSummary($student->fresh(['schoolClass.major', 'scores.subject']));
             $this->assertSame($summary['class_rank'], $ranks[$student->id]['class_rank'], "Rank kelas beda: {$student->nis}");
             $this->assertSame($summary['major_rank'], $ranks[$student->id]['major_rank'], "Rank jurusan beda: {$student->nis}");
+            $this->assertSame($summary['cohort_rank'], $ranks[$student->id]['cohort_rank'], "Rank angkatan beda: {$student->nis}");
         }
     }
 

@@ -6,7 +6,6 @@ use App\Models\ScoreAverageSubjectSetting;
 use App\Models\ScoreEditRequest;
 use App\Models\ScoreSubjectSetting;
 use App\Models\Student;
-use App\Models\StudentScore;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -98,6 +97,7 @@ class StudentScoreService
                 ->where(function ($query) use ($majorId, $semester) {
                     if ($semester <= 2 || ! $majorId) {
                         $query->whereNull('major_id');
+
                         return;
                     }
 
@@ -188,11 +188,11 @@ class StudentScoreService
     }
 
     /**
-     * Dense rank in-memory per kelas & jurusan untuk banyak siswa.
+     * Dense rank in-memory per kelas, jurusan, dan angkatan untuk banyak siswa.
      * Total memakai hitungan seluruh DB (2 query agregat) agar sama
      * seperti perilaku sebelumnya.
      *
-     * @return array<int, array{class_rank: ?int, class_total: int, major_rank: ?int, major_total: int}>
+     * @return array<int, array{class_rank: ?int, class_total: int, major_rank: ?int, major_total: int, cohort_rank: ?int, cohort_total: int}>
      */
     public function ranksForMany(Collection $students, array $averages): array
     {
@@ -208,19 +208,31 @@ class StudentScoreService
             ->whereNotNull('classes.major_id')
             ->groupBy('classes.major_id')
             ->pluck('total', 'major_id');
+        $cohortTotals = Student::query()
+            ->selectRaw('cohort_id, COUNT(*) as total')
+            ->whereNotNull('cohort_id')
+            ->groupBy('cohort_id')
+            ->pluck('total', 'cohort_id');
 
         $classRanks = $this->denseRanksIn($students, $averages, fn (Student $student) => $student->class_id);
         $majorRanks = $this->denseRanksIn($students, $averages, fn (Student $student) => $student->schoolClass?->major_id);
+        $cohortIds = $students->pluck('cohort_id')->filter()->unique();
+        $cohortStudents = $cohortIds->isEmpty() ? collect() : Student::with(['scores.subject', 'schoolClass.major'])
+            ->whereIn('cohort_id', $cohortIds)->get();
+        $cohortRanks = $this->denseRanksIn($cohortStudents, $this->averagesForMany($cohortStudents), fn (Student $student) => $student->cohort_id);
 
         $result = [];
         foreach ($students as $student) {
             $classId = $student->class_id;
             $majorId = $student->schoolClass?->major_id;
+            $cohortId = $student->cohort_id;
             $result[$student->id] = [
                 'class_rank' => $classId ? ($classRanks[$student->id] ?? null) : null,
                 'class_total' => $classId ? (int) ($classTotals[$classId] ?? 0) : 0,
                 'major_rank' => $majorId ? ($majorRanks[$student->id] ?? null) : null,
                 'major_total' => $majorId ? (int) ($majorTotals[$majorId] ?? 0) : 0,
+                'cohort_rank' => $cohortId ? ($cohortRanks[$student->id] ?? null) : null,
+                'cohort_total' => $cohortId ? (int) ($cohortTotals[$cohortId] ?? 0) : 0,
             ];
         }
 
@@ -316,7 +328,7 @@ class StudentScoreService
 
     public function overallSummary(Student $student): array
     {
-        $student->loadMissing(['scores.subject', 'schoolClass.major']);
+        $student->loadMissing(['scores.subject', 'schoolClass.major', 'cohort']);
 
         $pool = collect([$student]);
         if ($student->class_id) {
@@ -325,6 +337,9 @@ class StudentScoreService
         $majorId = $student->schoolClass?->major_id;
         if ($majorId) {
             $pool = $pool->merge(Student::with(['scores.subject', 'schoolClass'])->whereHas('schoolClass', fn ($query) => $query->where('major_id', $majorId))->whereNotIn('id', $pool->pluck('id')->all())->get());
+        }
+        if ($student->cohort_id) {
+            $pool = $pool->merge(Student::with(['scores.subject', 'schoolClass.major'])->where('cohort_id', $student->cohort_id)->whereNotIn('id', $pool->pluck('id')->all())->get());
         }
 
         $averages = $this->averagesForMany($pool);
@@ -337,6 +352,8 @@ class StudentScoreService
             'class_total' => $row['class_total'],
             'major_rank' => $row['major_rank'],
             'major_total' => $row['major_total'],
+            'cohort_rank' => $row['cohort_rank'],
+            'cohort_total' => $row['cohort_total'],
         ];
     }
 

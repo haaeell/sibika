@@ -48,7 +48,7 @@ class StudentBiodataAdminController extends Controller
             ->toJson();
     }
 
-    public function show(Student $student): View
+    public function show(Student $student, bool $isMonitoring = false): View
     {
         $student->load(['profile.universityChoice1', 'profile.universityChoice2', 'profile.universityChoice3', 'parents', 'documents', 'achievements.documents', 'organizations', 'tkaSelections.tkaSubject', 'schoolClass.academicYear', 'cohort']);
 
@@ -57,6 +57,7 @@ class StudentBiodataAdminController extends Controller
             'profile' => $student->profile,
             'parents' => $student->parents->keyBy('parent_type'),
             'progress' => $this->progressService->calculate($student),
+            'isMonitoring' => $isMonitoring,
         ]);
     }
 

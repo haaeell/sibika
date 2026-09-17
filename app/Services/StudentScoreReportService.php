@@ -7,16 +7,14 @@ use Illuminate\Support\Collection;
 
 class StudentScoreReportService
 {
-    public function __construct(private readonly StudentScoreService $scoreService)
-    {
-    }
+    public function __construct(private readonly StudentScoreService $scoreService) {}
 
     public function generate(array $filters): array
     {
         $students = $this->scoreService
             ->filteredStudents([
                 'academic_year_id' => isset($filters['academic_year_id']) ? [$filters['academic_year_id']] : [],
-                'class_id' => isset($filters['class_id']) ? [$filters['class_id']] : [],
+                'class_id' => $filters['class_ids'] ?? (isset($filters['class_id']) ? [$filters['class_id']] : []),
                 'major_id' => isset($filters['major_id']) ? [$filters['major_id']] : [],
                 'status' => isset($filters['status']) ? [$filters['status']] : [],
             ])
@@ -45,9 +43,10 @@ class StudentScoreReportService
         $averages = $students->map(fn (Student $student) => $student->overall_average)->filter(fn ($value) => ! is_null($value));
         $complete = $averages->count();
 
-        // Ranking in-memory per kelas & jurusan (hindari query berulang).
+        // Ranking in-memory per kelas, jurusan, dan angkatan.
         $classRanks = $this->denseRanks($students, fn (Student $student) => $student->class_id);
         $majorRanks = $this->denseRanks($students, fn (Student $student) => $student->schoolClass?->major_id);
+        $cohortRanks = $this->denseRanks($students, fn (Student $student) => $student->cohort_id);
 
         $summary = [
             'total' => $total,
@@ -127,7 +126,7 @@ class StudentScoreReportService
             'lowest_subject' => $subjectAverages->isEmpty() ? '-' : $subjectAverages->sort()->keys()->first().' ('.$subjectAverages->min().')',
         ];
 
-        $rows = $students->map(function (Student $student) use ($classRanks, $majorRanks): array {
+        $rows = $students->map(function (Student $student) use ($classRanks, $majorRanks, $cohortRanks): array {
             $missing = [];
             foreach (range(1, 5) as $semester) {
                 $settings = $this->scoreService->subjectsFor($student, $semester);
@@ -148,6 +147,7 @@ class StudentScoreReportService
                 'average' => $student->overall_average,
                 'class_rank' => $classRanks[$student->id] ?? null,
                 'major_rank' => $majorRanks[$student->id] ?? null,
+                'cohort_rank' => $cohortRanks[$student->id] ?? null,
                 'missing' => $missing,
             ];
         });

@@ -14,9 +14,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class StudentScoreAdminController extends Controller
 {
-    public function __construct(private readonly StudentScoreService $scoreService)
-    {
-    }
+    public function __construct(private readonly StudentScoreService $scoreService) {}
 
     public function index(): View
     {
@@ -61,17 +59,18 @@ class StudentScoreAdminController extends Controller
             ->addColumn('overall_average', fn (Student $student) => $avgCell($student))
             ->addColumn('class_rank', fn (Student $student) => $rankCell($student, 'class_rank', 'class_total'))
             ->addColumn('major_rank', fn (Student $student) => $rankCell($student, 'major_rank', 'major_total'))
+            ->addColumn('cohort_rank', fn (Student $student) => $rankCell($student, 'cohort_rank', 'cohort_total'))
             ->addColumn('semester_1', fn (Student $student) => $semesterCell($student, 1))
             ->addColumn('semester_2', fn (Student $student) => $semesterCell($student, 2))
             ->addColumn('semester_3', fn (Student $student) => $semesterCell($student, 3))
             ->addColumn('semester_4', fn (Student $student) => $semesterCell($student, 4))
             ->addColumn('semester_5', fn (Student $student) => $semesterCell($student, 5))
             ->addColumn('action', fn (Student $student) => '<a href="'.route('bk.student-scores.show', $student).'" class="btn-icon has-tooltip" data-tooltip="Detail" aria-label="Detail"><i class="fa-solid fa-eye"></i></a>')
-            ->rawColumns(['student', 'overall_average', 'class_rank', 'major_rank', 'semester_1', 'semester_2', 'semester_3', 'semester_4', 'semester_5', 'action'])
+            ->rawColumns(['student', 'overall_average', 'class_rank', 'major_rank', 'cohort_rank', 'semester_1', 'semester_2', 'semester_3', 'semester_4', 'semester_5', 'action'])
             ->toJson();
     }
 
-    public function show(Student $student): View
+    public function show(Student $student, bool $isMonitoring = false): View
     {
         $student->load(['schoolClass.major', 'schoolClass.academicYear', 'scores.subject']);
 
@@ -88,6 +87,7 @@ class StudentScoreAdminController extends Controller
                     'included' => $this->scoreService->includedMapFor($student, $semester),
                 ],
             ]),
+            'isMonitoring' => $isMonitoring,
         ]);
     }
 }
