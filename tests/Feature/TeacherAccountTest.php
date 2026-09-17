@@ -27,7 +27,7 @@ class TeacherAccountTest extends TestCase
 
         $this->assertSame($user->id, $teacher->user_id);
         $this->assertTrue($user->hasRole('guru'));
-        $this->assertTrue(Hash::check('password', $user->password));
-        $this->assertFalse($user->must_change_password);
+        $this->assertTrue(Hash::check('GURU-001', $user->password));
+        $this->assertTrue($user->must_change_password);
     }
 }

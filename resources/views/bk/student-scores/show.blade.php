@@ -11,27 +11,29 @@
         </div>
     </x-card>
 
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="grid gap-4 {{ ($isMonitoring ?? false) ? '' : 'md:grid-cols-3' }}">
         <x-card>
             <p class="text-sm font-bold text-slate-500">Rata-rata Keseluruhan</p>
             <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ is_null($summary['average']) ? '-' : number_format($summary['average'], 2) }}</p>
             <p class="mt-1 text-xs font-semibold text-slate-400">Nilai tersimpan, mapel dihitung</p>
         </x-card>
-        <x-card>
-            <p class="text-sm font-bold text-slate-500">Ranking Angkatan</p>
-            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['cohort_rank'] ?? '-' }}</p>
-            <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['cohort_total'] }} siswa</p>
-        </x-card>
-        <x-card>
-            <p class="text-sm font-bold text-slate-500">Ranking Kelas</p>
-            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['class_rank'] ?? '-' }}</p>
-            <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['class_total'] }} siswa</p>
-        </x-card>
-        <x-card>
-            <p class="text-sm font-bold text-slate-500">Ranking Jurusan</p>
-            <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['major_rank'] ?? '-' }}</p>
-            <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['major_total'] }} siswa</p>
-        </x-card>
+        @unless ($isMonitoring ?? false)
+            <x-card>
+                <p class="text-sm font-bold text-slate-500">Ranking Angkatan</p>
+                <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['cohort_rank'] ?? '-' }}</p>
+                <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['cohort_total'] }} siswa</p>
+            </x-card>
+            <x-card>
+                <p class="text-sm font-bold text-slate-500">Ranking Kelas</p>
+                <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['class_rank'] ?? '-' }}</p>
+                <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['class_total'] }} siswa</p>
+            </x-card>
+            <x-card>
+                <p class="text-sm font-bold text-slate-500">Ranking Jurusan</p>
+                <p class="mt-2 text-3xl font-extrabold text-slate-900">{{ $summary['major_rank'] ?? '-' }}</p>
+                <p class="mt-1 text-xs font-semibold text-slate-400">dari {{ $summary['major_total'] }} siswa</p>
+            </x-card>
+        @endunless
     </div>
 
     <x-scores.average-trend-chart id="admin-average-trend" :averages="$averages" />

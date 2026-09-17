@@ -80,23 +80,19 @@ class WaliKelasMonitoringController extends Controller
         $filters['class_id'] = array_intersect($this->classIds($request), array_map('intval', array_filter((array) $request->input('class_id', [])))) ?: $this->classIds($request);
         $students = $this->scoreService->filteredStudents($filters)->with(['schoolClass.academicYear', 'schoolClass.major', 'scores.subject'])->orderBy('name')->get();
         $averages = $this->scoreService->averagesForMany($students);
-        $ranks = $this->scoreService->ranksForMany($students, $averages);
 
         return DataTables::of($students)->addIndexColumn()
             ->addColumn('student', fn (Student $student) => '<div class="font-bold text-slate-900">'.e($student->name).'</div><div class="text-xs font-semibold text-slate-400">'.e($student->nis).'</div>')
             ->addColumn('class_name', fn (Student $student) => $student->schoolClass?->name ?? '-')
             ->addColumn('major_name', fn (Student $student) => $student->schoolClass?->major?->name ?? '-')
             ->addColumn('overall_average', fn (Student $student) => '<div class="text-sm font-extrabold text-slate-900">'.(is_null($averages[$student->id]['overall'] ?? null) ? '-' : number_format((float) $averages[$student->id]['overall'], 2)).'</div>')
-            ->addColumn('class_rank', fn (Student $student) => $this->rankCell($ranks[$student->id], 'class_rank', 'class_total'))
-            ->addColumn('major_rank', fn (Student $student) => $this->rankCell($ranks[$student->id], 'major_rank', 'major_total'))
-            ->addColumn('cohort_rank', fn (Student $student) => $this->rankCell($ranks[$student->id], 'cohort_rank', 'cohort_total'))
             ->addColumn('semester_1', fn (Student $student) => $this->averageCell($averages[$student->id]['semesters'][1] ?? null))
             ->addColumn('semester_2', fn (Student $student) => $this->averageCell($averages[$student->id]['semesters'][2] ?? null))
             ->addColumn('semester_3', fn (Student $student) => $this->averageCell($averages[$student->id]['semesters'][3] ?? null))
             ->addColumn('semester_4', fn (Student $student) => $this->averageCell($averages[$student->id]['semesters'][4] ?? null))
             ->addColumn('semester_5', fn (Student $student) => $this->averageCell($averages[$student->id]['semesters'][5] ?? null))
             ->addColumn('action', fn (Student $student) => '<a href="'.route('wali-kelas.scores.show', $student).'" class="btn-icon" aria-label="Lihat nilai '.e($student->name).'"><i class="fa-solid fa-eye"></i></a>')
-            ->rawColumns(['student', 'overall_average', 'class_rank', 'major_rank', 'cohort_rank', 'semester_1', 'semester_2', 'semester_3', 'semester_4', 'semester_5', 'action'])->toJson();
+            ->rawColumns(['student', 'overall_average', 'semester_1', 'semester_2', 'semester_3', 'semester_4', 'semester_5', 'action'])->toJson();
     }
 
     public function scoresShow(Request $request, Student $student): View
@@ -146,8 +142,4 @@ class WaliKelasMonitoringController extends Controller
         return '<div class="text-sm font-extrabold text-slate-900">'.(is_null($value) ? '-' : number_format($value, 2)).'</div>';
     }
 
-    private function rankCell(array $rank, string $key, string $totalKey): string
-    {
-        return '<div class="text-sm font-extrabold text-slate-900">'.($rank[$key] ?? '-').'</div><div class="text-xs font-semibold text-slate-400">dari '.$rank[$totalKey].'</div>';
-    }
 }

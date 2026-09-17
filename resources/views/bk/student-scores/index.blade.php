@@ -35,7 +35,7 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table id="student-score-table" class="w-full min-w-[1320px] text-left text-sm">
+            <table id="student-score-table" class="w-full min-w-[{{ ($isMonitoring ?? false) ? '1020px' : '1320px' }}] text-left text-sm">
                 <thead class="border-b border-slate-200 text-xs uppercase text-slate-500">
                     <tr>
                         <th>No</th>
@@ -43,9 +43,11 @@
                         <th>Kelas</th>
                         <th>Jurusan</th>
                         <th>Rata-rata</th>
-                        <th>Ranking Kelas</th>
-                        <th>Ranking Jurusan</th>
-                        <th>Ranking Angkatan</th>
+                        @unless ($isMonitoring ?? false)
+                            <th>Ranking Kelas</th>
+                            <th>Ranking Jurusan</th>
+                            <th>Ranking Angkatan</th>
+                        @endunless
                         <th>Semester 1</th>
                         <th>Semester 2</th>
                         <th>Semester 3</th>
@@ -79,9 +81,11 @@
                         { data: 'class_name', name: 'schoolClass.name', orderable: false, searchable: false },
                         { data: 'major_name', name: 'schoolClass.major.name', orderable: false, searchable: false },
                         { data: 'overall_average', name: 'overall_average', orderable: false, searchable: false },
-                        { data: 'class_rank', name: 'class_rank', orderable: false, searchable: false },
-                        { data: 'major_rank', name: 'major_rank', orderable: false, searchable: false },
-                        { data: 'cohort_rank', name: 'cohort_rank', orderable: false, searchable: false },
+                        @unless ($isMonitoring ?? false)
+                            { data: 'class_rank', name: 'class_rank', orderable: false, searchable: false },
+                            { data: 'major_rank', name: 'major_rank', orderable: false, searchable: false },
+                            { data: 'cohort_rank', name: 'cohort_rank', orderable: false, searchable: false },
+                        @endunless
                         { data: 'semester_1', name: 'semester_1', orderable: false, searchable: false },
                         { data: 'semester_2', name: 'semester_2', orderable: false, searchable: false },
                         { data: 'semester_3', name: 'semester_3', orderable: false, searchable: false },

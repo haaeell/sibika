@@ -20,8 +20,8 @@ class TeacherAccountService
                 $user = User::create([
                     'name' => $teacher->name,
                     'email' => $teacher->email,
-                    'password' => 'password',
-                    'must_change_password' => false,
+                    'password' => $teacher->code,
+                    'must_change_password' => true,
                 ]);
             } else {
                 $updates = ['name' => $teacher->name];
