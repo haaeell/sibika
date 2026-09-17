@@ -126,23 +126,25 @@
         </x-card>
     </div>
 
-    <x-card title="Sorotan untuk BK" description="Ringkasan cepat yang perlu diperhatikan berdasarkan filter aktif.">
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            @foreach ([
-                ['label' => 'Kelas progress terendah', 'value' => $insights['lowest_class'], 'icon' => 'fa-arrow-trend-down'],
-                ['label' => 'Kampus terfavorit', 'value' => $insights['top_campus'], 'icon' => 'fa-building-columns'],
-                ['label' => 'Perlu perhatian kesehatan', 'value' => $insights['medical_attention'].' siswa', 'icon' => 'fa-notes-medical'],
-                ['label' => 'MCU belum selesai', 'value' => $insights['mcu_pending'].' siswa', 'icon' => 'fa-stethoscope'],
-                ['label' => 'Belum punya sertifikat', 'value' => $insights['without_certificates'].' siswa', 'icon' => 'fa-medal'],
-            ] as $insight)
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <i class="fa-solid {{ $insight['icon'] }} text-blue-800"></i>
-                    <p class="mt-3 text-xs font-semibold text-slate-500">{{ $insight['label'] }}</p>
-                    <p class="mt-1 text-sm font-bold text-slate-900">{{ $insight['value'] }}</p>
-                </div>
-            @endforeach
-        </div>
-    </x-card>
+    @unless ($isMonitoring ?? false)
+        <x-card title="Sorotan untuk BK" description="Ringkasan cepat yang perlu diperhatikan berdasarkan filter aktif.">
+            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                @foreach ([
+                    ['label' => 'Kelas progress terendah', 'value' => $insights['lowest_class'], 'icon' => 'fa-arrow-trend-down'],
+                    ['label' => 'Kampus terfavorit', 'value' => $insights['top_campus'], 'icon' => 'fa-building-columns'],
+                    ['label' => 'Perlu perhatian kesehatan', 'value' => $insights['medical_attention'].' siswa', 'icon' => 'fa-notes-medical'],
+                    ['label' => 'MCU belum selesai', 'value' => $insights['mcu_pending'].' siswa', 'icon' => 'fa-stethoscope'],
+                    ['label' => 'Belum punya sertifikat', 'value' => $insights['without_certificates'].' siswa', 'icon' => 'fa-medal'],
+                ] as $insight)
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <i class="fa-solid {{ $insight['icon'] }} text-blue-800"></i>
+                        <p class="mt-3 text-xs font-semibold text-slate-500">{{ $insight['label'] }}</p>
+                        <p class="mt-1 text-sm font-bold text-slate-900">{{ $insight['value'] }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </x-card>
+    @endunless
 
     <x-card title="Rekap Detail Siswa" description="Urutkan dan cari siswa untuk menentukan prioritas tindak lanjut.">
         <div class="overflow-x-auto">
