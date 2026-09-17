@@ -1,6 +1,13 @@
 @component('layouts.app', ['title' => 'Artikel'])
     <article class="mx-auto max-w-4xl">
-        <a href="{{ route('siswa.articles.index') }}" class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-blue-900"><i class="fa-solid fa-arrow-left"></i> Kembali ke artikel</a>
+        @if (request()->routeIs('bk.articles.preview'))
+            <div class="mb-5 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+                <span><i class="fa-regular fa-eye mr-1.5"></i>Mode preview admin{{ $article->status === 'draft' ? ': draft belum terlihat siswa.' : '.' }}</span>
+                <a href="{{ route('bk.articles.edit', $article) }}" class="underline underline-offset-2">Kembali edit</a>
+            </div>
+        @else
+            <a href="{{ route('siswa.articles.index') }}" class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-blue-900"><i class="fa-solid fa-arrow-left"></i> Kembali ke artikel</a>
+        @endif
 
         <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm sm:rounded-[2rem]">
             @if ($article->coverImageUrl())

@@ -28,6 +28,7 @@ Route::prefix('bk')
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
         Route::post('articles/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.upload-image');
+        Route::get('articles/{article}/preview', [ArticleController::class, 'preview'])->name('articles.preview');
         Route::resource('articles', ArticleController::class)->except('show');
         Route::get('{resource}/export/{format}', [ExportController::class, 'download'])
             ->whereIn('resource', ['academic-years', 'cohorts', 'majors', 'subjects', 'universities', 'school-classes', 'teachers', 'students', 'biodata'])
@@ -54,7 +55,8 @@ Route::prefix('bk')
         Route::resource('students', StudentController::class)->except('show');
         Route::post('students/{student}/reset-account', [StudentController::class, 'resetAccount'])->name('students.reset-account');
         Route::get('students/import', [StudentImportController::class, 'create'])->name('students.import.create');
-        Route::post('students/import', [StudentImportController::class, 'store'])->name('students.import.store');
+        Route::post('students/import/prepare', [StudentImportController::class, 'prepare'])->name('students.import.prepare');
+        Route::post('students/import/batch', [StudentImportController::class, 'batch'])->name('students.import.batch');
         Route::get('students/template', [StudentImportController::class, 'template'])->name('students.template');
         Route::get('majors/data', [MajorController::class, 'data'])->name('majors.data');
         Route::resource('majors', MajorController::class)->except('show');

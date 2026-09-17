@@ -54,6 +54,11 @@ class ArticleController extends Controller
         return view('bk.articles.edit', compact('article'));
     }
 
+    public function preview(Article $article): View
+    {
+        return view('siswa.articles.show', compact('article'));
+    }
+
     public function update(UpdateArticleRequest $request, Article $article, ArticleContentSanitizer $sanitizer): RedirectResponse
     {
         $article->update($this->data($request, $sanitizer, $article));

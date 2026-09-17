@@ -75,6 +75,25 @@ class ArticleTest extends TestCase
             ->assertSee($published->title);
     }
 
+    public function test_bk_can_preview_a_draft_article(): void
+    {
+        $user = $this->userWithRole('bk');
+        $article = Article::create([
+            'created_by' => $user->id,
+            'title' => 'Draft Untuk Preview',
+            'slug' => 'draft-untuk-preview',
+            'content_html' => '<p>Konten draft.</p>',
+            'category' => 'lainnya',
+            'status' => 'draft',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('bk.articles.preview', $article))
+            ->assertOk()
+            ->assertSee('Draft Untuk Preview')
+            ->assertSee('Mode preview admin');
+    }
+
     private function userWithRole(string $role): User
     {
         $user = User::factory()->create();
