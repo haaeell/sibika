@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Cohort;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\User;
 use App\Services\StudentAccountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -30,6 +31,7 @@ class StudentController extends Controller
         $statuses = array_filter((array) $request->input('status', []));
         $classIds = array_filter((array) $request->input('class_id', []));
         $cohortIds = array_filter((array) $request->input('cohort_id', []));
+
         return DataTables::eloquent(Student::query()
             ->when($statuses, fn ($query) => $query->whereIn('status', $statuses))
             ->when($classIds, fn ($query) => $query->whereIn('class_id', array_map('intval', $classIds)))
@@ -48,7 +50,7 @@ class StudentController extends Controller
     public function create(): View
     {
         return view('bk.students.create', [
-            'student' => new Student(),
+            'student' => new Student,
             'schoolClasses' => SchoolClass::with('academicYear')->orderBy('name')->get(),
             'cohorts' => Cohort::orderByDesc('entry_year')->get(),
         ]);
@@ -66,7 +68,7 @@ class StudentController extends Controller
 
         return redirect()->route('bk.students.index')->with(
             'success',
-            "Siswa {$student->name} berhasil ditambahkan. Akun login dibuat otomatis (email: ".StudentAccountService::emailFor($student->nisn, $student->nis).", password awal: NIS)."
+            "Siswa {$student->name} berhasil ditambahkan. Akun login dibuat otomatis (email: ".StudentAccountService::emailFor($student->nisn, $student->nis).', password awal: NIS).'
         );
     }
 
@@ -105,6 +107,22 @@ class StudentController extends Controller
         return redirect()->route('bk.students.index')->with('success', 'Siswa beserta akun loginnya berhasil dihapus.');
     }
 
+    public function destroyAll(): RedirectResponse
+    {
+        $userIds = Student::query()->whereNotNull('user_id')->pluck('user_id');
+        $count = Student::query()->count();
+
+        DB::transaction(function () use ($userIds) {
+            Student::query()->delete();
+            User::query()->whereKey($userIds)->delete();
+        });
+
+        return redirect()->route('bk.students.index')->with(
+            'success',
+            $count ? "{$count} siswa beserta akun loginnya berhasil dihapus." : 'Tidak ada data siswa untuk dihapus.'
+        );
+    }
+
     private function statusBadge(string $status): string
     {
         $classes = [
@@ -116,5 +134,4 @@ class StudentController extends Controller
 
         return '<span class="inline-flex rounded-full px-2.5 py-1 text-xs font-bold '.$classes[$status].'">'.$labels[$status].'</span>';
     }
-
 }

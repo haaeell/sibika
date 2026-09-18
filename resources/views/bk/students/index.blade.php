@@ -4,6 +4,11 @@
             <x-button variant="secondary" :href="route('bk.students.template')"><i class="fa-solid fa-file-arrow-down"></i> Template</x-button>
             <x-button variant="secondary" :href="route('bk.students.import.create')"><i class="fa-solid fa-upload"></i> Import Excel</x-button>
             <x-button :href="route('bk.students.create')"><i class="fa-solid fa-plus"></i> Tambah Siswa</x-button>
+            <form action="{{ route('bk.students.destroy-all') }}" method="POST" class="js-delete-form inline-flex" data-confirm-title="Hapus semua siswa?" data-confirm-text="Seluruh data siswa, akun login, dan data terkait akan dihapus permanen." data-confirm-button="Ya, hapus semua">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white hover:bg-rose-700"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
+            </form>
         </x-slot:actions>
     </x-page-header>
 

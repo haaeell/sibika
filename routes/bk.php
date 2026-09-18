@@ -52,6 +52,7 @@ Route::prefix('bk')
         Route::get('students/{student}/biodata/photo', [StudentBiodataAdminController::class, 'photo'])->name('students.biodata.photo.show');
         Route::get('students/{student}/biodata/documents/{document}/download', [StudentBiodataAdminController::class, 'downloadDocument'])->name('students.biodata.documents.download');
         Route::delete('students/{student}/biodata/documents/{document}', [StudentBiodataAdminController::class, 'destroyDocument'])->name('students.biodata.documents.destroy');
+        Route::delete('students', [StudentController::class, 'destroyAll'])->name('students.destroy-all');
         Route::resource('students', StudentController::class)->except('show');
         Route::post('students/{student}/reset-account', [StudentController::class, 'resetAccount'])->name('students.reset-account');
         Route::get('students/import', [StudentImportController::class, 'create'])->name('students.import.create');
