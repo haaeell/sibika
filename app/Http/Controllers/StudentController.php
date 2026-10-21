@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -39,11 +40,12 @@ class StudentController extends Controller
             ->with(['schoolClass', 'cohort'])
             ->latest())
             ->addIndexColumn()
+            ->addColumn('select', fn (Student $student) => '<input type="checkbox" value="'.$student->id.'" class="student-select rounded border-slate-300 text-blue-800 focus:ring-blue-700">')
             ->addColumn('class_name', fn (Student $student) => $student->schoolClass?->name ?? '-')
             ->addColumn('cohort_name', fn (Student $student) => $student->cohort?->name ?? '-')
             ->editColumn('status', fn (Student $student) => $this->statusBadge($student->status))
             ->addColumn('action', fn (Student $student) => view('bk.students._actions', compact('student'))->render())
-            ->rawColumns(['status', 'action'])
+            ->rawColumns(['select', 'status', 'action'])
             ->toJson();
     }
 
@@ -96,6 +98,39 @@ class StudentController extends Controller
         $accounts->resetToDefault($student);
 
         return back()->with('success', "Akun {$student->name} direset. Password awal kembali ke NIS dan wajib diganti saat login.");
+    }
+
+    public function resetData(Request $request): RedirectResponse
+    {
+        $data = $request->validate(['student_ids' => ['nullable', 'array'], 'student_ids.*' => ['integer', 'exists:students,id']]);
+        $students = Student::query()->with(['profile', 'documents'])->when($data['student_ids'] ?? null, fn ($query, $ids) => $query->whereIn('id', $ids))->get();
+
+        foreach ($students as $student) {
+            $paths = $student->documents->pluck('file_path')->filter();
+            if ($student->profile?->photo_path) {
+                $paths->push($student->profile->photo_path);
+            }
+            Storage::disk('local')->delete($paths->all());
+        }
+
+        DB::transaction(function () use ($students): void {
+            foreach ($students as $student) {
+                $student->documents()->delete();
+                $student->parents()->delete();
+                $student->achievements()->delete();
+                $student->organizations()->delete();
+                $student->tkaSelections()->delete();
+                $student->scores()->delete();
+                DB::table('score_edit_requests')->where('student_id', $student->id)->delete();
+
+                $profile = $student->profile ?? $student->profile()->create([]);
+                $profile->update(collect($profile->getAttributes())->except(['id', 'student_id', 'created_at', 'updated_at'])->map(fn () => null)->all());
+            }
+        });
+
+        $count = $students->count();
+
+        return back()->with('success', $count ? "Data biodata dan nilai {$count} siswa berhasil direset." : 'Tidak ada siswa untuk direset.');
     }
 
     public function destroy(Student $student): RedirectResponse

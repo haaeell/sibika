@@ -1,6 +1,6 @@
 @component('layouts.app', ['title' => 'Master Kampus'])
     <x-page-header title="Master Kampus" description="Kelola daftar perguruan tinggi untuk pilihan kampus siswa.">
-        <x-slot:actions><x-button :href="route('bk.universities.create')"><i class="fa-solid fa-plus"></i> Tambah Kampus</x-button></x-slot:actions>
+        <x-slot:actions><x-button variant="secondary" :href="route('bk.universities.import.create')"><i class="fa-solid fa-upload"></i> Import Excel</x-button><x-button :href="route('bk.universities.create')"><i class="fa-solid fa-plus"></i> Tambah Kampus</x-button></x-slot:actions>
     </x-page-header>
     <x-card>
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">

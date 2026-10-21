@@ -20,6 +20,7 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TkaSubjectController;
 use App\Http\Controllers\UniversityController;
+use App\Http\Controllers\UniversityImportController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('bk')
@@ -53,6 +54,7 @@ Route::prefix('bk')
         Route::get('students/{student}/biodata/documents/{document}/download', [StudentBiodataAdminController::class, 'downloadDocument'])->name('students.biodata.documents.download');
         Route::delete('students/{student}/biodata/documents/{document}', [StudentBiodataAdminController::class, 'destroyDocument'])->name('students.biodata.documents.destroy');
         Route::delete('students', [StudentController::class, 'destroyAll'])->name('students.destroy-all');
+        Route::delete('students/reset-data', [StudentController::class, 'resetData'])->name('students.reset-data');
         Route::resource('students', StudentController::class)->except('show');
         Route::post('students/{student}/reset-account', [StudentController::class, 'resetAccount'])->name('students.reset-account');
         Route::get('students/import', [StudentImportController::class, 'create'])->name('students.import.create');
@@ -66,6 +68,10 @@ Route::prefix('bk')
         Route::get('tka-subjects/data', [TkaSubjectController::class, 'data'])->name('tka-subjects.data');
         Route::resource('tka-subjects', TkaSubjectController::class)->except('show');
         Route::get('universities/data', [UniversityController::class, 'data'])->name('universities.data');
+        Route::get('universities/import', [UniversityImportController::class, 'create'])->name('universities.import.create');
+        Route::post('universities/import/prepare', [UniversityImportController::class, 'prepare'])->name('universities.import.prepare');
+        Route::post('universities/import/batch', [UniversityImportController::class, 'batch'])->name('universities.import.batch');
+        Route::get('universities/template', [UniversityImportController::class, 'template'])->name('universities.template');
         Route::resource('universities', UniversityController::class)->except('show');
         Route::get('student-scores/data', [StudentScoreAdminController::class, 'data'])->name('student-scores.data');
         Route::get('student-scores/export', [StudentScoreExportController::class, 'download'])->name('student-scores.export');
