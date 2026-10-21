@@ -26,7 +26,8 @@ class StudentProgressService
             ]),
             'parents' => $this->filled([
                 $profile?->parent_father_name, $profile?->parent_father_occupation, $profile?->parent_mother_name,
-                $profile?->parent_mother_occupation, $profile?->parent_phone, $profile?->parent_address,
+                $profile?->parent_father_income_range, $profile?->parent_mother_occupation, $profile?->parent_mother_income_range,
+                $profile?->parent_phone, $profile?->parent_address,
             ]),
             'campus_choice' => $this->filled([
                 $profile?->university_choice_1_id, $profile?->university_choice_2_id, $profile?->university_choice_3_id,
@@ -67,8 +68,10 @@ class StudentProgressService
             'Status MCU' => $profile?->mcu_status,
             'Nama ayah' => $profile?->parent_father_name,
             'Pekerjaan ayah' => $profile?->parent_father_occupation,
+            'Penghasilan ayah' => $profile?->parent_father_income_range,
             'Nama ibu' => $profile?->parent_mother_name,
             'Pekerjaan ibu' => $profile?->parent_mother_occupation,
+            'Penghasilan ibu' => $profile?->parent_mother_income_range,
             'Nomor orang tua' => $profile?->parent_phone,
             'Alamat orang tua' => $profile?->parent_address,
             'Pilihan kampus 1' => $profile?->university_choice_1_id,

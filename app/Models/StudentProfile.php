@@ -15,7 +15,7 @@ class StudentProfile extends Model
         'province', 'city', 'district', 'village', 'postal_code', 'address',
         'height_cm', 'weight_kg', 'medical_history',
         'university_choice_1_id', 'university_major_choice_1', 'university_choice_2_id', 'university_major_choice_2', 'university_choice_3_id', 'university_major_choice_3',
-        'parent_father_name', 'parent_father_occupation', 'parent_mother_name', 'parent_mother_occupation', 'parent_phone', 'parent_address',
+        'parent_father_name', 'parent_father_occupation', 'parent_father_income_range', 'parent_mother_name', 'parent_mother_occupation', 'parent_mother_income_range', 'parent_phone', 'parent_address',
         'organization_status',
         'achievement_status',
         'self_improvement_notes', 'mcu_status', 'mcu_count', 'mcu_last_date',

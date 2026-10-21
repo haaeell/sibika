@@ -68,8 +68,16 @@
                     'Biodata Orang Tua' => [
                         'Nama Ayah' => $profile?->parent_father_name,
                         'Pekerjaan Ayah' => $profile?->parent_father_occupation,
+                        'Penghasilan Ayah per Bulan' => [
+                            'under_1m' => '< Rp1 juta', '1m_3m' => 'Rp1-3 juta', '3m_5m' => 'Rp3-5 juta',
+                            '5m_10m' => 'Rp5-10 juta', '10m_15m' => 'Rp10-15 juta', 'over_15m' => '> Rp15 juta', 'not_working' => 'Tidak bekerja',
+                        ][$profile?->parent_father_income_range] ?? null,
                         'Nama Ibu' => $profile?->parent_mother_name,
                         'Pekerjaan Ibu' => $profile?->parent_mother_occupation,
+                        'Penghasilan Ibu per Bulan' => [
+                            'under_1m' => '< Rp1 juta', '1m_3m' => 'Rp1-3 juta', '3m_5m' => 'Rp3-5 juta',
+                            '5m_10m' => 'Rp5-10 juta', '10m_15m' => 'Rp10-15 juta', 'over_15m' => '> Rp15 juta', 'not_working' => 'Tidak bekerja',
+                        ][$profile?->parent_mother_income_range] ?? null,
                         'Nomor Orang Tua' => $profile?->parent_phone,
                         'Alamat Orang Tua' => $profile?->parent_address,
                     ],

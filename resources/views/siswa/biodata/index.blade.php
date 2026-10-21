@@ -181,13 +181,33 @@
                 <section class="border-t border-slate-100 px-4 py-7 sm:px-6 sm:py-8">
                     <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
                         <span class="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i class="fa-solid fa-people-roof"></i></span>
-                        <div><h2 class="text-base font-bold text-slate-900">Biodata Orang Tua</h2><p class="text-sm leading-5 text-slate-500">Data kontak dan pekerjaan orang tua.</p></div>
+                        <div><h2 class="text-base font-bold text-slate-900">Biodata Orang Tua</h2><p class="text-sm leading-5 text-slate-500">Data kontak, pekerjaan, dan penghasilan orang tua.</p></div>
                     </div>
                     <div class="grid gap-4 grid-cols-1 sm:grid-cols-2">
                         <x-form.input name="parent_father_name" label="Nama Ayah" icon="fa-solid fa-person" :value="old('parent_father_name', $profile?->parent_father_name)" data-progress-required data-progress-section="parents" />
                         <x-form.input name="parent_father_occupation" label="Pekerjaan Ayah" icon="fa-solid fa-briefcase" :value="old('parent_father_occupation', $profile?->parent_father_occupation)" data-progress-required data-progress-section="parents" />
                         <x-form.input name="parent_mother_name" label="Nama Ibu" icon="fa-solid fa-person-dress" :value="old('parent_mother_name', $profile?->parent_mother_name)" data-progress-required data-progress-section="parents" />
                         <x-form.input name="parent_mother_occupation" label="Pekerjaan Ibu" icon="fa-solid fa-briefcase" :value="old('parent_mother_occupation', $profile?->parent_mother_occupation)" data-progress-required data-progress-section="parents" />
+                        <x-form.select name="parent_father_income_range" label="Penghasilan Ayah per Bulan" icon="fa-solid fa-money-bill-wave" data-progress-required data-progress-section="parents">
+                            <option value="">Pilih rentang penghasilan</option>
+                            <option value="under_1m" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === 'under_1m')>&lt; Rp1 juta</option>
+                            <option value="1m_3m" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === '1m_3m')>Rp1-3 juta</option>
+                            <option value="3m_5m" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === '3m_5m')>Rp3-5 juta</option>
+                            <option value="5m_10m" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === '5m_10m')>Rp5-10 juta</option>
+                            <option value="10m_15m" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === '10m_15m')>Rp10-15 juta</option>
+                            <option value="over_15m" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === 'over_15m')>&gt; Rp15 juta</option>
+                            <option value="not_working" @selected(old('parent_father_income_range', $profile?->parent_father_income_range) === 'not_working')>Tidak bekerja</option>
+                        </x-form.select>
+                        <x-form.select name="parent_mother_income_range" label="Penghasilan Ibu per Bulan" icon="fa-solid fa-money-bill-wave" data-progress-required data-progress-section="parents">
+                            <option value="">Pilih rentang penghasilan</option>
+                            <option value="under_1m" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === 'under_1m')>&lt; Rp1 juta</option>
+                            <option value="1m_3m" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === '1m_3m')>Rp1-3 juta</option>
+                            <option value="3m_5m" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === '3m_5m')>Rp3-5 juta</option>
+                            <option value="5m_10m" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === '5m_10m')>Rp5-10 juta</option>
+                            <option value="10m_15m" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === '10m_15m')>Rp10-15 juta</option>
+                            <option value="over_15m" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === 'over_15m')>&gt; Rp15 juta</option>
+                            <option value="not_working" @selected(old('parent_mother_income_range', $profile?->parent_mother_income_range) === 'not_working')>Tidak bekerja</option>
+                        </x-form.select>
                         <x-form.input name="parent_phone" label="Nomor Orang Tua" icon="fa-solid fa-phone" type="tel" :value="old('parent_phone', $profile?->parent_phone)" data-progress-required data-progress-section="parents" />
                         <div class="sm:col-span-2">
                             <x-form.textarea name="parent_address" label="Alamat Orang Tua" icon="fa-solid fa-map-location-dot" :value="old('parent_address', $profile?->parent_address)" data-progress-required data-progress-section="parents" rows="3" />
