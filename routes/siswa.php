@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EligibleStudentController;
 use App\Http\Controllers\StudentArticleController;
 use App\Http\Controllers\StudentBiodataController;
 use App\Http\Controllers\StudentDashboardController;
@@ -12,6 +13,8 @@ Route::prefix('siswa')
     ->middleware(['auth', 'role:siswa', 'password.changed'])
     ->group(function (): void {
         Route::get('/dashboard', StudentDashboardController::class)->name('dashboard');
+        Route::get('/eligible', [EligibleStudentController::class, 'index'])->name('eligible.index');
+        Route::post('/eligible/respond', [EligibleStudentController::class, 'respond'])->name('eligible.respond');
         Route::get('/artikel', [StudentArticleController::class, 'index'])->name('articles.index');
         Route::get('/artikel/{article:slug}', [StudentArticleController::class, 'show'])->name('articles.show');
         Route::put('/password', [StudentPasswordController::class, 'update'])->name('password.update');

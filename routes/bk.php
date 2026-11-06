@@ -5,6 +5,8 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BiodataReportController;
 use App\Http\Controllers\BkDashboardController;
 use App\Http\Controllers\CohortController;
+use App\Http\Controllers\EligibleAdminController;
+use App\Http\Controllers\EligibleExportController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\SchoolClassController;
@@ -28,6 +30,12 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
+        Route::get('eligible', [EligibleAdminController::class, 'index'])->name('eligible.index');
+        Route::post('eligible', [EligibleAdminController::class, 'store'])->name('eligible.store');
+        Route::post('eligible/move', [EligibleAdminController::class, 'move'])->name('eligible.move');
+        Route::post('eligible/reset', [EligibleAdminController::class, 'reset'])->name('eligible.reset');
+        Route::get('eligible/export/{format}', EligibleExportController::class)->name('eligible.export');
+        Route::patch('eligible/links', [EligibleAdminController::class, 'updateLinks'])->name('eligible.links.update');
         Route::post('articles/upload-image', [ArticleController::class, 'uploadImage'])->name('articles.upload-image');
         Route::get('articles/{article}/preview', [ArticleController::class, 'preview'])->name('articles.preview');
         Route::resource('articles', ArticleController::class)->except('show');

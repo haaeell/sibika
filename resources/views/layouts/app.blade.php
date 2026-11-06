@@ -63,7 +63,7 @@
         [
             'label' => 'Kelulusan',
             'items' => [
-                ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => route('bk.eligible.index'), 'active' => request()->routeIs('bk.eligible.*')],
                 ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Pengumuman', 'icon' => 'fa-solid fa-bullhorn', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
@@ -105,6 +105,9 @@
                     ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('siswa.scores.index'), 'active' => request()->routeIs('siswa.scores.*')],
                 ],
             ],
+            ['label' => 'Kelulusan', 'items' => [
+                ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => route('siswa.eligible.index'), 'active' => request()->routeIs('siswa.eligible.*')],
+            ]],
         ];
     } elseif (auth()->check() && auth()->user()->hasRole('wali_kelas')) {
         $navigation = [
@@ -173,7 +176,7 @@
     @includeWhen(auth()->check(), 'components.auth.force-change-password-modal')
 
     @php($helpSetting = request()->routeIs('siswa.*') ? \App\Models\LoginSetting::current() : null)
-    @if ($helpSetting)
+    @if ($helpSetting && ! request()->routeIs('siswa.eligible.index'))
         <a href="{{ $helpSetting->helpWhatsappUrl() ?? 'https://wa.me/62882006381163' }}" target="_blank" rel="noopener noreferrer" class="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2" aria-label="Hubungi bantuan via WhatsApp">
             <i class="fa-brands fa-whatsapp text-lg"></i><span>{{ $helpSetting->help_text }}</span>
         </a>
