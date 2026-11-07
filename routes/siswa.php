@@ -4,6 +4,7 @@ use App\Http\Controllers\EligibleStudentController;
 use App\Http\Controllers\GraduationStudentController;
 use App\Http\Controllers\StudentArticleController;
 use App\Http\Controllers\StudentBiodataController;
+use App\Http\Controllers\StudentCounselingController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentPasswordController;
 use App\Http\Controllers\StudentScoreController;
@@ -22,6 +23,7 @@ Route::prefix('siswa')
         Route::get('/artikel/{article:slug}', [StudentArticleController::class, 'show'])->name('articles.show');
         Route::put('/password', [StudentPasswordController::class, 'update'])->name('password.update');
         Route::get('/biodata', [StudentBiodataController::class, 'index'])->name('biodata.index');
+        Route::get('/konseling', StudentCounselingController::class)->name('counseling.index');
         Route::put('/biodata', [StudentBiodataController::class, 'update'])->name('biodata.update');
         Route::post('/biodata/photo', [StudentBiodataController::class, 'uploadPhoto'])->name('biodata.photo.store');
         Route::get('/biodata/photo', [StudentBiodataController::class, 'photo'])->name('biodata.photo.show');

@@ -5,6 +5,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BiodataReportController;
 use App\Http\Controllers\BkDashboardController;
 use App\Http\Controllers\CohortController;
+use App\Http\Controllers\CounselingController;
 use App\Http\Controllers\EligibleAdminController;
 use App\Http\Controllers\EligibleExportController;
 use App\Http\Controllers\ExportController;
@@ -32,6 +33,15 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
+        Route::get('counseling', [CounselingController::class, 'index'])->name('counseling.index');
+        Route::get('counseling/data', [CounselingController::class, 'data'])->name('counseling.data');
+        Route::get('counseling/export/{format}', [CounselingController::class, 'export'])->name('counseling.export');
+        Route::get('counseling/create', [CounselingController::class, 'create'])->name('counseling.create');
+        Route::post('counseling', [CounselingController::class, 'store'])->name('counseling.store');
+        Route::get('counseling/students/{student}', [CounselingController::class, 'student'])->name('counseling.student');
+        Route::get('counseling/{session}/edit', [CounselingController::class, 'edit'])->name('counseling.edit');
+        Route::put('counseling/{session}', [CounselingController::class, 'update'])->name('counseling.update');
+        Route::patch('counseling/{session}/complete', [CounselingController::class, 'complete'])->name('counseling.complete');
         Route::get('graduation', [GraduationAdminController::class, 'index'])->name('graduation.index');
         Route::get('graduation/attachment/{cohort}/{type}', [GraduationAdminController::class, 'attachment'])->name('graduation.attachment');
         Route::post('graduation', [GraduationAdminController::class, 'store'])->name('graduation.store');

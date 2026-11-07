@@ -46,6 +46,7 @@
             'label' => 'BK & Karir',
             'items' => [
                 ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => $isStudent ? route('siswa.biodata.index') : ($canManageBiodata ? route('bk.biodata.index') : null), 'active' => ($isStudent && request()->routeIs('siswa.biodata.*')) || ($canManageBiodata && request()->routeIs('bk.biodata.index', 'bk.students.biodata.*')), 'disabled' => ! $isStudent && ! $canManageBiodata, 'badge' => $isStudent || $canManageBiodata ? null : 'Soon'],
+                ['label' => 'Konseling', 'icon' => 'fa-solid fa-comments', 'url' => route('bk.counseling.index'), 'active' => request()->routeIs('bk.counseling.*')],
                 ['label' => 'Artikel', 'icon' => 'fa-regular fa-newspaper', 'url' => $isStudent ? route('siswa.articles.index') : ($canManageBiodata ? route('bk.articles.index') : null), 'active' => request()->routeIs('siswa.articles.*') || request()->routeIs('bk.articles.*'), 'disabled' => ! $isStudent && ! $canManageBiodata, 'badge' => $isStudent || $canManageBiodata ? null : 'Soon'],
                 ['label' => 'Laporan Biodata', 'icon' => 'fa-solid fa-chart-pie', 'url' => $canManageBiodata ? route('bk.biodata.report') : null, 'active' => $canManageBiodata && request()->routeIs('bk.biodata.report'), 'disabled' => ! $canManageBiodata, 'badge' => $canManageBiodata ? null : 'Soon'],
                 ['label' => 'Karir Siswa', 'icon' => 'fa-solid fa-compass', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
@@ -96,6 +97,7 @@
                 'label' => 'BK & Karir',
                 'items' => [
                     ['label' => 'Biodata', 'icon' => 'fa-solid fa-id-card', 'url' => route('siswa.biodata.index'), 'active' => request()->routeIs('siswa.biodata.*')],
+                    ['label' => 'Konseling', 'icon' => 'fa-solid fa-comments', 'url' => route('siswa.counseling.index'), 'active' => request()->routeIs('siswa.counseling.*')],
                     ['label' => 'Artikel', 'icon' => 'fa-regular fa-newspaper', 'url' => route('siswa.articles.index'), 'active' => request()->routeIs('siswa.articles.*')],
                 ],
             ],
