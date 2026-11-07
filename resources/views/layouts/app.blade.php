@@ -62,6 +62,12 @@
             ],
         ],
         [
+            'label' => 'Pengasuhan',
+            'items' => [
+                ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('bk.violations.index'), 'active' => request()->routeIs('bk.violations.*')],
+            ],
+        ],
+        [
             'label' => 'Pengumuman',
             'items' => [
                 ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => route('bk.eligible.index'), 'active' => request()->routeIs('bk.eligible.*')],
@@ -107,6 +113,9 @@
                     ['label' => 'Nilai', 'icon' => 'fa-solid fa-chart-line', 'url' => route('siswa.scores.index'), 'active' => request()->routeIs('siswa.scores.*')],
                 ],
             ],
+            ['label' => 'Pengasuhan', 'items' => [
+                ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('siswa.violations.index'), 'active' => request()->routeIs('siswa.violations.*')],
+            ]],
             ['label' => 'Kelulusan', 'items' => [
                 ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => route('siswa.eligible.index'), 'active' => request()->routeIs('siswa.eligible.*')],
                 ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => route('siswa.graduation.index'), 'active' => request()->routeIs('siswa.graduation.*')],

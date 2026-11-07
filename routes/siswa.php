@@ -8,6 +8,7 @@ use App\Http\Controllers\StudentCounselingController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentPasswordController;
 use App\Http\Controllers\StudentScoreController;
+use App\Http\Controllers\StudentViolationController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('siswa')
@@ -24,6 +25,8 @@ Route::prefix('siswa')
         Route::put('/password', [StudentPasswordController::class, 'update'])->name('password.update');
         Route::get('/biodata', [StudentBiodataController::class, 'index'])->name('biodata.index');
         Route::get('/konseling', StudentCounselingController::class)->name('counseling.index');
+        Route::get('/pelanggaran', StudentViolationController::class)->name('violations.index');
+        Route::get('/pelanggaran/{violation}/surat-peringatan', [StudentViolationController::class, 'download'])->name('violations.warning-letter');
         Route::put('/biodata', [StudentBiodataController::class, 'update'])->name('biodata.update');
         Route::post('/biodata/photo', [StudentBiodataController::class, 'uploadPhoto'])->name('biodata.photo.store');
         Route::get('/biodata/photo', [StudentBiodataController::class, 'photo'])->name('biodata.photo.show');
