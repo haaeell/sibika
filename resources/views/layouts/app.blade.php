@@ -65,6 +65,7 @@
             'label' => 'Pengasuhan',
             'items' => [
                 ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('bk.violations.index'), 'active' => request()->routeIs('bk.violations.*')],
+                ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => route('bk.attendance.index'), 'active' => request()->routeIs('bk.attendance.*')],
             ],
         ],
         [

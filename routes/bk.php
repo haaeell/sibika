@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceImportController;
 use App\Http\Controllers\BiodataReportController;
 use App\Http\Controllers\BkDashboardController;
 use App\Http\Controllers\CohortController;
@@ -35,6 +37,10 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
+        Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('attendance/template', [AttendanceImportController::class, 'template'])->name('attendance.template');
+        Route::post('attendance/import', [AttendanceImportController::class, 'store'])->name('attendance.import');
+        Route::get('attendance/export/{format}', [AttendanceController::class, 'export'])->name('attendance.export');
         Route::get('violations', [ViolationController::class, 'index'])->name('violations.index');
         Route::get('violations/data', [ViolationController::class, 'data'])->name('violations.data');
         Route::get('violations/students/{student}', [ViolationController::class, 'student'])->name('violations.student');

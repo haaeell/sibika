@@ -73,4 +73,9 @@ class Student extends Model
     {
         return $this->hasMany(StudentViolation::class);
     }
+
+    public function attendanceAbsences(): HasMany
+    {
+        return $this->hasMany(AttendanceAbsence::class);
+    }
 }
