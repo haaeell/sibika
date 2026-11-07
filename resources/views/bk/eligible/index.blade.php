@@ -81,6 +81,7 @@
                             </form>
                         @endif
                         <label class="relative block"><span class="sr-only">Cari siswa</span><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400" aria-hidden="true"></i><input id="eligible-search" class="eligible-field w-60 pl-9" type="search" placeholder="Cari nama, NIS, kelas..." aria-controls="eligible-table"></label>
+                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700"><input id="eligible-violations-only" type="checkbox" class="rounded border-slate-300 text-rose-700 focus:ring-rose-500" aria-controls="eligible-table"> Punya pelanggaran</label>
                     </div>
                 </div>
                 @if ($announcement)
@@ -93,14 +94,15 @@
                             @foreach ($rows as $row)
                                 @php
                                     $student = $announcement ? $row->student : $row['student'];
+                                    $violationCount = (int) ($violationCounts[$student->id] ?? 0);
                                     $rank = $announcement ? $row->rank : $row['rank'];
                                     $average = $announcement ? $row->average : $row['average'];
                                     $total = $announcement ? $row->total_score : $row['total_score'];
                                     $category = $announcement ? $row->category : \App\Services\EligibleRankingService::category($rank, (int) old('eligible_quota', 0), (int) old('reserve_quota', 0));
                                 @endphp
-                                <tr data-student-row @if ($announcement && $rank) data-rank="{{ $rank }}" @endif>
+                                <tr data-student-row data-has-violation="{{ $violationCount ? '1' : '0' }}" @if ($announcement && $rank) data-rank="{{ $rank }}" @endif>
                                     <td><span class="eligible-rank">{{ $rank ?? '—' }}</span></td>
-                                    <td><div class="font-bold text-slate-900">{{ $student->name }}</div><div class="mt-0.5 text-xs text-slate-500">{{ $student->nis }} <span aria-hidden="true">·</span> {{ $student->schoolClass?->name ?? 'Tanpa kelas' }}</div></td>
+                                    <td><div class="flex flex-wrap items-center gap-2"><span class="font-bold text-slate-900">{{ $student->name }}</span>@if ($violationCount)<a href="{{ route('bk.violations.student', $student) }}" class="inline-flex rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-500" title="Lihat riwayat pelanggaran {{ $student->name }}" aria-label="Lihat {{ $violationCount }} pelanggaran {{ $student->name }}">{{ $violationCount }} Pelanggaran</a>@endif</div><div class="mt-0.5 text-xs text-slate-500">{{ $student->nis }} <span aria-hidden="true">·</span> {{ $student->schoolClass?->name ?? 'Tanpa kelas' }}</div></td>
                                     <td class="text-right tabular-nums"><div class="font-bold text-slate-900">{{ $average === null ? '—' : number_format((float) $average, 2, ',', '.') }}</div><div class="mt-0.5 text-xs text-slate-500">Total {{ $total === null ? '—' : number_format((float) $total, 2, ',', '.') }}</div></td>
                                     <td><span data-category-rank="{{ $rank }}" class="eligible-badge eligible-{{ str_replace(' ', '-', $category) }}">{{ ucfirst($category) }}</span></td>
                                     <td class="text-slate-600">{{ $announcement && $row->response ? ucfirst($row->response) : '—' }}</td>
@@ -145,14 +147,17 @@
             @endif
             <script>
                 const search = document.getElementById('eligible-search');
-                search.addEventListener('input', () => {
+                const violationsOnly = document.getElementById('eligible-violations-only');
+                function filterRows() {
                     let shown = 0;
                     document.querySelectorAll('[data-student-row]').forEach(row => {
-                        row.hidden = !row.textContent.toLocaleLowerCase().includes(search.value.toLocaleLowerCase().trim());
+                        row.hidden = (violationsOnly.checked && row.dataset.hasViolation !== '1') || !row.textContent.toLocaleLowerCase().includes(search.value.toLocaleLowerCase().trim());
                         if (!row.hidden) shown++;
                     });
                     document.getElementById('eligible-empty').classList.toggle('hidden', shown > 0);
-                });
+                }
+                search.addEventListener('input', filterRows);
+                violationsOnly.addEventListener('change', filterRows);
                 @if ($announcement)
                     const moveDialog = document.getElementById('eligible-move-dialog');
                     const moveForm = document.getElementById('eligible-move-form');

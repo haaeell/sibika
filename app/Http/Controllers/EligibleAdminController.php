@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cohort;
 use App\Models\EligibleAnnouncement;
 use App\Models\EligibleResult;
+use App\Models\StudentViolation;
 use App\Services\EligibleRankingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,8 +25,13 @@ class EligibleAdminController extends Controller
         $rows = $announcement
             ? $announcement->results()->with('student.schoolClass')->orderByRaw('CASE WHEN `rank` IS NULL THEN 1 ELSE 0 END')->orderBy('rank')->orderBy('id')->get()
             : ($cohort ? $this->ranking->forCohort($cohort->id) : collect());
+        $studentIds = $rows->map(fn ($row) => $announcement ? $row->student_id : $row['student']->id);
+        $violationCounts = $studentIds->isEmpty() ? collect() : StudentViolation::query()
+            ->whereIn('student_id', $studentIds)
+            ->selectRaw('student_id, COUNT(*) as total')
+            ->groupBy('student_id')->pluck('total', 'student_id');
 
-        return view('bk.eligible.index', compact('cohorts', 'cohort', 'announcement', 'rows'));
+        return view('bk.eligible.index', compact('cohorts', 'cohort', 'announcement', 'rows', 'violationCounts'));
     }
 
     public function store(Request $request): RedirectResponse
