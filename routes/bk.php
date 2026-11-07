@@ -37,21 +37,29 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
-        Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-        Route::get('attendance/template', [AttendanceImportController::class, 'template'])->name('attendance.template');
-        Route::post('attendance/import', [AttendanceImportController::class, 'store'])->name('attendance.import');
-        Route::get('attendance/export/{format}', [AttendanceController::class, 'export'])->name('attendance.export');
-        Route::get('violations', [ViolationController::class, 'index'])->name('violations.index');
-        Route::get('violations/data', [ViolationController::class, 'data'])->name('violations.data');
-        Route::get('violations/students/{student}', [ViolationController::class, 'student'])->name('violations.student');
-        Route::get('violations/template', [ViolationImportController::class, 'template'])->name('violations.template');
-        Route::post('violations/import', [ViolationImportController::class, 'store'])->name('violations.import');
-        Route::get('violations/create', [ViolationController::class, 'create'])->name('violations.create');
-        Route::post('violations', [ViolationController::class, 'store'])->name('violations.store');
-        Route::get('violations/{violation}/edit', [ViolationController::class, 'edit'])->name('violations.edit');
-        Route::put('violations/{violation}', [ViolationController::class, 'update'])->name('violations.update');
-        Route::post('violations/{violation}/warning-letter', [ViolationController::class, 'uploadWarningLetter'])->name('violations.warning-letter.upload');
-        Route::get('violations/{violation}/warning-letter', [ViolationController::class, 'downloadWarningLetter'])->name('violations.warning-letter');
+
+        Route::middleware(['role:pengasuhan|bk|super_admin'])->group(function (): void {
+            Route::middleware(['can:pengasuhan.absensi'])->group(function (): void {
+                Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+                Route::get('attendance/template', [AttendanceImportController::class, 'template'])->name('attendance.template');
+                Route::post('attendance/import', [AttendanceImportController::class, 'store'])->name('attendance.import');
+                Route::get('attendance/export/{format}', [AttendanceController::class, 'export'])->name('attendance.export');
+            });
+
+            Route::middleware(['can:pengasuhan.pelanggaran'])->group(function (): void {
+                Route::get('violations', [ViolationController::class, 'index'])->name('violations.index');
+                Route::get('violations/data', [ViolationController::class, 'data'])->name('violations.data');
+                Route::get('violations/students/{student}', [ViolationController::class, 'student'])->name('violations.student');
+                Route::get('violations/template', [ViolationImportController::class, 'template'])->name('violations.template');
+                Route::post('violations/import', [ViolationImportController::class, 'store'])->name('violations.import');
+                Route::get('violations/create', [ViolationController::class, 'create'])->name('violations.create');
+                Route::post('violations', [ViolationController::class, 'store'])->name('violations.store');
+                Route::get('violations/{violation}/edit', [ViolationController::class, 'edit'])->name('violations.edit');
+                Route::put('violations/{violation}', [ViolationController::class, 'update'])->name('violations.update');
+                Route::post('violations/{violation}/warning-letter', [ViolationController::class, 'uploadWarningLetter'])->name('violations.warning-letter.upload');
+                Route::get('violations/{violation}/warning-letter', [ViolationController::class, 'downloadWarningLetter'])->name('violations.warning-letter');
+            });
+        });
         Route::get('counseling', [CounselingController::class, 'index'])->name('counseling.index');
         Route::get('counseling/data', [CounselingController::class, 'data'])->name('counseling.data');
         Route::get('counseling/export/{format}', [CounselingController::class, 'export'])->name('counseling.export');

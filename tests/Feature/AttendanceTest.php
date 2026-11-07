@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -92,7 +93,14 @@ class AttendanceTest extends TestCase
     private function user(string $role): User
     {
         $user = User::factory()->create();
-        $user->assignRole(Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']));
+        $roleModel = Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+        $user->assignRole($roleModel);
+
+        if (in_array($role, ['bk', 'super_admin'])) {
+            foreach (['pengasuhan.absensi', 'pengasuhan.pelanggaran'] as $perm) {
+                $roleModel->givePermissionTo(Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']));
+            }
+        }
 
         return $user;
     }
