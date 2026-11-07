@@ -16,10 +16,26 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ViolationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $filters = $request->validate([
+            'class_at_incident' => ['nullable', 'string', 'max:100'],
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
+        ]);
+
         return view('bk.violations.index', [
+            'filters' => $filters,
             'classes' => StudentViolation::distinct()->orderBy('class_at_incident')->pluck('class_at_incident'),
+            'topStudents' => StudentViolation::query()
+                ->join('students', 'students.id', '=', 'student_violations.student_id')
+                ->when($filters['class_at_incident'] ?? null, fn ($q, $class) => $q->where('class_at_incident', $class))
+                ->when($filters['from'] ?? null, fn ($q, $date) => $q->whereDate('occurred_at', '>=', $date))
+                ->when($filters['to'] ?? null, fn ($q, $date) => $q->whereDate('occurred_at', '<=', $date))
+                ->select('students.id', 'students.name', 'students.nis')
+                ->selectRaw('COUNT(*) as total')
+                ->groupBy('students.id', 'students.name', 'students.nis')
+                ->orderByDesc('total')->orderBy('students.name')->limit(5)->get(),
         ]);
     }
 
@@ -33,7 +49,7 @@ class ViolationController extends Controller
             'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
         ]);
         $term = trim((string) ($filters['search'] ?? ''));
-        $query = StudentViolation::query()->with(['student', 'creator'])
+        $query = StudentViolation::query()->with(['student' => fn ($q) => $q->withCount('violations'), 'creator'])
             ->when($filters['class_at_incident'] ?? null, fn (Builder $q, $class) => $q->where('class_at_incident', $class))
             ->when($filters['from'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '>=', $date))
             ->when($filters['to'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '<=', $date))
@@ -46,15 +62,24 @@ class ViolationController extends Controller
             ->filter(fn () => null)
             ->addIndexColumn()
             ->addColumn('incident', fn (StudentViolation $v) => '<span class="font-semibold text-slate-800">'.e($v->occurred_at->translatedFormat('d F Y')).'</span><span class="mt-0.5 block text-xs text-slate-500">Kelas: '.e($v->class_at_incident).'</span>')
-            ->addColumn('reportee', fn (StudentViolation $v) => '<span class="font-bold text-slate-900">'.e($v->student->name).'</span><span class="block text-xs text-slate-500">'.e($v->student->nis).'</span>')
+            ->addColumn('reportee', fn (StudentViolation $v) => '<a class="font-bold text-blue-800 hover:underline" href="'.route('bk.violations.student', $v->student).'">'.e($v->student->name).'</a><span class="block text-xs text-slate-500">'.e($v->student->nis).'</span>')
+            ->addColumn('total_violations', fn (StudentViolation $v) => '<a href="'.route('bk.violations.student', $v->student).'" class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 hover:bg-blue-100" aria-label="Lihat '.$v->student->violations_count.' pelanggaran '.e($v->student->name).'">'.$v->student->violations_count.'×</a>')
             ->addColumn('sanction_preview', fn (StudentViolation $v) => '<span class="line-clamp-2 max-w-xs whitespace-pre-line text-slate-600" title="'.e($v->sanction).'">'.e($v->sanction).'</span>')
             ->addColumn('letter', fn (StudentViolation $v) => $v->warning_letter_path
                 ? '<span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Tersedia</span>'
                 : '<span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Belum ada</span>')
             ->addColumn('creator_name', fn (StudentViolation $v) => $v->creator?->name ?? 'Akun dihapus')
             ->addColumn('action', fn (StudentViolation $v) => view('bk.violations._actions', ['violation' => $v])->render())
-            ->rawColumns(['incident', 'reportee', 'sanction_preview', 'letter', 'action'])
+            ->rawColumns(['incident', 'reportee', 'total_violations', 'sanction_preview', 'letter', 'action'])
             ->toJson();
+    }
+
+    public function student(Student $student): View
+    {
+        return view('bk.violations.student', [
+            'student' => $student->load(['schoolClass', 'cohort']),
+            'violations' => $student->violations()->with('creator')->orderByDesc('occurred_at')->orderByDesc('id')->paginate(15),
+        ]);
     }
 
     public function create(): View

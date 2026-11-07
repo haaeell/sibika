@@ -27,7 +27,7 @@ class ViolationTest extends TestCase
         $owner = $this->user('siswa');
         $other = $this->user('siswa');
         $student = Student::create(['nis' => 'P001', 'name' => 'Alya', 'user_id' => $owner->id]);
-        Student::create(['nis' => 'P002', 'name' => 'Budi', 'user_id' => $other->id]);
+        $otherStudent = Student::create(['nis' => 'P002', 'name' => 'Budi', 'user_id' => $other->id]);
 
         $this->actingAs($bk)->post(route('bk.violations.store'), [
             'student_id' => $student->id, 'class_at_incident' => 'X IPA 1', 'occurred_at' => '2025-02-03',
@@ -38,7 +38,8 @@ class ViolationTest extends TestCase
         $this->assertSame($bk->id, $record->created_by);
         $this->actingAs($bk)->get(route('bk.violations.index'))->assertOk()
             ->assertSee('id="violation-table"', false)->assertSee('id="warning-letter-modal"', false)
-            ->assertSee('>No<', false);
+            ->assertSee('>No<', false)->assertSee('Alya')->assertSee('1×');
+        $this->get(route('bk.violations.student', $student))->assertOk()->assertSee('Pasal 7')->assertSee('1 pelanggaran');
         $this->actingAs($admin)->put(route('bk.violations.update', $record), [
             'student_id' => $student->id, 'class_at_incident' => 'X IPA 1', 'occurred_at' => '2025-02-03',
             'pasal_perdupsis' => 'Pasal 7', 'sanction' => 'Pembinaan lanjutan',
@@ -48,6 +49,7 @@ class ViolationTest extends TestCase
             ->assertOk()->assertJsonCount(1, 'data')->assertSee('Pasal 7')->assertSee('data-warning-letter-url');
         $this->get(route('bk.violations.data', ['from' => '2025-02-04']))->assertOk()->assertJsonCount(0, 'data');
         $this->get(route('bk.violations.data', ['search' => ['value' => 'Alya']]))->assertOk()->assertJsonCount(1, 'data');
+        $this->get(route('bk.violations.data'))->assertJsonPath('data.0.total_violations', '<a href="'.route('bk.violations.student', $student).'" class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 hover:bg-blue-100" aria-label="Lihat 1 pelanggaran Alya">1×</a>');
         $this->get(route('bk.violations.data', ['start' => 0, 'length' => 1, 'columns' => [['data' => 'incident', 'name' => 'occurred_at']], 'order' => [['column' => 0, 'dir' => 'desc']]]))
             ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('recordsTotal', 1)->assertJsonPath('data.0.DT_RowIndex', 1);
 
@@ -55,6 +57,7 @@ class ViolationTest extends TestCase
         $this->get(route('bk.violations.index'))->assertForbidden();
         $this->get(route('bk.violations.data'))->assertForbidden();
         $this->post(route('bk.violations.store'), [])->assertForbidden();
+        $this->get(route('bk.violations.student', $otherStudent))->assertForbidden();
         $this->actingAs($other)->get(route('siswa.violations.index'))->assertOk()->assertDontSee('Pasal 7');
     }
 
@@ -71,6 +74,23 @@ class ViolationTest extends TestCase
                 && $data->array()[0] === ['ISI_NAMA_SISWA', 'XI IPA 1', 'X IPA 1', '03-02-2026', 'Pasal 7', 'Pembinaan tertulis']
                 && $guide->headings() === ['Kolom', 'Cara mengisi'];
         });
+    }
+
+    public function test_summary_follows_date_and_historic_class_while_row_total_is_all_time(): void
+    {
+        $this->actingAs($this->user('bk'));
+        $student = Student::create(['nis' => 'P030', 'name' => 'Dina']);
+        foreach ([['2025-02-03', 'X IPA 1'], ['2026-02-03', 'XI IPA 1']] as [$date, $class]) {
+            StudentViolation::create(['student_id' => $student->id, 'class_at_incident' => $class,
+                'occurred_at' => $date, 'pasal_perdupsis' => 'Pasal 7', 'sanction' => 'Pembinaan']);
+        }
+
+        $this->get(route('bk.violations.index', ['from' => '2026-01-01', 'class_at_incident' => 'XI IPA 1']))
+            ->assertOk()->assertSee('Dina')->assertSee('1×')->assertDontSee('2×');
+        $this->get(route('bk.violations.data', ['from' => '2026-01-01', 'class_at_incident' => 'XI IPA 1']))
+            ->assertOk()->assertJsonCount(1, 'data')->assertSee('Lihat 2 pelanggaran Dina');
+        $this->get(route('bk.violations.student', $student))->assertOk()
+            ->assertSee('2 pelanggaran')->assertSee('X IPA 1')->assertSee('XI IPA 1');
     }
 
     public function test_import_is_atomic_and_reports_row_errors(): void

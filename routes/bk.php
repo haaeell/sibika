@@ -37,6 +37,7 @@ Route::prefix('bk')
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
         Route::get('violations', [ViolationController::class, 'index'])->name('violations.index');
         Route::get('violations/data', [ViolationController::class, 'data'])->name('violations.data');
+        Route::get('violations/students/{student}', [ViolationController::class, 'student'])->name('violations.student');
         Route::get('violations/template', [ViolationImportController::class, 'template'])->name('violations.template');
         Route::post('violations/import', [ViolationImportController::class, 'store'])->name('violations.import');
         Route::get('violations/create', [ViolationController::class, 'create'])->name('violations.create');
