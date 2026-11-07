@@ -8,6 +8,8 @@ use App\Http\Controllers\CohortController;
 use App\Http\Controllers\EligibleAdminController;
 use App\Http\Controllers\EligibleExportController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\GraduationAdminController;
+use App\Http\Controllers\GraduationExportController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\ScoreEditApprovalController;
@@ -30,6 +32,10 @@ Route::prefix('bk')
     ->middleware(['auth', 'role:bk|super_admin'])
     ->group(function (): void {
         Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
+        Route::get('graduation', [GraduationAdminController::class, 'index'])->name('graduation.index');
+        Route::get('graduation/attachment/{cohort}/{type}', [GraduationAdminController::class, 'attachment'])->name('graduation.attachment');
+        Route::post('graduation', [GraduationAdminController::class, 'store'])->name('graduation.store');
+        Route::get('graduation/export/{format}', GraduationExportController::class)->name('graduation.export');
         Route::get('eligible', [EligibleAdminController::class, 'index'])->name('eligible.index');
         Route::post('eligible', [EligibleAdminController::class, 'store'])->name('eligible.store');
         Route::post('eligible/move', [EligibleAdminController::class, 'move'])->name('eligible.move');

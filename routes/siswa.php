@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EligibleStudentController;
+use App\Http\Controllers\GraduationStudentController;
 use App\Http\Controllers\StudentArticleController;
 use App\Http\Controllers\StudentBiodataController;
 use App\Http\Controllers\StudentDashboardController;
@@ -14,6 +15,8 @@ Route::prefix('siswa')
     ->group(function (): void {
         Route::get('/dashboard', StudentDashboardController::class)->name('dashboard');
         Route::get('/eligible', [EligibleStudentController::class, 'index'])->name('eligible.index');
+        Route::get('/kelulusan', [GraduationStudentController::class, 'index'])->name('graduation.index');
+        Route::get('/kelulusan/surat', [GraduationStudentController::class, 'certificate'])->name('graduation.certificate');
         Route::post('/eligible/respond', [EligibleStudentController::class, 'respond'])->name('eligible.respond');
         Route::get('/artikel', [StudentArticleController::class, 'index'])->name('articles.index');
         Route::get('/artikel/{article:slug}', [StudentArticleController::class, 'show'])->name('articles.show');

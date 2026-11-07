@@ -61,10 +61,10 @@
             ],
         ],
         [
-            'label' => 'Kelulusan',
+            'label' => 'Pengumuman',
             'items' => [
                 ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => route('bk.eligible.index'), 'active' => request()->routeIs('bk.eligible.*')],
-                ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
+                ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => route('bk.graduation.index'), 'active' => request()->routeIs('bk.graduation.*')],
                 ['label' => 'Pengumuman', 'icon' => 'fa-solid fa-bullhorn', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
             ],
         ],
@@ -107,6 +107,7 @@
             ],
             ['label' => 'Kelulusan', 'items' => [
                 ['label' => 'Eligible', 'icon' => 'fa-solid fa-star', 'url' => route('siswa.eligible.index'), 'active' => request()->routeIs('siswa.eligible.*')],
+                ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => route('siswa.graduation.index'), 'active' => request()->routeIs('siswa.graduation.*')],
             ]],
         ];
     } elseif (auth()->check() && auth()->user()->hasRole('wali_kelas')) {
