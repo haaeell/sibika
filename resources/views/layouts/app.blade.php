@@ -123,6 +123,11 @@
                 ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => route('siswa.graduation.index'), 'active' => request()->routeIs('siswa.graduation.*')],
             ]],
         ];
+    } elseif (auth()->check() && auth()->user()->hasRole('pengasuhan')) {
+        $navigation = [['label' => 'Pengasuhan', 'items' => array_values(array_filter([
+            auth()->user()->can('pengasuhan.pelanggaran') ? ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('bk.violations.index'), 'active' => request()->routeIs('bk.violations.*')] : null,
+            auth()->user()->can('pengasuhan.absensi') ? ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => route('bk.attendance.index'), 'active' => request()->routeIs('bk.attendance.*')] : null,
+        ]))]];
     } elseif (auth()->check() && auth()->user()->hasRole('wali_kelas')) {
         $navigation = [
             ['label' => null, 'items' => [['label' => 'Dashboard', 'icon' => 'fa-solid fa-house', 'url' => route('wali-kelas.dashboard'), 'active' => request()->routeIs('wali-kelas.dashboard')]]],

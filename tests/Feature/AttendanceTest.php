@@ -85,6 +85,22 @@ class AttendanceTest extends TestCase
         $this->actingAs($student->user)->get(route('bk.attendance.index'))->assertForbidden();
     }
 
+    public function test_pengasuhan_access_respects_each_permission_and_restricts_bk_pages(): void
+    {
+        $this->seed(EligibleTestSeeder::class);
+        $user = $this->user('pengasuhan');
+        $user->givePermissionTo(Permission::firstOrCreate(['name' => 'pengasuhan.absensi', 'guard_name' => 'web']));
+        $this->actingAs($user)->get(route('bk.attendance.index'))->assertOk()->assertSee('Absensi')->assertDontSee('href="'.route('bk.violations.index').'"');
+        $this->get(route('bk.violations.index'))->assertForbidden();
+        $this->get(route('bk.counseling.index'))->assertForbidden();
+        $this->get(route('bk.dashboard'))->assertForbidden();
+
+        $user->revokePermissionTo('pengasuhan.absensi');
+        $user->givePermissionTo(Permission::firstOrCreate(['name' => 'pengasuhan.pelanggaran', 'guard_name' => 'web']));
+        $this->get(route('bk.violations.index'))->assertOk()->assertDontSee('href="'.route('bk.attendance.index').'"');
+        $this->get(route('bk.attendance.index'))->assertForbidden();
+    }
+
     private function workbook(array $rows): Collection
     {
         return collect([collect(array_map(fn ($row) => collect($row), $rows))]);
