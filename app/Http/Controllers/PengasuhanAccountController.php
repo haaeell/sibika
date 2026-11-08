@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -21,7 +22,8 @@ class PengasuhanAccountController extends Controller
 
     public function create(): View
     {
-        $permissions = Permission::whereIn('name', ['pengasuhan.absensi', 'pengasuhan.pelanggaran'])->orderBy('name')->get();
+        $permissions = collect(['pengasuhan.absensi', 'pengasuhan.pelanggaran'])
+            ->map(fn (string $name) => Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']));
         $user = null;
 
         return view('pengasuhan.form', compact('permissions', 'user'));
@@ -37,17 +39,19 @@ class PengasuhanAccountController extends Controller
             'permissions.*' => ['in:pengasuhan.absensi,pengasuhan.pelanggaran'],
         ]);
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+        DB::transaction(function () use ($data): void {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+            ]);
 
-        $role = Role::where('name', 'pengasuhan')->where('guard_name', 'web')->first();
-        $user->assignRole($role);
-
-        $perms = $data['permissions'] ?? ['pengasuhan.absensi', 'pengasuhan.pelanggaran'];
-        $user->givePermissionTo($perms);
+            $user->assignRole(Role::firstOrCreate(['name' => 'pengasuhan', 'guard_name' => 'web']));
+            $user->givePermissionTo(array_map(
+                fn (string $name) => Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']),
+                $data['permissions'] ?? []
+            ));
+        });
 
         return redirect()->route('admin.pengasuhan-accounts.index')->with('success', 'Akun pengasuhan berhasil dibuat.');
     }
@@ -79,8 +83,7 @@ class PengasuhanAccountController extends Controller
             'email' => $data['email'],
         ] + (filled($data['password']) ? ['password' => bcrypt($data['password'])] : []));
 
-        $perms = $data['permissions'] ?? ['pengasuhan.absensi', 'pengasuhan.pelanggaran'];
-        $user->syncPermissions($perms);
+        $user->syncPermissions($data['permissions'] ?? []);
 
         return redirect()->route('admin.pengasuhan-accounts.index')->with('success', 'Akun pengasuhan berhasil diperbarui.');
     }
