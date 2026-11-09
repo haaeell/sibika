@@ -10,16 +10,16 @@
 
     <div class="space-y-5">
         <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="violation-top-title">
-            <div class="flex flex-wrap items-center justify-between gap-2"><div><h2 id="violation-top-title" class="font-bold text-slate-900">Siswa paling sering tercatat</h2><p class="mt-1 text-xs text-slate-500">Lima teratas sesuai filter kelas kejadian dan tanggal; klik nama untuk riwayat lengkap.</p></div></div>
+            <div class="flex flex-wrap items-center justify-between gap-2"><div><h2 id="violation-top-title" class="font-bold text-slate-900">Siswa paling sering tercatat</h2><p class="mt-1 text-xs text-slate-500">Lima teratas sesuai filter kelas saat ini dan tanggal; klik nama untuk riwayat lengkap.</p></div></div>
             <div id="violation-top-students" class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 @include('bk.violations._top-students')
             </div>
         </section>
         @error('warning_letter')<p role="alert" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-800">{{ $message }} Pilih ulang surat melalui tombol upload pada catatan terkait.</p>@enderror
         <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="mb-4"><h2 class="font-bold text-slate-900">Filter riwayat</h2><p class="mt-1 text-xs text-slate-500">Cari terlapor, NIS, pasal, kelas saat kejadian, atau tanggal.</p></div>
+            <div class="mb-4"><h2 class="font-bold text-slate-900">Filter riwayat</h2><p class="mt-1 text-xs text-slate-500">Cari terlapor, NIS, pasal, kelas saat ini, atau tanggal.</p></div>
             <form id="violation-filters" method="GET" action="{{ route('bk.violations.index') }}" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <label class="text-xs font-bold text-slate-600">Kelas kejadian<select name="class_at_incident" class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm focus:border-blue-700 focus:ring-2 focus:ring-blue-100"><option value="">Semua kelas</option>@foreach ($classes as $class)<option value="{{ $class }}" @selected(($filters['class_at_incident'] ?? null) === $class)>{{ $class }}</option>@endforeach</select></label>
+                <label class="text-xs font-bold text-slate-600">Kelas saat ini<select name="class_id" class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm focus:border-blue-700 focus:ring-2 focus:ring-blue-100"><option value="">Semua kelas</option>@foreach ($classes as $class)<option value="{{ $class->id }}" @selected(($filters['class_id'] ?? null) == $class->id)>{{ $class->name }}</option>@endforeach</select></label>
                 <label class="text-xs font-bold text-slate-600">Dari tanggal<input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-blue-700 focus:ring-2 focus:ring-blue-100"></label>
                 <label class="text-xs font-bold text-slate-600">Sampai tanggal<input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-blue-700 focus:ring-2 focus:ring-blue-100"></label>
                 <div class="flex items-end gap-2"><x-button type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Terapkan</x-button>@if (array_filter($filters))<x-button variant="secondary" :href="route('bk.violations.index')">Reset</x-button>@endif</div>
@@ -38,8 +38,8 @@
 
     <dialog id="violation-import-modal" aria-labelledby="violation-import-title" class="warning-letter-dialog" style="width:min(36rem,calc(100vw - 2rem))">
         <div class="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4"><div><h2 id="violation-import-title" class="text-lg font-bold text-slate-900">Import Excel</h2><p class="mt-1 text-xs text-slate-500">Gunakan template yang disediakan sebelum mengunggah.</p></div><button type="button" class="btn-icon" data-import-close aria-label="Tutup modal import"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
-            <div class="px-5 py-5"><p class="text-sm text-slate-600">Isi sheet Data Pelanggaran. Nama siswa dan kelas saat ini digunakan untuk mencocokkan terlapor.</p>
-                <p class="mt-2 text-xs text-slate-500">Kolom: nama_siswa · kelas_saat_ini · kelas_saat_kejadian · tanggal_kejadian (DD-MM-YYYY) · pasal_perdupsis · sanksi.</p>
+            <div class="px-5 py-5"><p class="text-sm text-slate-600">Isi sheet Data Pelanggaran. Nama siswa digunakan untuk mencocokkan terlapor; nama harus unik.</p>
+                <p class="mt-2 text-xs text-slate-500">Kolom: nama_siswa · tanggal_kejadian (DD-MM-YYYY) · pasal_perdupsis · sanksi. Kelas mengikuti data siswa saat ini.</p>
                 <div class="mt-4"><x-button variant="secondary" :href="route('bk.violations.template')"><i class="fa-solid fa-download" aria-hidden="true"></i> Unduh template Excel</x-button></div>
                 <form method="POST" action="{{ route('bk.violations.import') }}" enctype="multipart/form-data" class="mt-4 flex flex-wrap items-end gap-3 rounded-xl bg-slate-50 p-4">@csrf
                     <label class="min-w-64 flex-1 text-sm font-semibold text-slate-700">File Excel <span class="text-rose-500">*</span><input type="file" name="file" accept=".xlsx,.xls" required class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white p-2 text-sm"></label>

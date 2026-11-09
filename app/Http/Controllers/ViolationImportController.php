@@ -18,18 +18,16 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ViolationImportController extends Controller
 {
-    private const HEADINGS = ['nama_siswa', 'kelas_saat_ini', 'kelas_saat_kejadian', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi'];
+    private const HEADINGS = ['nama_siswa', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi'];
 
     public function template(): BinaryFileResponse
     {
         return Excel::download(new StudentScoreWorkbook([
             new StudentScoreSheetExport('Data Pelanggaran', self::HEADINGS, [
-                ['ISI_NAMA_SISWA', 'XI IPA 1', 'X IPA 1', '03-02-2026', 'Pasal 7', 'Pembinaan tertulis'],
+                ['ISI_NAMA_SISWA', '03-02-2026', 'Pasal 7', 'Pembinaan tertulis'],
             ]),
             new StudentScoreSheetExport('Panduan', ['Kolom', 'Cara mengisi'], [
-                ['nama_siswa', 'Wajib. Nama lengkap siswa yang terdaftar; ganti ISI_NAMA_SISWA pada contoh.'],
-                ['kelas_saat_ini', 'Wajib. Kelas siswa saat ini. Dipakai bersama nama untuk mencocokkan terlapor.'],
-                ['kelas_saat_kejadian', 'Wajib. Teks bebas, misalnya X IPA 1; tidak mengubah kelas siswa saat ini.'],
+                ['nama_siswa', 'Wajib. Nama lengkap siswa yang terdaftar dan unik; ganti ISI_NAMA_SISWA pada contoh.'],
                 ['tanggal_kejadian', 'Wajib. Format DD-MM-YYYY atau DD/MM/YYYY, misalnya 03-02-2026.'],
                 ['pasal_perdupsis', 'Wajib. Pasal yang dilanggar, misalnya Pasal 7.'],
                 ['sanksi', 'Wajib. Sanksi atau tindakan yang diberikan.'],
@@ -53,7 +51,7 @@ class ViolationImportController extends Controller
             return back()->withErrors(['file' => 'File tidak berisi data pelanggaran.']);
         }
 
-        $students = Student::with('schoolClass')->get()->groupBy(fn (Student $student) => mb_strtolower(trim($student->name)).'|'.mb_strtolower(trim((string) $student->schoolClass?->name)));
+        $students = Student::all()->groupBy(fn (Student $student) => mb_strtolower(trim($student->name)));
         $valid = [];
         $errors = [];
         foreach ($rows as $index => $row) {
@@ -61,7 +59,6 @@ class ViolationImportController extends Controller
             $cells = array_pad($row->values()->all(), count(self::HEADINGS), null);
             $data = array_combine(self::HEADINGS, array_slice($cells, 0, count(self::HEADINGS)));
             $data['nama_siswa'] = trim((string) $data['nama_siswa']);
-            $data['kelas_saat_ini'] = trim((string) $data['kelas_saat_ini']);
             if (is_numeric($data['tanggal_kejadian']) && (float) $data['tanggal_kejadian'] > 0) {
                 $data['tanggal_kejadian'] = ExcelDate::excelToDateTimeObject($data['tanggal_kejadian'])->format('Y-m-d');
             } elseif (is_string($data['tanggal_kejadian'])) {
@@ -73,8 +70,6 @@ class ViolationImportController extends Controller
             }
             $validator = Validator::make($data, [
                 'nama_siswa' => ['required', 'string', 'max:100'],
-                'kelas_saat_ini' => ['required', 'string', 'max:100'],
-                'kelas_saat_kejadian' => ['required', 'string', 'max:100'],
                 'tanggal_kejadian' => ['required', 'date_format:Y-m-d'],
                 'pasal_perdupsis' => ['required', 'string', 'max:255'],
                 'sanksi' => ['required', 'string', 'max:5000'],
@@ -82,17 +77,16 @@ class ViolationImportController extends Controller
             if ($validator->fails()) {
                 $errors[] = 'Baris '.$line.': '.$validator->errors()->first();
             } else {
-                $key = mb_strtolower($data['nama_siswa']).'|'.mb_strtolower($data['kelas_saat_ini']);
+                $key = mb_strtolower($data['nama_siswa']);
                 $matches = $students->get($key, collect());
                 if ($matches->isEmpty()) {
-                    $errors[] = 'Baris '.$line.': siswa '.$data['nama_siswa'].' di kelas '.$data['kelas_saat_ini'].' tidak ditemukan.';
+                    $errors[] = 'Baris '.$line.': siswa '.$data['nama_siswa'].' tidak ditemukan.';
                 } elseif ($matches->count() > 1) {
-                    $errors[] = 'Baris '.$line.': siswa '.$data['nama_siswa'].' di kelas '.$data['kelas_saat_ini'].' lebih dari satu; gunakan nama yang dibedakan di data siswa terlebih dahulu.';
+                    $errors[] = 'Baris '.$line.': siswa '.$data['nama_siswa'].' lebih dari satu; gunakan nama yang dibedakan di data siswa terlebih dahulu.';
                 } else {
                     $student = $matches->first();
                     $valid[] = [
                         'student_id' => $student->id,
-                        'class_at_incident' => trim($data['kelas_saat_kejadian']),
                         'occurred_at' => $data['tanggal_kejadian'],
                         'pasal_perdupsis' => trim($data['pasal_perdupsis']),
                         'sanction' => trim($data['sanksi']),

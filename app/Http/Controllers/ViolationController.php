@@ -28,10 +28,10 @@ class ViolationController extends Controller
 
         return view('bk.violations.index', [
             'filters' => $filters,
-            'classes' => StudentViolation::distinct()->orderBy('class_at_incident')->pluck('class_at_incident'),
+            'classes' => SchoolClass::orderBy('name')->get(),
             'topStudents' => StudentViolation::query()
                 ->join('students', 'students.id', '=', 'student_violations.student_id')
-                ->when($filters['class_at_incident'] ?? null, fn ($q, $class) => $q->where('class_at_incident', $class))
+                ->when($filters['class_id'] ?? null, fn ($q, $class) => $q->where('students.class_id', $class))
                 ->when($filters['from'] ?? null, fn ($q, $date) => $q->whereDate('occurred_at', '>=', $date))
                 ->when($filters['to'] ?? null, fn ($q, $date) => $q->whereDate('occurred_at', '<=', $date))
                 ->select('students.id', 'students.name', 'students.nis')
@@ -45,12 +45,12 @@ class ViolationController extends Controller
     {
         $request->merge(['search' => $request->input('search.value', '')]);
         $filters = $this->filters($request, true);
-        $query = $this->filtered($filters)->with(['student' => fn ($q) => $q->withCount('violations'), 'creator']);
+        $query = $this->filtered($filters)->with(['student' => fn ($q) => $q->with('schoolClass')->withCount('violations'), 'creator']);
 
         return DataTables::eloquent($query)
             ->filter(fn () => null)
             ->addIndexColumn()
-            ->addColumn('incident', fn (StudentViolation $v) => '<span class="font-semibold text-slate-800">'.e($v->occurred_at->translatedFormat('d F Y')).'</span><span class="mt-0.5 block text-xs text-slate-500">Kelas: '.e($v->class_at_incident).'</span>')
+            ->addColumn('incident', fn (StudentViolation $v) => '<span class="font-semibold text-slate-800">'.e($v->occurred_at->translatedFormat('d F Y')).'</span><span class="mt-0.5 block text-xs text-slate-500">Kelas: '.e($v->student->schoolClass?->name ?? '-').'</span>')
             ->addColumn('reportee', fn (StudentViolation $v) => '<a class="font-bold text-blue-800 hover:underline" href="'.route('bk.violations.student', $v->student).'">'.e($v->student->name).'</a><span class="block text-xs text-slate-500">'.e($v->student->nis).'</span>')
             ->addColumn('total_violations', fn (StudentViolation $v) => '<a href="'.route('bk.violations.student', $v->student).'" class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 hover:bg-blue-100" aria-label="Lihat '.$v->student->violations_count.' pelanggaran '.e($v->student->name).'">'.$v->student->violations_count.'×</a>')
             ->addColumn('sanction_preview', fn (StudentViolation $v) => '<span class="line-clamp-2 max-w-xs whitespace-pre-line text-slate-600" title="'.e($v->sanction).'">'.e($v->sanction).'</span>')
@@ -66,7 +66,7 @@ class ViolationController extends Controller
     public function export(Request $request, string $format): Response|BinaryFileResponse
     {
         abort_unless(in_array($format, ['pdf', 'xlsx'], true), 404);
-        $records = $this->filtered($this->filters($request, true))->with(['student', 'creator'])
+        $records = $this->filtered($this->filters($request, true))->with(['student.schoolClass', 'creator'])
             ->orderByDesc('occurred_at')->orderByDesc('id')->get();
         $filename = 'laporan-pelanggaran-'.now()->format('Ymd-His').'.'.$format;
         if ($format === 'pdf') {
@@ -76,16 +76,16 @@ class ViolationController extends Controller
         $rows = $records->map(fn (StudentViolation $row) => array_map(
             fn ($value) => is_string($value) && preg_match('/^[=+\-@]/', ltrim($value)) ? "'".$value : $value,
             [$row->occurred_at->format('Y-m-d'), $row->student->nis, $row->student->name,
-                $row->class_at_incident, $row->pasal_perdupsis, $row->sanction, $row->creator?->name ?? 'Akun dihapus']
+                $row->student->schoolClass?->name ?? '-', $row->pasal_perdupsis, $row->sanction, $row->creator?->name ?? 'Akun dihapus']
         ));
 
-        return Excel::download(new TableExport(['Tanggal', 'NIS', 'Nama', 'Kelas Kejadian', 'Pasal', 'Sanksi', 'Pencatat'], $rows), $filename, ExcelType::XLSX);
+        return Excel::download(new TableExport(['Tanggal', 'NIS', 'Nama', 'Kelas Saat Ini', 'Pasal', 'Sanksi', 'Pencatat'], $rows), $filename, ExcelType::XLSX);
     }
 
     private function filters(Request $request, bool $search = false): array
     {
         return $request->validate(array_merge([
-            'class_at_incident' => ['nullable', 'string', 'max:100'],
+            'class_id' => ['nullable', 'integer', Rule::exists('classes', 'id')],
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
         ], $search ? ['search' => ['nullable', 'string', 'max:100']] : []));
@@ -94,7 +94,7 @@ class ViolationController extends Controller
     private function filtered(array $filters): Builder
     {
         return StudentViolation::query()
-            ->when($filters['class_at_incident'] ?? null, fn (Builder $q, $class) => $q->where('class_at_incident', $class))
+            ->when($filters['class_id'] ?? null, fn (Builder $q, $class) => $q->whereHas('student', fn (Builder $s) => $s->where('class_id', $class)))
             ->when($filters['from'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '>=', $date))
             ->when($filters['to'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '<=', $date))
             ->when(trim((string) ($filters['search'] ?? '')) !== '', function (Builder $q) use ($filters) {
@@ -137,8 +137,7 @@ class ViolationController extends Controller
     {
         return view('bk.violations.form', [
             'violation' => $violation,
-            'students' => Student::with('schoolClass')->orderBy('name')->get(),
-            'classes' => SchoolClass::orderBy('name')->pluck('name')->unique(),
+            'students' => Student::orderBy('name')->get(),
         ]);
     }
 
@@ -198,7 +197,6 @@ class ViolationController extends Controller
     {
         return $request->validate([
             'student_id' => ['required', 'integer', Rule::exists('students', 'id')],
-            'class_at_incident' => ['required', 'string', 'max:100'],
             'occurred_at' => ['required', 'date_format:Y-m-d'],
             'pasal_perdupsis' => ['required', 'string', 'max:255'],
             'sanction' => ['required', 'string', 'max:5000'],

@@ -21,33 +21,34 @@ class ViolationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_bk_records_historic_class_and_students_only_see_own_history(): void
+    public function test_bk_records_violation_and_students_only_see_own_history(): void
     {
         $bk = $this->user('bk');
         $admin = $this->user('super_admin');
         $owner = $this->user('siswa');
         $other = $this->user('siswa');
-        $student = Student::create(['nis' => 'P001', 'name' => 'Alya', 'user_id' => $owner->id]);
+        $class = $this->schoolClass();
+        $student = Student::create(['nis' => 'P001', 'name' => 'Alya', 'user_id' => $owner->id, 'class_id' => $class->id]);
         $otherStudent = Student::create(['nis' => 'P002', 'name' => 'Budi', 'user_id' => $other->id]);
 
         $this->actingAs($bk)->post(route('bk.violations.store'), [
-            'student_id' => $student->id, 'class_at_incident' => 'X IPA 1', 'occurred_at' => '2025-02-03',
+            'student_id' => $student->id, 'occurred_at' => '2025-02-03',
             'pasal_perdupsis' => 'Pasal 7', 'sanction' => 'Pembinaan tertulis',
         ])->assertRedirect(route('bk.violations.index'));
         $record = StudentViolation::firstOrFail();
-        $this->assertSame('X IPA 1', $record->class_at_incident);
+        $this->assertSame('XI Uji', $record->student->schoolClass->name);
         $this->assertSame($bk->id, $record->created_by);
         $this->actingAs($bk)->get(route('bk.violations.index'))->assertOk()
             ->assertSee('id="violation-table"', false)->assertSee('id="warning-letter-modal"', false)
             ->assertSee('>No<', false)->assertSee('Alya')->assertSee('1×');
         $this->get(route('bk.violations.student', $student))->assertOk()->assertSee('Pasal 7')->assertSee('1 pelanggaran');
         $this->actingAs($admin)->put(route('bk.violations.update', $record), [
-            'student_id' => $student->id, 'class_at_incident' => 'X IPA 1', 'occurred_at' => '2025-02-03',
+            'student_id' => $student->id, 'occurred_at' => '2025-02-03',
             'pasal_perdupsis' => 'Pasal 7', 'sanction' => 'Pembinaan lanjutan',
         ])->assertRedirect();
         $this->assertDatabaseHas('student_violations', ['id' => $record->id, 'created_by' => $bk->id, 'updated_by' => $admin->id]);
-        $this->get(route('bk.violations.data', ['class_at_incident' => 'X IPA 1', 'from' => '2025-02-03', 'to' => '2025-02-03']))
-            ->assertOk()->assertJsonCount(1, 'data')->assertSee('Pasal 7')->assertSee('data-warning-letter-url');
+        $this->get(route('bk.violations.data', ['class_id' => $class->id, 'from' => '2025-02-03', 'to' => '2025-02-03']))
+            ->assertOk()->assertJsonCount(1, 'data')->assertSee('Kelas: XI Uji')->assertSee('Pasal 7')->assertSee('data-warning-letter-url');
         $this->get(route('bk.violations.data', ['from' => '2025-02-04']))->assertOk()->assertJsonCount(0, 'data');
         $this->get(route('bk.violations.data', ['search' => ['value' => 'Alya']]))->assertOk()->assertJsonCount(1, 'data');
         $this->get(route('bk.violations.data'))->assertJsonPath('data.0.total_violations', '<a href="'.route('bk.violations.student', $student).'" class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-800 hover:bg-blue-100" aria-label="Lihat 1 pelanggaran Alya">1×</a>');
@@ -71,27 +72,31 @@ class ViolationTest extends TestCase
         Excel::assertDownloaded('template-pelanggaran.xlsx', function (StudentScoreWorkbook $export): bool {
             [$data, $guide] = $export->sheets();
 
-            return $data->headings() === ['nama_siswa', 'kelas_saat_ini', 'kelas_saat_kejadian', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']
-                && $data->array()[0] === ['ISI_NAMA_SISWA', 'XI IPA 1', 'X IPA 1', '03-02-2026', 'Pasal 7', 'Pembinaan tertulis']
+            return $data->headings() === ['nama_siswa', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']
+                && $data->array()[0] === ['ISI_NAMA_SISWA', '03-02-2026', 'Pasal 7', 'Pembinaan tertulis']
                 && $guide->headings() === ['Kolom', 'Cara mengisi'];
         });
     }
 
-    public function test_summary_follows_date_and_historic_class_while_row_total_is_all_time(): void
+    public function test_summary_follows_date_and_current_class_while_row_total_is_all_time(): void
     {
         $this->actingAs($this->user('bk'));
-        $student = Student::create(['nis' => 'P030', 'name' => 'Dina']);
-        foreach ([['2025-02-03', 'X IPA 1'], ['2026-02-03', 'XI IPA 1']] as [$date, $class]) {
-            StudentViolation::create(['student_id' => $student->id, 'class_at_incident' => $class,
+        $class = $this->schoolClass();
+        $student = Student::create(['nis' => 'P030', 'name' => 'Dina', 'class_id' => $class->id]);
+        foreach (['2025-02-03', '2026-02-03'] as $date) {
+            StudentViolation::create(['student_id' => $student->id,
                 'occurred_at' => $date, 'pasal_perdupsis' => 'Pasal 7', 'sanction' => 'Pembinaan']);
         }
 
-        $this->get(route('bk.violations.index', ['from' => '2026-01-01', 'class_at_incident' => 'XI IPA 1']))
+        $this->get(route('bk.violations.index', ['from' => '2026-01-01', 'class_id' => $class->id]))
             ->assertOk()->assertSee('Dina')->assertSee('1×')->assertDontSee('2×');
-        $this->get(route('bk.violations.data', ['from' => '2026-01-01', 'class_at_incident' => 'XI IPA 1']))
+        $this->get(route('bk.violations.data', ['from' => '2026-01-01', 'class_id' => $class->id]))
             ->assertOk()->assertJsonCount(1, 'data')->assertSee('Lihat 2 pelanggaran Dina');
         $this->get(route('bk.violations.student', $student))->assertOk()
-            ->assertSee('2 pelanggaran')->assertSee('X IPA 1')->assertSee('XI IPA 1');
+            ->assertSee('2 pelanggaran')->assertSee('XI Uji');
+        $student->update(['class_id' => null]);
+        $this->get(route('bk.violations.data', ['class_id' => $class->id]))->assertOk()->assertJsonCount(0, 'data');
+        $this->get(route('bk.violations.data'))->assertOk()->assertSee('Kelas: -');
     }
 
     public function test_import_is_atomic_and_reports_row_errors(): void
@@ -103,13 +108,13 @@ class ViolationTest extends TestCase
 
         $file = UploadedFile::fake()->create('pelanggaran.xlsx', 10, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         Excel::shouldReceive('toCollection')->twice()->andReturn(collect([collect([
-            collect(['nama_siswa', 'kelas_saat_ini', 'kelas_saat_kejadian', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']),
-            collect(['Citra', 'XI Uji', 'X-1', '03-02-2025', 'Pasal 4', 'Teguran']),
-            collect(['Tidak Ada', 'XI Uji', 'X-2', '04/02/2025', 'Pasal 5', 'Pembinaan']),
+            collect(['nama_siswa', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']),
+            collect(['Citra', '03-02-2025', 'Pasal 4', 'Teguran']),
+            collect(['Tidak Ada', '04/02/2025', 'Pasal 5', 'Pembinaan']),
         ])]), collect([collect([
-            collect(['nama_siswa', 'kelas_saat_ini', 'kelas_saat_kejadian', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']),
-            collect(['Citra', 'XI Uji', 'X-1', '03-02-2025', 'Pasal 4', 'Teguran']),
-            collect(['Citra', 'XI Uji', 'XI-1', '04/02/2026', 'Pasal 5', 'Pembinaan']),
+            collect(['nama_siswa', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']),
+            collect(['Citra', '03-02-2025', 'Pasal 4', 'Teguran']),
+            collect(['Citra', '04/02/2026', 'Pasal 5', 'Pembinaan']),
         ])]));
         $this->post(route('bk.violations.import'), ['file' => $file])->assertSessionHasErrors('file')->assertSessionHas('import_errors');
         $this->assertStringContainsString('Baris 3:', session('import_errors')[0]);
@@ -117,12 +122,12 @@ class ViolationTest extends TestCase
 
         $this->post(route('bk.violations.import'), ['file' => $file])->assertRedirect(route('bk.violations.index'))->assertSessionHas('success');
         $this->assertSame(2, StudentViolation::count());
-        $this->assertDatabaseHas('student_violations', ['class_at_incident' => 'X-1', 'pasal_perdupsis' => 'Pasal 4']);
+        $this->assertDatabaseHas('student_violations', ['pasal_perdupsis' => 'Pasal 4']);
 
-        Student::create(['nis' => 'P011', 'name' => 'Citra', 'class_id' => $class->id]);
+        Student::create(['nis' => 'P011', 'name' => 'Citra']);
         Excel::shouldReceive('toCollection')->andReturn(collect([collect([
-            collect(['nama_siswa', 'kelas_saat_ini', 'kelas_saat_kejadian', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']),
-            collect(['Citra', 'XI Uji', 'X-1', '04-02-2026', 'Pasal 6', 'Pembinaan']),
+            collect(['nama_siswa', 'tanggal_kejadian', 'pasal_perdupsis', 'sanksi']),
+            collect(['Citra', '04-02-2026', 'Pasal 6', 'Pembinaan']),
         ])]));
         $this->post(route('bk.violations.import'), ['file' => $file])->assertSessionHasErrors('file');
         $this->assertStringContainsString('lebih dari satu', session('import_errors')[0]);
@@ -138,7 +143,7 @@ class ViolationTest extends TestCase
         $student = Student::create(['nis' => 'P020', 'name' => 'Dina', 'user_id' => $owner->id]);
         Student::create(['nis' => 'P021', 'name' => 'Eka', 'user_id' => $other->id]);
         $payload = [
-            'student_id' => $student->id, 'class_at_incident' => 'XI IPA 1', 'occurred_at' => '2026-02-03',
+            'student_id' => $student->id, 'occurred_at' => '2026-02-03',
             'pasal_perdupsis' => 'Pasal 8', 'sanction' => 'Surat peringatan',
         ];
         $this->actingAs($bk)->post(route('bk.violations.store'), $payload)->assertRedirect();

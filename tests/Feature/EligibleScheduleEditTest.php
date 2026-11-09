@@ -78,7 +78,7 @@ class EligibleScheduleEditTest extends TestCase
         $other = Student::create(['nis' => 'SCH-003', 'name' => 'Tanpa Catatan', 'cohort_id' => $cohort->id]);
         foreach (['2024-01-01', '2026-10-01'] as $date) {
             StudentViolation::create(['student_id' => $student->id, 'occurred_at' => $date,
-                'class_at_incident' => 'X IPA', 'pasal_perdupsis' => 'Pasal 1', 'sanction' => 'Teguran']);
+                'pasal_perdupsis' => 'Pasal 1', 'sanction' => 'Teguran']);
         }
         $announcement = EligibleAnnouncement::create(['cohort_id' => $cohort->id, 'eligible_quota' => 1,
             'reserve_quota' => 0, 'published_at' => now()->subDay()]);
