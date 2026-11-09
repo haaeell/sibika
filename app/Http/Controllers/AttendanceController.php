@@ -10,9 +10,11 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Excel as ExcelType;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,6 +22,27 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AttendanceController extends Controller
 {
+    public function destroy(AttendanceAbsence $absence): RedirectResponse
+    {
+        $week = $absence->week;
+        $absence->delete();
+        if (! $week->absences()->exists()) {
+            $week->delete();
+        }
+
+        return back()->with('success', 'Catatan absensi siswa dihapus.');
+    }
+
+    public function destroyWeek(AttendanceWeek $week): RedirectResponse
+    {
+        DB::transaction(function () use ($week): void {
+            $week->absences()->delete();
+            $week->delete();
+        });
+
+        return redirect()->route('bk.attendance.index')->with('success', 'Seluruh absensi minggu tersebut dihapus.');
+    }
+
     public function index(Request $request): View
     {
         $filters = $this->filters($request);

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsurePasswordIsChanged;
+use App\Http\Middleware\PrincipalReadOnly;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,11 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [PrincipalReadOnly::class]);
         $middleware->alias([
             'permission' => PermissionMiddleware::class,
             'role' => RoleMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
-            'password.changed' => \App\Http\Middleware\EnsurePasswordIsChanged::class,
+            'password.changed' => EnsurePasswordIsChanged::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

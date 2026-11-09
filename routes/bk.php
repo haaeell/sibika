@@ -36,17 +36,20 @@ Route::prefix('bk')
     ->name('bk.')
     ->middleware(['auth'])
     ->group(function (): void {
-        Route::middleware(['role:pengasuhan|bk|super_admin'])->group(function (): void {
+        Route::middleware(['role:pengasuhan|bk|super_admin|kepala_sekolah'])->group(function (): void {
             Route::middleware(['can:pengasuhan.absensi'])->group(function (): void {
                 Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
                 Route::get('attendance/template', [AttendanceImportController::class, 'template'])->name('attendance.template');
                 Route::post('attendance/import', [AttendanceImportController::class, 'store'])->name('attendance.import');
                 Route::get('attendance/export/{format}', [AttendanceController::class, 'export'])->name('attendance.export');
+                Route::delete('attendance/weeks/{week}', [AttendanceController::class, 'destroyWeek'])->name('attendance.weeks.destroy');
+                Route::delete('attendance/{absence}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
             });
 
             Route::middleware(['can:pengasuhan.pelanggaran'])->group(function (): void {
                 Route::get('violations', [ViolationController::class, 'index'])->name('violations.index');
                 Route::get('violations/data', [ViolationController::class, 'data'])->name('violations.data');
+                Route::get('violations/export/{format}', [ViolationController::class, 'export'])->name('violations.export');
                 Route::get('violations/students/{student}', [ViolationController::class, 'student'])->name('violations.student');
                 Route::get('violations/template', [ViolationImportController::class, 'template'])->name('violations.template');
                 Route::post('violations/import', [ViolationImportController::class, 'store'])->name('violations.import');
@@ -54,11 +57,12 @@ Route::prefix('bk')
                 Route::post('violations', [ViolationController::class, 'store'])->name('violations.store');
                 Route::get('violations/{violation}/edit', [ViolationController::class, 'edit'])->name('violations.edit');
                 Route::put('violations/{violation}', [ViolationController::class, 'update'])->name('violations.update');
+                Route::delete('violations/{violation}', [ViolationController::class, 'destroy'])->name('violations.destroy');
                 Route::post('violations/{violation}/warning-letter', [ViolationController::class, 'uploadWarningLetter'])->name('violations.warning-letter.upload');
                 Route::get('violations/{violation}/warning-letter', [ViolationController::class, 'downloadWarningLetter'])->name('violations.warning-letter');
             });
         });
-        Route::middleware(['role:bk|super_admin'])->group(function (): void {
+        Route::middleware(['role:bk|super_admin|kepala_sekolah'])->group(function (): void {
             Route::get('/dashboard', BkDashboardController::class)->name('dashboard');
             Route::get('counseling', [CounselingController::class, 'index'])->name('counseling.index');
             Route::get('counseling/data', [CounselingController::class, 'data'])->name('counseling.data');
@@ -69,6 +73,7 @@ Route::prefix('bk')
             Route::get('counseling/{session}/edit', [CounselingController::class, 'edit'])->name('counseling.edit');
             Route::put('counseling/{session}', [CounselingController::class, 'update'])->name('counseling.update');
             Route::patch('counseling/{session}/complete', [CounselingController::class, 'complete'])->name('counseling.complete');
+            Route::delete('counseling/{session}', [CounselingController::class, 'destroy'])->name('counseling.destroy');
             Route::get('graduation', [GraduationAdminController::class, 'index'])->name('graduation.index');
             Route::get('graduation/attachment/{cohort}/{type}', [GraduationAdminController::class, 'attachment'])->name('graduation.attachment');
             Route::post('graduation', [GraduationAdminController::class, 'store'])->name('graduation.store');

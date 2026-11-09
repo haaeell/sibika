@@ -215,6 +215,14 @@ class CounselingController extends Controller
         return back()->with('success', 'Status tindak lanjut diperbarui.');
     }
 
+    public function destroy(CounselingSession $session): RedirectResponse
+    {
+        $student = $session->student;
+        $session->delete();
+
+        return redirect()->route('bk.counseling.student', $student)->with('success', 'Sesi konseling dihapus.');
+    }
+
     private function validated(Request $request): array
     {
         $data = $request->validate([

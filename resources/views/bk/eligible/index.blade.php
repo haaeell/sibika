@@ -74,7 +74,7 @@
                     <div><h2 class="font-bold text-slate-900">{{ $announcement ? 'Daftar hasil' : 'Pratinjau peringkat' }}</h2><p class="text-xs text-slate-500">{{ $rankedCount }} dari {{ $rows->count() }} siswa memiliki nilai lengkap · peringkat awal untuk nilai seri diurutkan menurut nama dan NIS.</p></div>
                     <div class="flex flex-wrap items-center gap-2">
                         @if ($announcement)
-                            <form method="POST" action="{{ route('bk.eligible.reset') }}" id="eligible-reset-form">
+                            <form method="POST" action="{{ route('bk.eligible.reset') }}" id="eligible-reset-form" class="js-confirm-form" data-confirm-title="Kembalikan peringkat awal?" data-confirm-text="Semua peringkat akan kembali ke urutan sebelum dipindah admin.">
                                 @csrf
                                 <input type="hidden" name="cohort_id" value="{{ $cohort->id }}">
                                 <button type="submit" class="eligible-secondary" @disabled(! $hasManualOrder)><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset peringkat</button>
@@ -208,9 +208,6 @@
                             moveRank.value = row.dataset.rank;
                             moveForm.submit();
                         });
-                    });
-                    document.getElementById('eligible-reset-form').addEventListener('submit', event => {
-                        if (!window.confirm('Kembalikan semua peringkat ke urutan awal sebelum dipindah admin?')) event.preventDefault();
                     });
                 @endif
                 @unless ($announcement)

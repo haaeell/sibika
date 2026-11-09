@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminAccountController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LoginSettingController;
 use App\Http\Controllers\PengasuhanAccountController;
+use App\Http\Controllers\PrincipalAccountController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'role:super_admin'])
+    ->middleware(['auth', 'role:super_admin|kepala_sekolah'])
     ->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('/account', [AdminAccountController::class, 'edit'])->name('account.edit');
@@ -19,7 +20,7 @@ Route::prefix('admin')
 
 Route::prefix('admin/pengasuhan-accounts')
     ->name('admin.pengasuhan-accounts.')
-    ->middleware(['auth', 'role:bk|super_admin'])
+    ->middleware(['auth', 'role:bk|super_admin|kepala_sekolah'])
     ->group(function (): void {
         Route::get('/', [PengasuhanAccountController::class, 'index'])->name('index');
         Route::get('/create', [PengasuhanAccountController::class, 'create'])->name('create');
@@ -27,4 +28,15 @@ Route::prefix('admin/pengasuhan-accounts')
         Route::get('/{user}/edit', [PengasuhanAccountController::class, 'edit'])->name('edit');
         Route::put('/{user}', [PengasuhanAccountController::class, 'update'])->name('update');
         Route::delete('/{user}', [PengasuhanAccountController::class, 'destroy'])->name('destroy');
+    });
+
+Route::prefix('admin/principals')->name('admin.principals.')
+    ->middleware(['auth', 'role:super_admin'])
+    ->group(function (): void {
+        Route::get('/', [PrincipalAccountController::class, 'index'])->name('index');
+        Route::get('/create', [PrincipalAccountController::class, 'create'])->name('create');
+        Route::post('/', [PrincipalAccountController::class, 'store'])->name('store');
+        Route::get('/{user}/edit', [PrincipalAccountController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [PrincipalAccountController::class, 'update'])->name('update');
+        Route::delete('/{user}', [PrincipalAccountController::class, 'destroy'])->name('destroy');
     });

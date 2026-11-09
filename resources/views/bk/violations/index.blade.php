@@ -1,8 +1,10 @@
 @component('layouts.app', ['title' => 'Pelanggaran'])
     <x-page-header title="Pelanggaran" description="Kelola riwayat pelanggaran, sanksi, dan surat peringatan siswa.">
         <x-slot:actions>
+            @unless (auth()->user()->hasRole('kepala_sekolah'))
             <button type="button" id="violation-import-open" class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100"><i class="fa-solid fa-file-excel" aria-hidden="true"></i> Import Excel</button>
             <x-button :href="route('bk.violations.create')"><i class="fa-solid fa-plus" aria-hidden="true"></i> Catat pelanggaran</x-button>
+            @endunless
         </x-slot:actions>
     </x-page-header>
 
@@ -22,6 +24,7 @@
                 <label class="text-xs font-bold text-slate-600">Sampai tanggal<input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-blue-700 focus:ring-2 focus:ring-blue-100"></label>
                 <div class="flex items-end gap-2"><x-button type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Terapkan</x-button>@if (array_filter($filters))<x-button variant="secondary" :href="route('bk.violations.index')">Reset</x-button>@endif</div>
             </form>
+            @unless (auth()->user()->hasRole('kepala_sekolah'))<div class="mt-4 flex gap-2"><a class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800" href="{{ route('bk.violations.export', ['format' => 'xlsx'] + $filters) }}">Unduh Excel</a><a class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-800" href="{{ route('bk.violations.export', ['format' => 'pdf'] + $filters) }}">Unduh PDF</a></div>@endunless
         </section>
 
         <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -83,7 +86,7 @@
                 document.body.appendChild(modal);
                 const importModal = document.getElementById('violation-import-modal');
                 document.body.appendChild(importModal);
-                document.getElementById('violation-import-open').addEventListener('click', () => importModal.showModal());
+                document.getElementById('violation-import-open')?.addEventListener('click', () => importModal.showModal());
                 importModal.querySelector('[data-import-close]').addEventListener('click', () => importModal.close());
                 importModal.addEventListener('click', event => { if (event.target === importModal) importModal.close(); });
                 @if ($errors->has('file') || session('import_errors')) importModal.showModal(); @endif

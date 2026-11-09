@@ -114,18 +114,22 @@
                 });
                 table.on('draw.dt', function () { document.querySelector('#student-select-all').checked = false; });
                 document.querySelector('#reset-student-data-form').addEventListener('submit', function (event) {
+                    event.preventDefault();
                     const scope = event.submitter.dataset.resetScope;
                     const selected = [...table.find('.student-select:checked')].map(input => input.value);
                     if (scope === 'selected' && !selected.length) {
-                        event.preventDefault();
-                        alert('Pilih minimal satu siswa.');
+                        window.showToast({ icon: 'warning', title: 'Pilih minimal satu siswa.' });
                         return;
                     }
-                    if (!confirm(scope === 'all' ? 'Reset data biodata dan nilai seluruh siswa? Data tidak dapat dikembalikan.' : `Reset data biodata dan nilai ${selected.length} siswa? Data tidak dapat dikembalikan.`)) {
-                        event.preventDefault();
-                        return;
-                    }
-                    if (scope === 'selected') selected.forEach(id => this.insertAdjacentHTML('beforeend', `<input type="hidden" name="student_ids[]" value="${id}">`));
+                    window.confirmAction({
+                        title: scope === 'all' ? 'Reset data seluruh siswa?' : `Reset data ${selected.length} siswa?`,
+                        text: 'Biodata dan nilai yang direset tidak dapat dikembalikan.',
+                        confirmText: 'Ya, reset',
+                    }).then(result => {
+                        if (!result.isConfirmed) return;
+                        if (scope === 'selected') selected.forEach(id => this.insertAdjacentHTML('beforeend', `<input type="hidden" name="student_ids[]" value="${id}">`));
+                        this.submit();
+                    });
                 });
             });
         </script>

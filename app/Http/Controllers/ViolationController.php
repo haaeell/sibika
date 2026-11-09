@@ -2,27 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TableExport;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentViolation;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Excel as ExcelType;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Yajra\DataTables\Facades\DataTables;
 
 class ViolationController extends Controller
 {
     public function index(Request $request): View
     {
-        $filters = $request->validate([
-            'class_at_incident' => ['nullable', 'string', 'max:100'],
-            'from' => ['nullable', 'date_format:Y-m-d'],
-            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
-        ]);
+        $filters = $this->filters($request);
 
         return view('bk.violations.index', [
             'filters' => $filters,
@@ -42,21 +44,8 @@ class ViolationController extends Controller
     public function data(Request $request): JsonResponse
     {
         $request->merge(['search' => $request->input('search.value', '')]);
-        $filters = $request->validate([
-            'search' => ['nullable', 'string', 'max:100'],
-            'class_at_incident' => ['nullable', 'string', 'max:100'],
-            'from' => ['nullable', 'date_format:Y-m-d'],
-            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
-        ]);
-        $term = trim((string) ($filters['search'] ?? ''));
-        $query = StudentViolation::query()->with(['student' => fn ($q) => $q->withCount('violations'), 'creator'])
-            ->when($filters['class_at_incident'] ?? null, fn (Builder $q, $class) => $q->where('class_at_incident', $class))
-            ->when($filters['from'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '>=', $date))
-            ->when($filters['to'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '<=', $date))
-            ->when($term !== '', fn (Builder $q) => $q->where(function (Builder $q) use ($term) {
-                $q->whereHas('student', fn (Builder $s) => $s->where('name', 'like', '%'.$term.'%')->orWhere('nis', 'like', '%'.$term.'%'))
-                    ->orWhere('pasal_perdupsis', 'like', '%'.$term.'%');
-            }));
+        $filters = $this->filters($request, true);
+        $query = $this->filtered($filters)->with(['student' => fn ($q) => $q->withCount('violations'), 'creator']);
 
         return DataTables::eloquent($query)
             ->filter(fn () => null)
@@ -69,9 +58,61 @@ class ViolationController extends Controller
                 ? '<span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Tersedia</span>'
                 : '<span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">Belum ada</span>')
             ->addColumn('creator_name', fn (StudentViolation $v) => $v->creator?->name ?? 'Akun dihapus')
-            ->addColumn('action', fn (StudentViolation $v) => view('bk.violations._actions', ['violation' => $v])->render())
+            ->addColumn('action', fn (StudentViolation $v) => $request->user()->hasRole('kepala_sekolah') ? '' : view('bk.violations._actions', ['violation' => $v])->render())
             ->rawColumns(['incident', 'reportee', 'total_violations', 'sanction_preview', 'letter', 'action'])
             ->toJson();
+    }
+
+    public function export(Request $request, string $format): Response|BinaryFileResponse
+    {
+        abort_unless(in_array($format, ['pdf', 'xlsx'], true), 404);
+        $records = $this->filtered($this->filters($request, true))->with(['student', 'creator'])
+            ->orderByDesc('occurred_at')->orderByDesc('id')->get();
+        $filename = 'laporan-pelanggaran-'.now()->format('Ymd-His').'.'.$format;
+        if ($format === 'pdf') {
+            return Pdf::loadView('bk.violations.pdf', compact('records'))->setPaper('a4', 'landscape')->download($filename);
+        }
+
+        $rows = $records->map(fn (StudentViolation $row) => array_map(
+            fn ($value) => is_string($value) && preg_match('/^[=+\-@]/', ltrim($value)) ? "'".$value : $value,
+            [$row->occurred_at->format('Y-m-d'), $row->student->nis, $row->student->name,
+                $row->class_at_incident, $row->pasal_perdupsis, $row->sanction, $row->creator?->name ?? 'Akun dihapus']
+        ));
+
+        return Excel::download(new TableExport(['Tanggal', 'NIS', 'Nama', 'Kelas Kejadian', 'Pasal', 'Sanksi', 'Pencatat'], $rows), $filename, ExcelType::XLSX);
+    }
+
+    private function filters(Request $request, bool $search = false): array
+    {
+        return $request->validate(array_merge([
+            'class_at_incident' => ['nullable', 'string', 'max:100'],
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
+        ], $search ? ['search' => ['nullable', 'string', 'max:100']] : []));
+    }
+
+    private function filtered(array $filters): Builder
+    {
+        return StudentViolation::query()
+            ->when($filters['class_at_incident'] ?? null, fn (Builder $q, $class) => $q->where('class_at_incident', $class))
+            ->when($filters['from'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '>=', $date))
+            ->when($filters['to'] ?? null, fn (Builder $q, $date) => $q->whereDate('occurred_at', '<=', $date))
+            ->when(trim((string) ($filters['search'] ?? '')) !== '', function (Builder $q) use ($filters) {
+                $term = trim($filters['search']);
+                $q->where(fn (Builder $q) => $q->whereHas('student', fn (Builder $s) => $s->where('name', 'like', '%'.$term.'%')->orWhere('nis', 'like', '%'.$term.'%'))
+                    ->orWhere('pasal_perdupsis', 'like', '%'.$term.'%'));
+            });
+    }
+
+    public function destroy(StudentViolation $violation): RedirectResponse
+    {
+        $path = $violation->warning_letter_path;
+        $violation->delete();
+        if ($path) {
+            Storage::disk('local')->delete($path);
+        }
+
+        return back()->with('success', 'Catatan pelanggaran dihapus.');
     }
 
     public function student(Student $student): View

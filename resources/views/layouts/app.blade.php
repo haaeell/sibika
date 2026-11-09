@@ -4,7 +4,8 @@
 
 @php
     $isStudent = auth()->check() && auth()->user()->hasRole('siswa');
-    $canManageBiodata = auth()->check() && auth()->user()->hasAnyRole(['bk', 'super_admin']);
+    $isPrincipal = auth()->check() && auth()->user()->hasRole('kepala_sekolah') && ! auth()->user()->hasAnyRole(['bk', 'super_admin']);
+    $canManageBiodata = auth()->check() && auth()->user()->hasAnyRole(['bk', 'super_admin', 'kepala_sekolah']);
     $dashboardUrl = auth()->check() ? \App\Support\DashboardRedirector::for(auth()->user()) : route('login');
     $navigation = [
         [
@@ -65,6 +66,11 @@
             'label' => 'Pengasuhan',
             'items' => [
                 ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('bk.violations.index'), 'active' => request()->routeIs('bk.violations.*')],
+            ],
+        ],
+        [
+            'label' => 'Pengajaran',
+            'items' => [
                 ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => route('bk.attendance.index'), 'active' => request()->routeIs('bk.attendance.*')],
             ],
         ],
@@ -83,6 +89,7 @@
                 ['label' => 'Laporan', 'icon' => 'fa-solid fa-file-export', 'url' => null, 'active' => false, 'disabled' => true, 'badge' => 'Soon'],
                 ['label' => 'Akun Superadmin', 'icon' => 'fa-solid fa-user-shield', 'url' => route('admin.account.edit'), 'active' => request()->routeIs('admin.account.*')],
                 ['label' => 'Akun Pengasuhan', 'icon' => 'fa-solid fa-user-tag', 'url' => route('admin.pengasuhan-accounts.index'), 'active' => request()->routeIs('admin.pengasuhan-accounts.*')],
+                ['label' => 'Akun Kepala Sekolah', 'icon' => 'fa-solid fa-user-tie', 'url' => route('admin.principals.index'), 'active' => request()->routeIs('admin.principals.*')],
                 ['label' => 'Pengaturan Login', 'icon' => 'fa-solid fa-gear', 'url' => route('admin.login-settings.edit'), 'active' => request()->routeIs('admin.login-settings.*')],
             ],
         ],
@@ -123,11 +130,24 @@
                 ['label' => 'Kelulusan', 'icon' => 'fa-solid fa-graduation-cap', 'url' => route('siswa.graduation.index'), 'active' => request()->routeIs('siswa.graduation.*')],
             ]],
         ];
+    } elseif ($isPrincipal) {
+        $navigation = array_values(array_filter(array_map(function ($group) {
+            $group['items'] = array_values(array_filter($group['items'], fn ($item) => ! in_array($item['label'], ['Konseling', 'Akun Superadmin', 'Akun Kepala Sekolah'], true)
+                && ($item['url'] === null || ! str_contains($item['url'], '/export'))));
+            return $group['items'] ? $group : null;
+        }, $navigation)));
     } elseif (auth()->check() && auth()->user()->hasRole('pengasuhan')) {
-        $navigation = [['label' => 'Pengasuhan', 'items' => array_values(array_filter([
-            auth()->user()->can('pengasuhan.pelanggaran') ? ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('bk.violations.index'), 'active' => request()->routeIs('bk.violations.*')] : null,
-            auth()->user()->can('pengasuhan.absensi') ? ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => route('bk.attendance.index'), 'active' => request()->routeIs('bk.attendance.*')] : null,
-        ]))]];
+        $navigation = [];
+        if (auth()->user()->can('pengasuhan.pelanggaran')) {
+            $navigation[] = ['label' => 'Pengasuhan', 'items' => [
+                ['label' => 'Pelanggaran', 'icon' => 'fa-solid fa-triangle-exclamation', 'url' => route('bk.violations.index'), 'active' => request()->routeIs('bk.violations.*')],
+            ]];
+        }
+        if (auth()->user()->can('pengasuhan.absensi')) {
+            $navigation[] = ['label' => 'Pengajaran', 'items' => [
+                ['label' => 'Absensi', 'icon' => 'fa-solid fa-calendar-check', 'url' => route('bk.attendance.index'), 'active' => request()->routeIs('bk.attendance.*')],
+            ]];
+        }
     } elseif (auth()->check() && auth()->user()->hasRole('wali_kelas')) {
         $navigation = [
             ['label' => null, 'items' => [['label' => 'Dashboard', 'icon' => 'fa-solid fa-house', 'url' => route('wali-kelas.dashboard'), 'active' => request()->routeIs('wali-kelas.dashboard')]]],
@@ -154,7 +174,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-50 text-slate-800 antialiased {{ $isPrincipal ? 'principal-readonly' : '' }}">
     <div class="min-h-screen lg:flex">
         <div class="hidden transition-transform duration-300 ease-in-out lg:fixed lg:inset-y-0 lg:z-30 lg:flex" data-sidebar-desktop>
             <x-layout.sidebar :navigation="$navigation" id-prefix="desktop-sidebar" />
@@ -202,5 +222,31 @@
     @endif
 
     @stack('scripts')
+    @if ($isPrincipal)
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const hideActions = () => {
+                    document.querySelectorAll('main form').forEach(form => {
+                        if (form.method.toLowerCase() !== 'get') {
+                            form.addEventListener('submit', event => event.preventDefault());
+                            form.querySelectorAll('input, textarea, select').forEach(input => {
+                                input.disabled = true;
+                                if (input.type === 'file' || input.type === 'hidden' || input.type === 'password') input.hidden = true;
+                            });
+                            form.querySelectorAll('button, [type="submit"]').forEach(button => button.remove());
+                        }
+                    });
+                    document.querySelectorAll('main a[href]').forEach(link => {
+                        if (/\/(create|edit|export|download|template|import|warning-letter|attachment)(\/|\?|$)/.test(link.pathname) || /\/(create|edit)$/.test(link.pathname)) link.remove();
+                    });
+                    document.querySelectorAll('main button').forEach(button => {
+                        if (!button.closest('form[method="GET"], form[method="get"]') && /^(tambah|buat|catat|impor|import|unggah|upload|hapus|ubah|simpan|ganti|reset|unduh|pdf|excel)/i.test(button.textContent.trim())) button.remove();
+                    });
+                };
+                hideActions();
+                new MutationObserver(hideActions).observe(document.querySelector('main'), { childList: true, subtree: true });
+            });
+        </script>
+    @endif
 </body>
 </html>

@@ -7,7 +7,9 @@
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div><div class="flex flex-wrap items-center gap-2"><x-badge variant="neutral">Pertemuan ke-{{ $session->meeting_number }}</x-badge><span class="text-xs font-semibold text-slate-500">{{ $session->held_at->locale('id')->translatedFormat('j M Y, H.i') }}</span><x-badge variant="info">{{ ucfirst($session->type) }}</x-badge></div><h3 data-search-content class="mt-2 text-lg font-bold text-slate-900">{{ $session->topic }}</h3><p class="mt-1 text-xs text-slate-500">Dicatat {{ $session->creator?->name ?? 'Akun dihapus' }} · terakhir diubah {{ $session->updated_at->format('d M Y, H:i') }} oleh {{ $session->editor?->name ?? 'Akun dihapus' }}</p></div>
                     @unless ($readonly ?? false)
-                        <x-button variant="secondary" :href="route('bk.counseling.edit', $session)"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</x-button>
+                        <div class="flex flex-wrap gap-2"><x-button variant="secondary" :href="route('bk.counseling.edit', $session)"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</x-button>
+                            <form method="POST" action="{{ route('bk.counseling.destroy', $session) }}" class="js-delete-form" data-confirm-title="Hapus sesi konseling ini?" data-confirm-text="Catatan pertemuan ini akan dihapus permanen.">@csrf @method('DELETE')<x-button variant="danger" type="submit"><i class="fa-solid fa-trash" aria-hidden="true"></i> Hapus</x-button></form>
+                        </div>
                     @endunless
                 </div>
                 <dl class="mt-4 space-y-3 text-sm"><div><dt class="font-bold text-slate-700">Ringkasan</dt><dd data-search-content class="mt-1 whitespace-pre-line text-slate-600">{{ $session->summary }}</dd></div>@if ($session->outcome)<div><dt class="font-bold text-slate-700">Hasil pembahasan</dt><dd data-search-content class="mt-1 whitespace-pre-line text-slate-600">{{ $session->outcome }}</dd></div>@endif</dl>

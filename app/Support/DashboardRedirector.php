@@ -15,7 +15,8 @@ class DashboardRedirector
         return match (true) {
             $user->hasRole('super_admin') => route('admin.dashboard'),
             $user->hasRole('bk') => route('bk.dashboard'),
-            $user->hasRole('pengasuhan') && !$user->can('pengasuhan.absensi') && $user->can('pengasuhan.pelanggaran') => route('bk.violations.index'),
+            $user->hasRole('kepala_sekolah') => route('bk.dashboard'),
+            $user->hasRole('pengasuhan') && ! $user->can('pengasuhan.absensi') && $user->can('pengasuhan.pelanggaran') => route('bk.violations.index'),
             $user->hasRole('pengasuhan') => route('bk.attendance.index'),
             $user->hasRole('wali_kelas') => route('wali-kelas.dashboard'),
             $user->hasRole('guru') => route('guru.dashboard'),

@@ -14,6 +14,7 @@ class RoleSeeder extends Seeder
             'super_admin',
             'bk',
             'pengasuhan',
+            'kepala_sekolah',
             'wali_kelas',
             'guru',
             'siswa',
@@ -47,5 +48,6 @@ class RoleSeeder extends Seeder
         if ($superAdmin) {
             $superAdmin->givePermissionTo($permissions);
         }
+        Role::where('name', 'kepala_sekolah')->where('guard_name', 'web')->first()?->givePermissionTo($permissions);
     }
 }
