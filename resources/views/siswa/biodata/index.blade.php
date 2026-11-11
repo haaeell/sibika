@@ -79,7 +79,7 @@
                     </div>
             </section>
 
-            <form id="biodata-form" action="{{ $biodataUpdateRoute }}" method="POST" enctype="multipart/form-data" class="space-y-0" data-biodata-progress-form>
+            <form id="biodata-form" action="{{ $biodataUpdateRoute }}" method="POST" enctype="multipart/form-data" class="space-y-0" data-biodata-progress-form novalidate>
                 @csrf
                 @method('PUT')
 
@@ -463,8 +463,11 @@
                 </section>
 
                 <div class="border-t border-slate-200 bg-slate-50/70 px-4 py-5 sm:px-6 lg:flex lg:justify-end">
-                    <x-button type="submit" class="h-12 w-full text-base font-bold shadow-lg shadow-blue-900/10 lg:w-auto lg:px-8"><i class="fa-solid fa-save"></i> Simpan Biodata</x-button>
-                    <p class="mt-2 text-center text-xs text-slate-400 lg:hidden">Pastikan semua data wajib terisi sebelum menyimpan.</p>
+                    <div>
+                        <p class="mb-3 hidden rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700" role="alert" data-biodata-save-feedback></p>
+                        <x-button type="submit" class="h-12 w-full text-base font-bold shadow-lg shadow-blue-900/10 lg:w-auto lg:px-8"><i class="fa-solid fa-save"></i> Simpan Biodata</x-button>
+                        <p class="mt-2 text-center text-xs text-slate-400 lg:hidden">Pastikan semua data wajib terisi sebelum menyimpan.</p>
+                    </div>
                 </div>
             </form>
         </x-card>
@@ -513,6 +516,7 @@
                 }
 
                 const biodataForm = document.querySelector('[data-biodata-progress-form]');
+                const saveFeedback = biodataForm?.querySelector('[data-biodata-save-feedback]');
                 const maxFileSize = 2 * 1024 * 1024;
                 const maxPersonalDocumentSize = 12 * 1024 * 1024;
                 const validateFileSize = function (input) {
@@ -531,7 +535,10 @@
                         }, 0);
                     }, 0);
                     const message = total > maxPersonalDocumentSize ? 'Total ukuran ijazah, akte, dan kartu keluarga maksimal 12 MB.' : '';
-                    inputs.forEach(function (input) { input.setCustomValidity(message); });
+                    inputs.forEach(function (input) {
+                        const oversized = Array.from(input.files || []).find(function (file) { return file.size > maxFileSize; });
+                        input.setCustomValidity(oversized ? 'Ukuran file "' + oversized.name + '" melebihi 2 MB.' : message);
+                    });
                     return !message;
                 };
                 document.addEventListener('change', function (event) {
@@ -547,10 +554,28 @@
                     if (fileInput.matches('[data-achievement-certificate-file]')) uploadTempCertificate(fileInput);
                 });
                 biodataForm?.addEventListener('submit', function (event) {
-                    const valid = Array.from(biodataForm.querySelectorAll('input[type="file"][data-max-file-size]')).every(validateFileSize) && validatePersonalDocumentSize();
-                    if (!valid) {
+                    const fileInputs = Array.from(biodataForm.elements).filter(function (input) {
+                        return input.matches('input[type="file"][data-max-file-size]');
+                    });
+                    fileInputs.forEach(validateFileSize);
+                    validatePersonalDocumentSize();
+                    if (!biodataForm.checkValidity()) {
                         event.preventDefault();
-                        biodataForm.querySelector('input[type="file"]:invalid')?.reportValidity();
+                        const invalidInput = Array.from(biodataForm.elements).find(function (input) {
+                            return !input.disabled && !input.validity.valid;
+                        });
+                        const fieldLabel = invalidInput && (
+                            document.querySelector('label[for="' + invalidInput.id + '"]')?.textContent.trim()
+                            || invalidInput.closest('label')?.textContent.trim()
+                            || invalidInput.closest('[data-personal-document-card]')?.querySelector('p')?.textContent.trim()
+                            || invalidInput.name
+                        );
+                        const reason = invalidInput?.validity.customError ? ' ' + invalidInput.validationMessage : '';
+                        saveFeedback.textContent = 'Biodata belum dikirim. Periksa isian ' + (fieldLabel || 'yang belum sesuai') + '.' + reason + ' Coba simpan lagi.';
+                        saveFeedback.classList.remove('hidden');
+                        saveFeedback.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    } else if (saveFeedback) {
+                        saveFeedback.classList.add('hidden');
                     }
                 });
 
